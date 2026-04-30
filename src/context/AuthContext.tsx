@@ -1,6 +1,5 @@
 import { createContext, useContext, useEffect, useState, ReactNode, useCallback } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import type { Session, User } from "@supabase/supabase-js";
+import { authApi } from "@/services/authApi";
 
 export interface ProProfile {
   id: string;
@@ -17,6 +16,18 @@ export interface ProProfile {
   approved: boolean;
 }
 
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  email_verified_at: string | null;
+  phone: string;
+  approved: boolean;
+  created_at: string;
+  updated_at: string;
+  roles: { id: number; name: string; label: string }[];
+}
+
 interface RegisterPayload {
   companyName: string;
   siret: string;
@@ -28,7 +39,6 @@ interface RegisterPayload {
 
 interface AuthCtx {
   user: User | null;
-  session: Session | null;
   profile: ProProfile | null;
   isAdmin: boolean;
   loading: boolean;
@@ -42,56 +52,49 @@ const Ctx = createContext<AuthCtx | null>(null);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<ProProfile | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  const loadProfileAndRole = useCallback(async (uid: string) => {
-    const [{ data: prof }, { data: roles }] = await Promise.all([
-      supabase.from("profiles").select("*").eq("id", uid).maybeSingle(),
-      supabase.from("user_roles").select("role").eq("user_id", uid),
-    ]);
-    setProfile((prof as ProProfile) ?? null);
-    setIsAdmin(!!roles?.some((r) => r.role === "admin"));
+  const loadUser = useCallback(async () => {
+    const token = localStorage.getItem('auth_token');
+    if (!token) {
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const userData = await authApi.me();
+      setUser(userData);
+      setIsAdmin(userData.roles?.some((r: { name: string }) => r.name === 'admin') ?? false);
+    } catch {
+      localStorage.removeItem('auth_token');
+      setUser(null);
+      setIsAdmin(false);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => {
-    // 1) écoute des changements de session AVANT getSession
-    const { data: sub } = supabase.auth.onAuthStateChange((_event, sess) => {
-      setSession(sess);
-      setUser(sess?.user ?? null);
-      if (sess?.user) {
-        // déférer pour éviter deadlock
-        setTimeout(() => loadProfileAndRole(sess.user.id), 0);
-      } else {
-        setProfile(null);
-        setIsAdmin(false);
-      }
-    });
-
-    // 2) puis récupération de la session existante
-    supabase.auth.getSession().then(({ data: { session: sess } }) => {
-      setSession(sess);
-      setUser(sess?.user ?? null);
-      if (sess?.user) loadProfileAndRole(sess.user.id);
-      setLoading(false);
-    });
-
-    return () => sub.subscription.unsubscribe();
-  }, [loadProfileAndRole]);
+    loadUser();
+  }, [loadUser]);
 
   const refreshProfile = useCallback(async () => {
-    if (user) await loadProfileAndRole(user.id);
-  }, [user, loadProfileAndRole]);
+    await loadUser();
+  }, [loadUser]);
 
   const login: AuthCtx["login"] = async (email, password) => {
-    const { error } = await supabase.auth.signInWithPassword({
-      email: email.trim().toLowerCase(),
-      password,
-    });
-    if (error) return { ok: false, error: error.message };
-    return { ok: true };
+    try {
+      await authApi.login(email.trim().toLowerCase(), password);
+      await loadUser();
+      return { ok: true };
+    } catch (err: any) {
+      return {
+        ok: false,
+        error: err.response?.data?.message || err.response?.data?.errors?.email?.[0] || 'Identifiants invalides',
+      };
+    }
   };
 
   const register: AuthCtx["register"] = async (data) => {
@@ -99,29 +102,36 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (!/^\d{14}$/.test(cleanSiret)) {
       return { ok: false, error: "Le numéro SIRET doit contenir 14 chiffres." };
     }
-    const { error } = await supabase.auth.signUp({
-      email: data.email.trim().toLowerCase(),
-      password: data.password,
-      options: {
-        emailRedirectTo: `${window.location.origin}/compte`,
-        data: {
-          company_name: data.companyName,
-          siret: cleanSiret,
-          contact_name: data.contactName,
-          phone: data.phone ?? "",
-        },
-      },
-    });
-    if (error) return { ok: false, error: error.message };
-    return { ok: true };
+
+    try {
+      await authApi.register({
+        name: data.companyName,
+        email: data.email.trim().toLowerCase(),
+        password: data.password,
+        password_confirmation: data.password,
+        phone: data.phone ?? "",
+        company_name: data.companyName,
+        siret: cleanSiret,
+      });
+      return { ok: true };
+    } catch (err: any) {
+      return {
+        ok: false,
+        error: err.response?.data?.message || err.response?.data?.errors?.email?.[0] || 'Erreur lors de l\'inscription',
+      };
+    }
   };
 
   const logout = async () => {
-    await supabase.auth.signOut();
+    await authApi.logout();
+    setUser(null);
+    setProfile(null);
+    setIsAdmin(false);
+    window.location.href = '/connexion';
   };
 
   return (
-    <Ctx.Provider value={{ user, session, profile, isAdmin, loading, login, register, logout, refreshProfile }}>
+    <Ctx.Provider value={{ user, profile, isAdmin, loading, login, register, logout, refreshProfile }}>
       {children}
     </Ctx.Provider>
   );

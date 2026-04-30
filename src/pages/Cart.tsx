@@ -6,7 +6,7 @@ import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { formatEUR } from "@/data/products";
 import { toast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
+import { orderApi } from "@/services/orderApi";
 import { Trash2, Minus, Plus } from "lucide-react";
 
 const Cart = () => {
@@ -29,61 +29,44 @@ const Cart = () => {
       return;
     }
     setSubmitting(true);
-    // Création de la commande
-    const { data: order, error: orderErr } = await supabase
-      .from("orders")
-      .insert({
-        user_id: user.id,
-        status: "pending",
-        subtotal_ht: subtotalHT,
-        vat_amount: vat,
-        shipping_ht: subtotalHT >= 300 ? 0 : 15,
-        total_ttc: totalTTC + (subtotalHT >= 300 ? 0 : 15 * 1.2),
-        shipping_address: {
-          company: profile.company_name,
-          contact: profile.contact_name,
-          address: profile.address,
-          city: profile.city,
-          postal_code: profile.postal_code,
-          country: profile.country,
-        },
-      })
-      .select()
-      .single();
 
-    if (orderErr || !order) {
-      setSubmitting(false);
-      toast({ title: "Erreur", description: orderErr?.message ?? "Impossible d'enregistrer la commande." });
-      return;
-    }
-
-    // Lignes de commande (on garde compat avec catalogue local pour l'instant)
+    const shippingHT = subtotalHT >= 300 ? 0 : 15;
     const items = lines
       .map((l) => {
         const p = getProduct(l.productId);
         if (!p) return null;
-        const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(p.id);
         return {
-          order_id: order.id as string,
-          product_id: isUuid ? p.id : null,
-          product_name: p.name,
-          product_reference: p.reference,
-          unit_price_ht: p.priceHT,
+          product_id: p.id,
           quantity: l.quantity,
-          line_total_ht: +(p.priceHT * l.quantity).toFixed(2),
         };
       })
       .filter((x): x is NonNullable<typeof x> => x !== null);
 
-    const { error: itemsErr } = await supabase.from("order_items").insert(items);
-    setSubmitting(false);
-    if (itemsErr) {
-      toast({ title: "Erreur lignes", description: itemsErr.message });
-      return;
+    try {
+      const result = await orderApi.create({
+        items,
+        shipping_address: {
+          name: profile.contact_name || profile.company_name,
+          company: profile.company_name,
+          address: profile.address || "",
+          city: profile.city || "",
+          postal_code: profile.postal_code || "",
+          country: profile.country || "France",
+        },
+        notes: "",
+      });
+
+      clear();
+      toast({ title: "Commande enregistrée", description: `Référence ${result.order.reference}` });
+      navigate("/commandes");
+    } catch (err: any) {
+      toast({
+        title: "Erreur",
+        description: err.response?.data?.message || "Impossible d'enregistrer la commande.",
+      });
+    } finally {
+      setSubmitting(false);
     }
-    clear();
-    toast({ title: "Commande enregistrée", description: `Référence ${order.reference}` });
-    navigate("/commandes");
   };
 
   return (

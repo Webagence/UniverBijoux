@@ -3,7 +3,7 @@ import { Navigate, Link } from "react-router-dom";
 import Layout from "@/components/Layout";
 import PageHeader from "@/components/PageHeader";
 import { useAuth } from "@/context/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
+import { orderApi } from "@/services/orderApi";
 import { formatEUR } from "@/data/products";
 import { Download, FileText } from "lucide-react";
 
@@ -18,8 +18,7 @@ interface OrderRow {
   shipping_ht: number;
   carrier: string | null;
   tracking_number: string | null;
-  order_items: { id: string; product_name: string; quantity: number; unit_price_ht: number; line_total_ht: number }[];
-  invoices: { id: string; invoice_number: string; issued_at: string }[];
+  items: { id: string; product_name: string; quantity: number; unit_price_ht: number; line_total_ht: number }[];
 }
 
 const STATUS_LABEL: Record<string, string> = {
@@ -40,15 +39,15 @@ const Orders = () => {
     if (!user) return;
     (async () => {
       setBusy(true);
-      const { data } = await supabase
-        .from("orders")
-        .select(
-          "id,reference,created_at,status,total_ttc,subtotal_ht,vat_amount,shipping_ht,carrier,tracking_number,order_items(id,product_name,quantity,unit_price_ht,line_total_ht),invoices(id,invoice_number,issued_at)"
-        )
-        .eq("user_id", user.id)
-        .order("created_at", { ascending: false });
-      setOrders((data as any) || []);
-      setBusy(false);
+      try {
+        const data = await orderApi.getAll();
+        setOrders(data.data || []);
+      } catch (err) {
+        console.error("Failed to load orders:", err);
+        setOrders([]);
+      } finally {
+        setBusy(false);
+      }
     })();
   }, [user]);
 
@@ -106,7 +105,7 @@ const Orders = () => {
                   </div>
                 </header>
                 <ul className="text-sm text-bordeaux/70 space-y-1">
-                  {o.order_items.map((l) => (
+                  {(o.items || []).map((l) => (
                     <li key={l.id}>
                       {l.product_name} — {l.quantity} pcs × {formatEUR(Number(l.unit_price_ht))} HT
                     </li>
@@ -144,7 +143,7 @@ const Orders = () => {
 
 function renderInvoiceHTML(o: OrderRow) {
   const date = new Date(o.created_at).toLocaleDateString("fr-FR");
-  const rows = o.order_items
+  const rows = (o.items || [])
     .map(
       (l) => `<tr>
         <td>${l.product_name}</td>

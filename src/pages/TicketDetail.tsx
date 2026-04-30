@@ -3,7 +3,7 @@ import { Navigate, useParams, Link } from "react-router-dom";
 import Layout from "@/components/Layout";
 import PageHeader from "@/components/PageHeader";
 import { useAuth } from "@/context/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
+import { ticketApi } from "@/services/ticketApi";
 import { toast } from "@/hooks/use-toast";
 import { Send } from "lucide-react";
 
@@ -42,14 +42,18 @@ const TicketDetail = () => {
   const refresh = async () => {
     if (!id) return;
     setBusy(true);
-    const [tRes, mRes] = await Promise.all([
-      supabase.from("tickets").select("*").eq("id", id).maybeSingle(),
-      supabase.from("ticket_messages").select("*").eq("ticket_id", id).order("created_at"),
-    ]);
-    setTicket((tRes.data as any) || null);
-    setMsgs((mRes.data as any) || []);
-    setBusy(false);
-    setTimeout(() => endRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
+    try {
+      const data = await ticketApi.getById(id);
+      setTicket(data);
+      setMsgs(data.messages || []);
+    } catch (err) {
+      console.error("Failed to load ticket:", err);
+      setTicket(null);
+      setMsgs([]);
+    } finally {
+      setBusy(false);
+      setTimeout(() => endRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
+    }
   };
 
   useEffect(() => {
@@ -57,23 +61,13 @@ const TicketDetail = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, id]);
 
+  // Poll for new messages every 5 seconds (replaces Supabase realtime)
   useEffect(() => {
-    if (!id) return;
-    const ch = supabase
-      .channel(`ticket-${id}`)
-      .on(
-        "postgres_changes",
-        { event: "INSERT", schema: "public", table: "ticket_messages", filter: `ticket_id=eq.${id}` },
-        (payload) => {
-          setMsgs((prev) => [...prev, payload.new as Msg]);
-          setTimeout(() => endRef.current?.scrollIntoView({ behavior: "smooth" }), 50);
-        }
-      )
-      .subscribe();
-    return () => {
-      supabase.removeChannel(ch);
-    };
-  }, [id]);
+    if (!id || ticket?.status === "closed") return;
+    const interval = setInterval(refresh, 5000);
+    return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id, ticket?.status]);
 
   if (loading) return null;
   if (!user) return <Navigate to="/connexion" replace />;
@@ -82,22 +76,14 @@ const TicketDetail = () => {
     if (!input.trim() || !ticket || !user) return;
     const text = input;
     setInput("");
-    const { error } = await supabase.from("ticket_messages").insert({
-      ticket_id: ticket.id,
-      author_id: user.id,
-      body: text,
-      is_admin: isAdmin,
-    });
-    if (error) {
-      toast({ title: "Erreur", description: error.message });
+    try {
+      const result = await ticketApi.reply(ticket.id, text);
+      setMsgs(result.ticket.messages || []);
+      setTimeout(() => endRef.current?.scrollIntoView({ behavior: "smooth" }), 50);
+    } catch (err: any) {
+      toast({ title: "Erreur", description: err.response?.data?.message || "Impossible d'envoyer le message." });
       setInput(text);
     }
-  };
-
-  const updateStatus = async (status: string) => {
-    if (!ticket) return;
-    await supabase.from("tickets").update({ status: status as any }).eq("id", ticket.id);
-    refresh();
   };
 
   return (
@@ -119,15 +105,9 @@ const TicketDetail = () => {
                 <p className="text-bordeaux">{ticket.subject}</p>
               </div>
               {isAdmin ? (
-                <select
-                  value={ticket.status}
-                  onChange={(e) => updateStatus(e.target.value)}
-                  className="bg-cream border border-border px-2 py-1 text-xs"
-                >
-                  {Object.entries(STATUS_LABEL).map(([k, v]) => (
-                    <option key={k} value={k}>{v}</option>
-                  ))}
-                </select>
+                <span className="text-[10px] tracking-luxe uppercase bg-gold/20 text-gold px-2 py-1">
+                  {STATUS_LABEL[ticket.status]}
+                </span>
               ) : (
                 <span className="text-[10px] tracking-luxe uppercase bg-gold/20 text-gold px-2 py-1">
                   {STATUS_LABEL[ticket.status]}

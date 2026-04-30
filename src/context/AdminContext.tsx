@@ -1,6 +1,5 @@
 import { createContext, useContext, useEffect, useState, ReactNode, useCallback } from "react";
 import { useAuth } from "@/context/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
 import {
   HeroContent,
   AtelierContent,
@@ -14,6 +13,10 @@ import {
   defaultSettings,
 } from "@/data/content";
 import { products as defaultProducts, Product, Universe } from "@/data/products";
+import { productApi } from "@/services/productApi";
+import { contentApi } from "@/services/contentApi";
+import { orderApi } from "@/services/orderApi";
+import api from "@/services/api";
 import necklace from "@/assets/product-necklace.jpg";
 import earrings from "@/assets/product-earrings.jpg";
 import rings from "@/assets/product-rings.jpg";
@@ -97,7 +100,6 @@ export interface UniverseRow {
 
 const Ctx = createContext<AdminCtx | null>(null);
 
-// universe id <-> slug cache
 const universeCache: { byId: Record<string, Universe>; bySlug: Record<Universe, string> } = {
   byId: {},
   bySlug: {} as Record<Universe, string>,
@@ -113,14 +115,15 @@ const dbToProduct = (row: any): Product => {
     universe,
     universeLabel: UNIVERSE_LABEL[universe],
     priceHT: Number(row.price_ht),
-    retailTTC: Math.round(Number(row.price_ht) * 2.8 * 1.2),
+    retailTTC: row.retail_ttc ? Number(row.retail_ttc) : Math.round(Number(row.price_ht) * 2.8 * 1.2),
     moq: row.moq,
     packSize: row.pack_size,
     reference: row.reference || "",
     material: row.material || "",
-    finish: "Finition mate & brillante",
+    finish: row.finish || "Finition mate & brillante",
     description: row.description || "",
     images: imgs,
+    tag: row.tag,
     isNew: row.is_new,
     stock: row.stock,
   };
@@ -142,20 +145,25 @@ export const AdminProvider = ({ children }: { children: ReactNode }) => {
   const loadAll = useCallback(async () => {
     setLoading(true);
     try {
-      // Universes (cache mapping + full list)
-      const { data: uRows } = await supabase
-        .from("universes")
-        .select("id,slug,name,description,image_url,display_order")
-        .order("display_order");
-      if (uRows) {
+      const [universes, heroData, atelierData, testimonialsData, faqData, settingsData, productsData] = await Promise.all([
+        productApi.getUniverses(),
+        contentApi.getHero().catch(() => defaultHero),
+        contentApi.getAtelier().catch(() => defaultAtelier),
+        contentApi.getTestimonials().catch(() => []),
+        contentApi.getFaq().catch(() => []),
+        contentApi.getSettings().catch(() => ({})),
+        productApi.getAll({ per_page: 200 }).catch(() => ({ data: [] })),
+      ]);
+
+      if (universes) {
         universeCache.byId = {};
         universeCache.bySlug = {} as Record<Universe, string>;
-        uRows.forEach((u: any) => {
+        universes.forEach((u: any) => {
           universeCache.byId[u.id] = u.slug as Universe;
           universeCache.bySlug[u.slug as Universe] = u.id;
         });
         setUniversesList(
-          uRows.map((u: any) => ({
+          universes.map((u: any) => ({
             id: u.id,
             slug: u.slug,
             name: u.name,
@@ -166,32 +174,30 @@ export const AdminProvider = ({ children }: { children: ReactNode }) => {
         );
       }
 
-      const [blocks, settingsRow, prodRows, testRows, faqRows] = await Promise.all([
-        supabase.from("content_blocks").select("key,data"),
-        supabase.from("site_settings").select("key,value").eq("key", "settings").maybeSingle(),
-        supabase.from("products").select("*").order("created_at", { ascending: true }),
-        supabase.from("testimonials").select("*").order("display_order"),
-        supabase.from("faq_items").select("*").order("display_order"),
-      ]);
+      if (heroData) setHeroState({ ...defaultHero, ...heroData });
+      if (atelierData) setAtelierState({ ...defaultAtelier, ...atelierData });
+      if (settingsData) setSettingsState({ ...defaultSettings, ...settingsData });
 
-      if (blocks.data) {
-        const map: Record<string, any> = {};
-        blocks.data.forEach((b: any) => (map[b.key] = b.data));
-        if (map.hero) setHeroState({ ...defaultHero, ...map.hero });
-        if (map.atelier) setAtelierState({ ...defaultAtelier, ...map.atelier });
-      }
-      if (settingsRow.data?.value) {
-        setSettingsState({ ...defaultSettings, ...(settingsRow.data.value as any) });
-      }
-      if (prodRows.data) setProductsState(prodRows.data.map(dbToProduct));
-      if (testRows.data) {
+      if (testimonialsData) {
         setTestimonialsState(
-          testRows.data.map((t: any) => ({ id: t.id, name: t.author, shop: t.role || "", text: t.quote }))
+          testimonialsData.map((t: any) => ({
+            id: t.id,
+            name: t.author,
+            shop: t.shop || t.role || "",
+            text: t.quote,
+          }))
         );
       }
-      if (faqRows.data) {
-        setFaqState(faqRows.data.map((f: any) => ({ id: f.id, q: f.question, a: f.answer })));
+
+      if (faqData) {
+        setFaqState(faqData.map((f: any) => ({ id: f.id, q: f.question, a: f.answer })));
       }
+
+      if (productsData?.data) {
+        setProductsState(productsData.data.map(dbToProduct));
+      }
+    } catch (err) {
+      console.error("Failed to load content:", err);
     } finally {
       setLoading(false);
     }
@@ -201,44 +207,46 @@ export const AdminProvider = ({ children }: { children: ReactNode }) => {
     loadAll();
   }, [loadAll]);
 
-  // Load admin-only data when becoming admin
   const loadAdminData = useCallback(async () => {
     if (!isAdmin) return;
-    const [profRes, orderRes] = await Promise.all([
-      supabase.from("profiles").select("id,email,company_name,siret,contact_name,approved").order("created_at", { ascending: false }),
-      supabase
-        .from("orders")
-        .select("id,reference,created_at,total_ttc,status,user_id,profiles:user_id(email),order_items(product_id,product_name,quantity)")
-        .order("created_at", { ascending: false }),
-    ]);
-    if (profRes.data) {
-      setAccounts(
-        profRes.data.map((p: any) => ({
-          id: p.id,
-          email: p.email,
-          companyName: p.company_name,
-          siret: p.siret,
-          contactName: p.contact_name,
-          approved: p.approved,
-        }))
-      );
-    }
-    if (orderRes.data) {
-      setOrders(
-        orderRes.data.map((o: any) => ({
-          id: o.id,
-          reference: o.reference,
-          date: o.created_at,
-          email: o.profiles?.email || "",
-          totalTTC: Number(o.total_ttc),
-          status: o.status,
-          lines: (o.order_items || []).map((li: any) => ({
-            productId: li.product_id,
-            productName: li.product_name,
-            quantity: li.quantity,
-          })),
-        }))
-      );
+    try {
+      const [accountsRes, ordersRes] = await Promise.all([
+        api.get("/admin/accounts").catch(() => ({ data: [] })),
+        api.get("/admin/orders?per_page=200").catch(() => ({ data: [] })),
+      ]);
+
+      if (accountsRes.data) {
+        setAccounts(
+          accountsRes.data.map((p: any) => ({
+            id: p.id,
+            email: p.email,
+            companyName: p.company_name || p.name,
+            siret: p.siret || "",
+            contactName: p.contact_name || p.name,
+            approved: p.approved,
+          }))
+        );
+      }
+
+      if (ordersRes.data?.data) {
+        setOrders(
+          ordersRes.data.data.map((o: any) => ({
+            id: o.id,
+            reference: o.reference,
+            date: o.created_at,
+            email: o.user?.email || "",
+            totalTTC: Number(o.total_ttc),
+            status: o.status,
+            lines: (o.items || []).map((li: any) => ({
+              productId: li.product_id,
+              productName: li.product_name,
+              quantity: li.quantity,
+            })),
+          }))
+        );
+      }
+    } catch (err) {
+      console.error("Failed to load admin data:", err);
     }
   }, [isAdmin]);
 
@@ -246,69 +254,75 @@ export const AdminProvider = ({ children }: { children: ReactNode }) => {
     loadAdminData();
   }, [loadAdminData]);
 
-  // Wrappers for legacy admin pages
   const loginAdmin = (_pwd: string) => false;
   const logoutAdmin = () => {
     void logout();
   };
 
-  // === Setters: Supabase write + local update ===
   const setHero = async (v: HeroContent) => {
     setHeroState(v);
-    await supabase.from("content_blocks").upsert({ key: "hero", data: v as any });
-  };
-  const setAtelier = async (v: AtelierContent) => {
-    setAtelierState(v);
-    await supabase.from("content_blocks").upsert({ key: "atelier", data: v as any });
-  };
-  const setSettings = async (v: SiteSettings) => {
-    setSettingsState(v);
-    await supabase.from("site_settings").upsert({ key: "settings", value: v as any });
+    try {
+      await api.put("/admin/content/hero", v);
+    } catch (err) {
+      console.error("Failed to save hero:", err);
+    }
   };
 
-  const isUuid = (id: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+  const setAtelier = async (v: AtelierContent) => {
+    setAtelierState(v);
+    try {
+      await api.put("/admin/content/atelier", v);
+    } catch (err) {
+      console.error("Failed to save atelier:", err);
+    }
+  };
+
+  const setSettings = async (v: SiteSettings) => {
+    setSettingsState(v);
+    try {
+      await api.put("/admin/settings", v);
+    } catch (err) {
+      console.error("Failed to save settings:", err);
+    }
+  };
 
   const setTestimonials = async (v: Testimonial[]) => {
     setTestimonialsState(v);
-    const keepIds = v.filter((t) => isUuid(t.id)).map((t) => t.id);
-    if (keepIds.length === 0) {
-      await supabase.from("testimonials").delete().neq("id", "00000000-0000-0000-0000-000000000000");
-    } else {
-      await supabase.from("testimonials").delete().not("id", "in", `(${keepIds.join(",")})`);
+    try {
+      await api.post("/admin/testimonials/sync", {
+        testimonials: v.map((t, i) => ({
+          id: t.id.startsWith("new-") ? undefined : t.id,
+          author: t.name,
+          shop: t.shop,
+          quote: t.text,
+          display_order: i,
+          active: true,
+        })),
+      });
+      await loadAll();
+    } catch (err) {
+      console.error("Failed to save testimonials:", err);
     }
-    for (let i = 0; i < v.length; i++) {
-      const t = v[i];
-      const payload = { author: t.name, role: t.shop, quote: t.text, display_order: i, active: true };
-      if (!isUuid(t.id)) {
-        await supabase.from("testimonials").insert(payload);
-      } else {
-        await supabase.from("testimonials").update(payload).eq("id", t.id);
-      }
-    }
-    await loadAll();
   };
 
   const setFaq = async (v: FaqItem[]) => {
     setFaqState(v);
-    const keepIds = v.filter((f) => isUuid(f.id)).map((f) => f.id);
-    if (keepIds.length === 0) {
-      await supabase.from("faq_items").delete().neq("id", "00000000-0000-0000-0000-000000000000");
-    } else {
-      await supabase.from("faq_items").delete().not("id", "in", `(${keepIds.join(",")})`);
+    try {
+      await api.post("/admin/faq/sync", {
+        faq: v.map((f, i) => ({
+          id: f.id.startsWith("new-") ? undefined : f.id,
+          question: f.q,
+          answer: f.a,
+          display_order: i,
+          active: true,
+        })),
+      });
+      await loadAll();
+    } catch (err) {
+      console.error("Failed to save FAQ:", err);
     }
-    for (let i = 0; i < v.length; i++) {
-      const f = v[i];
-      const payload = { question: f.q, answer: f.a, display_order: i, active: true };
-      if (!isUuid(f.id)) {
-        await supabase.from("faq_items").insert(payload);
-      } else {
-        await supabase.from("faq_items").update(payload).eq("id", f.id);
-      }
-    }
-    await loadAll();
   };
 
-  // Products
   const upsertProduct = async (p: Product) => {
     const universeId = universeCache.bySlug[p.universe];
     const payload = {
@@ -318,50 +332,76 @@ export const AdminProvider = ({ children }: { children: ReactNode }) => {
       description: p.description,
       universe_id: universeId,
       price_ht: p.priceHT,
+      retail_ttc: p.retailTTC,
       moq: p.moq,
       pack_size: p.packSize,
       stock: p.stock,
-      images: p.images as any,
+      images: p.images,
       is_new: !!p.isNew,
       material: p.material,
+      finish: p.finish,
+      tag: p.tag,
       active: true,
     };
-    const isNewRow = p.id.startsWith("new-");
-    if (isNewRow) {
-      await supabase.from("products").insert(payload);
-    } else {
-      await supabase.from("products").update(payload).eq("id", p.id);
+
+    try {
+      if (p.id.startsWith("new-")) {
+        await api.post("/admin/products", payload);
+      } else {
+        await api.put(`/admin/products/${p.id}`, payload);
+      }
+      await loadAll();
+    } catch (err) {
+      console.error("Failed to save product:", err);
     }
-    await loadAll();
   };
+
   const deleteProduct = async (id: string) => {
-    await supabase.from("products").delete().eq("id", id);
-    await loadAll();
+    try {
+      await api.delete(`/admin/products/${id}`);
+      await loadAll();
+    } catch (err) {
+      console.error("Failed to delete product:", err);
+    }
   };
+
   const resetProducts = async () => {
-    // Just reload from DB — no destructive action
     await loadAll();
   };
 
-  // Accounts & orders
   const getProAccounts = useCallback(() => accounts, [accounts]);
+
   const toggleApproveAccount = async (id: string) => {
     const acc = accounts.find((a) => a.id === id);
     if (!acc) return;
-    await supabase.from("profiles").update({ approved: !acc.approved }).eq("id", id);
-    await loadAdminData();
-  };
-  const deleteAccount = async (id: string) => {
-    await supabase.from("profiles").delete().eq("id", id);
-    await loadAdminData();
-  };
-  const getOrders = useCallback(() => orders, [orders]);
-  const setOrderStatus = async (id: string, status: string) => {
-    await supabase.from("orders").update({ status: status as any }).eq("id", id);
-    await loadAdminData();
+    try {
+      await api.put(`/admin/accounts/${id}/approve`, { approved: !acc.approved });
+      await loadAdminData();
+    } catch (err) {
+      console.error("Failed to toggle account approval:", err);
+    }
   };
 
-  // Universes CRUD
+  const deleteAccount = async (id: string) => {
+    try {
+      await api.delete(`/admin/accounts/${id}`);
+      await loadAdminData();
+    } catch (err) {
+      console.error("Failed to delete account:", err);
+    }
+  };
+
+  const getOrders = useCallback(() => orders, [orders]);
+
+  const setOrderStatus = async (id: string, status: string) => {
+    try {
+      await api.put(`/admin/orders/${id}/status`, { status });
+      await loadAdminData();
+    } catch (err) {
+      console.error("Failed to update order status:", err);
+    }
+  };
+
   const upsertUniverse = async (u: UniverseRow) => {
     const payload = {
       slug: u.slug,
@@ -370,16 +410,25 @@ export const AdminProvider = ({ children }: { children: ReactNode }) => {
       image_url: u.image_url,
       display_order: u.display_order,
     };
-    if (u.id.startsWith("new-")) {
-      await supabase.from("universes").insert(payload);
-    } else {
-      await supabase.from("universes").update(payload).eq("id", u.id);
+    try {
+      if (u.id.startsWith("new-")) {
+        await api.post("/admin/universes", payload);
+      } else {
+        await api.put(`/admin/universes/${u.id}`, payload);
+      }
+      await loadAll();
+    } catch (err) {
+      console.error("Failed to save universe:", err);
     }
-    await loadAll();
   };
+
   const deleteUniverse = async (id: string) => {
-    await supabase.from("universes").delete().eq("id", id);
-    await loadAll();
+    try {
+      await api.delete(`/admin/universes/${id}`);
+      await loadAll();
+    } catch (err) {
+      console.error("Failed to delete universe:", err);
+    }
   };
 
   return (

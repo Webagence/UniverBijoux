@@ -3,7 +3,7 @@ import { Navigate, Link, useSearchParams } from "react-router-dom";
 import Layout from "@/components/Layout";
 import PageHeader from "@/components/PageHeader";
 import { useAuth } from "@/context/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
+import { ticketApi } from "@/services/ticketApi";
 import { toast } from "@/hooks/use-toast";
 import { Plus, MessageCircle } from "lucide-react";
 
@@ -38,13 +38,15 @@ const Support = () => {
   const refresh = async () => {
     if (!user) return;
     setBusy(true);
-    const { data } = await supabase
-      .from("tickets")
-      .select("id,reference,subject,status,priority,created_at,order_id")
-      .eq("user_id", user.id)
-      .order("created_at", { ascending: false });
-    setTickets((data as any) || []);
-    setBusy(false);
+    try {
+      const data = await ticketApi.getAll();
+      setTickets(data.data || []);
+    } catch (err) {
+      console.error("Failed to load tickets:", err);
+      setTickets([]);
+    } finally {
+      setBusy(false);
+    }
   };
 
   useEffect(() => {
@@ -60,26 +62,21 @@ const Support = () => {
       toast({ title: "Sujet et message requis" });
       return;
     }
-    const { data: t, error } = await supabase
-      .from("tickets")
-      .insert({ user_id: user.id, subject, priority, order_id: orderId || null })
-      .select()
-      .single();
-    if (error || !t) {
-      toast({ title: "Erreur", description: error?.message });
-      return;
+    try {
+      const result = await ticketApi.create({
+        subject,
+        priority,
+        order_id: orderId || undefined,
+        message: body,
+      });
+      toast({ title: "Ticket créé", description: result.ticket.reference });
+      setSubject("");
+      setBody("");
+      setShowNew(false);
+      refresh();
+    } catch (err: any) {
+      toast({ title: "Erreur", description: err.response?.data?.message || "Impossible de créer le ticket." });
     }
-    await supabase.from("ticket_messages").insert({
-      ticket_id: t.id,
-      author_id: user.id,
-      body,
-      is_admin: false,
-    });
-    toast({ title: "Ticket créé", description: t.reference });
-    setSubject("");
-    setBody("");
-    setShowNew(false);
-    refresh();
   };
 
   return (
