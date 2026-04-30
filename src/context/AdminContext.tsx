@@ -12,28 +12,11 @@ import {
   defaultFaq,
   defaultSettings,
 } from "@/data/content";
-import { products as defaultProducts, Product, Universe } from "@/data/products";
+import { Product, Universe } from "@/types/product";
 import { productApi } from "@/services/productApi";
 import { contentApi } from "@/services/contentApi";
 import { orderApi } from "@/services/orderApi";
 import api from "@/services/api";
-import necklace from "@/assets/product-necklace.jpg";
-import earrings from "@/assets/product-earrings.jpg";
-import rings from "@/assets/product-rings.jpg";
-import bracelet from "@/assets/product-bracelet.jpg";
-
-const FALLBACK_IMG: Record<Universe, string> = {
-  colliers: necklace,
-  boucles: earrings,
-  bagues: rings,
-  bracelets: bracelet,
-};
-const UNIVERSE_LABEL: Record<Universe, string> = {
-  colliers: "Colliers",
-  boucles: "Boucles d'oreilles",
-  bagues: "Bagues",
-  bracelets: "Bracelets",
-};
 
 interface ProAccount {
   id: string;
@@ -100,20 +83,23 @@ export interface UniverseRow {
 
 const Ctx = createContext<AdminCtx | null>(null);
 
-const universeCache: { byId: Record<string, Universe>; bySlug: Record<Universe, string> } = {
+const universeCache: { byId: Record<string, string>; bySlug: Record<string, string> } = {
   byId: {},
-  bySlug: {} as Record<Universe, string>,
+  bySlug: {},
 };
 
+const universeNameCache: Record<string, string> = {};
+
 const dbToProduct = (row: any): Product => {
-  const universe = (universeCache.byId[row.universe_id] || "colliers") as Universe;
-  const imgs = Array.isArray(row.images) && row.images.length > 0 ? row.images : [FALLBACK_IMG[universe]];
+  const universeSlug = universeCache.byId[row.universe_id] || "colliers";
+  const universeLabel = universeNameCache[row.universe_id] || universeSlug;
+  const imgs = Array.isArray(row.images) && row.images.length > 0 ? row.images : [];
   return {
     id: row.id,
     slug: row.slug,
     name: row.name,
-    universe,
-    universeLabel: UNIVERSE_LABEL[universe],
+    universe: universeSlug as Universe,
+    universeLabel,
     priceHT: Number(row.price_ht),
     retailTTC: row.retail_ttc ? Number(row.retail_ttc) : Math.round(Number(row.price_ht) * 2.8 * 1.2),
     moq: row.moq,
@@ -136,7 +122,7 @@ export const AdminProvider = ({ children }: { children: ReactNode }) => {
   const [testimonials, setTestimonialsState] = useState<Testimonial[]>(defaultTestimonials);
   const [faq, setFaqState] = useState<FaqItem[]>(defaultFaq);
   const [settings, setSettingsState] = useState<SiteSettings>(defaultSettings);
-  const [products, setProductsState] = useState<Product[]>(defaultProducts);
+  const [products, setProductsState] = useState<Product[]>([]);
   const [accounts, setAccounts] = useState<ProAccount[]>([]);
   const [orders, setOrders] = useState<AdminOrder[]>([]);
   const [universesList, setUniversesList] = useState<UniverseRow[]>([]);
@@ -157,10 +143,12 @@ export const AdminProvider = ({ children }: { children: ReactNode }) => {
 
       if (universes) {
         universeCache.byId = {};
-        universeCache.bySlug = {} as Record<Universe, string>;
+        universeCache.bySlug = {};
+        Object.keys(universeNameCache).forEach((k) => delete universeNameCache[k]);
         universes.forEach((u: any) => {
-          universeCache.byId[u.id] = u.slug as Universe;
-          universeCache.bySlug[u.slug as Universe] = u.id;
+          universeCache.byId[u.id] = u.slug;
+          universeCache.bySlug[u.slug] = u.id;
+          universeNameCache[u.id] = u.name;
         });
         setUniversesList(
           universes.map((u: any) => ({

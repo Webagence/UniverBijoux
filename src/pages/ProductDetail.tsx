@@ -3,7 +3,7 @@ import { useState } from "react";
 import Layout from "@/components/Layout";
 import ProductGallery from "@/components/ProductGallery";
 import ProductCard from "@/components/ProductCard";
-import { formatEUR } from "@/data/products";
+import { formatEUR } from "@/types/product";
 import { useAuth } from "@/context/AuthContext";
 import { useCart } from "@/context/CartContext";
 import { useAdmin } from "@/context/AdminContext";

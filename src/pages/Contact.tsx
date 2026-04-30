@@ -3,8 +3,10 @@ import Layout from "@/components/Layout";
 import PageHeader from "@/components/PageHeader";
 import { toast } from "@/hooks/use-toast";
 import { Mail, Phone, MapPin } from "lucide-react";
+import { useAdmin } from "@/context/AdminContext";
 
 const Contact = () => {
+  const { settings } = useAdmin();
   const [form, setForm] = useState({ name: "", company: "", email: "", message: "" });
 
   const submit = (e: React.FormEvent) => {
@@ -63,15 +65,15 @@ const Contact = () => {
         <aside className="space-y-6">
           <div className="flex gap-4"><Mail className="h-5 w-5 text-gold shrink-0 mt-1" /><div>
             <p className="text-[11px] tracking-luxe uppercase text-bordeaux/50">Email</p>
-            <a href="mailto:pro@maisonlune.fr" className="text-bordeaux hover:text-gold">pro@maisonlune.fr</a>
+            <a href={`mailto:${settings.email}`} className="text-bordeaux hover:text-gold">{settings.email}</a>
           </div></div>
           <div className="flex gap-4"><Phone className="h-5 w-5 text-gold shrink-0 mt-1" /><div>
             <p className="text-[11px] tracking-luxe uppercase text-bordeaux/50">Téléphone</p>
-            <a href="tel:+33142000000" className="text-bordeaux hover:text-gold">+33 1 42 00 00 00</a>
+            <a href={`tel:${settings.phone.replace(/\s/g, '')}`} className="text-bordeaux hover:text-gold">{settings.phone}</a>
           </div></div>
           <div className="flex gap-4"><MapPin className="h-5 w-5 text-gold shrink-0 mt-1" /><div>
             <p className="text-[11px] tracking-luxe uppercase text-bordeaux/50">Atelier</p>
-            <p className="text-bordeaux">12 rue du Faubourg Saint-Honoré<br />75008 Paris, France</p>
+            <p className="text-bordeaux whitespace-pre-line">{settings.address}</p>
           </div></div>
           <div className="bg-cream p-6 text-sm text-bordeaux/70">
             <p className="font-serif text-base text-bordeaux mb-1">Showroom sur rendez-vous</p>

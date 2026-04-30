@@ -4,7 +4,7 @@ import Layout from "@/components/Layout";
 import PageHeader from "@/components/PageHeader";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
-import { formatEUR } from "@/data/products";
+import { formatEUR } from "@/types/product";
 import { toast } from "@/hooks/use-toast";
 import { orderApi } from "@/services/orderApi";
 import { Trash2, Minus, Plus } from "lucide-react";

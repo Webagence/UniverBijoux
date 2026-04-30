@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState, ReactNode, useMemo } from "react";
-import { Product } from "@/data/products";
+import { Product } from "@/types/product";
 import { useAdmin } from "@/context/AdminContext";
 
 export interface CartLine {

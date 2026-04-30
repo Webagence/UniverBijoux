@@ -4,7 +4,7 @@ import Layout from "@/components/Layout";
 import PageHeader from "@/components/PageHeader";
 import { useAuth } from "@/context/AuthContext";
 import { orderApi } from "@/services/orderApi";
-import { formatEUR } from "@/data/products";
+import { formatEUR } from "@/types/product";
 import { Download, FileText } from "lucide-react";
 
 interface OrderRow {

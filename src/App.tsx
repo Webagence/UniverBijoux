@@ -27,18 +27,6 @@ import Legal from "./pages/Legal.tsx";
 import Privacy from "./pages/Privacy.tsx";
 import FAQ from "./pages/FAQ.tsx";
 import Shipping from "./pages/Shipping.tsx";
-
-import AdminLogin from "./pages/admin/AdminLogin.tsx";
-import AdminDashboard from "./pages/admin/AdminDashboard.tsx";
-import AdminProducts from "./pages/admin/AdminProducts.tsx";
-import AdminOrders from "./pages/admin/AdminOrders.tsx";
-import AdminAccounts from "./pages/admin/AdminAccounts.tsx";
-import AdminContent from "./pages/admin/AdminContent.tsx";
-import AdminTestimonials from "./pages/admin/AdminTestimonials.tsx";
-import AdminFAQ from "./pages/admin/AdminFAQ.tsx";
-import AdminSettings from "./pages/admin/AdminSettings.tsx";
-import AdminTickets from "./pages/admin/AdminTickets.tsx";
-import AdminUniverses from "./pages/admin/AdminUniverses.tsx";
 import Support from "./pages/Support.tsx";
 import TicketDetail from "./pages/TicketDetail.tsx";
 
@@ -75,19 +63,6 @@ const App = () => (
                   <Route path="/livraison" element={<Shipping />} />
                   <Route path="/support" element={<Support />} />
                   <Route path="/support/:id" element={<TicketDetail />} />
-
-                  {/* Admin */}
-                  <Route path="/admin/connexion" element={<AdminLogin />} />
-                  <Route path="/admin" element={<AdminDashboard />} />
-                  <Route path="/admin/produits" element={<AdminProducts />} />
-                  <Route path="/admin/univers" element={<AdminUniverses />} />
-                  <Route path="/admin/commandes" element={<AdminOrders />} />
-                  <Route path="/admin/comptes" element={<AdminAccounts />} />
-                  <Route path="/admin/contenu" element={<AdminContent />} />
-                  <Route path="/admin/temoignages" element={<AdminTestimonials />} />
-                  <Route path="/admin/faq" element={<AdminFAQ />} />
-                  <Route path="/admin/parametres" element={<AdminSettings />} />
-                  <Route path="/admin/tickets" element={<AdminTickets />} />
 
                   <Route path="*" element={<NotFound />} />
                 </Routes>

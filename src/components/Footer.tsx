@@ -3,20 +3,24 @@ import { Instagram, Facebook, Linkedin } from "lucide-react";
 import { useState } from "react";
 import { toast } from "@/hooks/use-toast";
 import { useLang } from "@/context/LanguageContext";
+import { useAdmin } from "@/context/AdminContext";
 
 const Footer = () => {
   const [email, setEmail] = useState("");
   const { t } = useLang();
+  const { settings, universesList } = useAdmin();
+
+  const universeLinks = universesList?.slice(0, 4).map((u) => ({
+    to: `/boutique/${u.slug}`,
+    label: u.name,
+  })) || [];
 
   const columns = [
     {
       title: t("footer.catalog"),
       links: [
         { to: "/nouveautes", label: t("nav.new") },
-        { to: "/boutique/colliers", label: t("nav.necklaces") },
-        { to: "/boutique/boucles", label: t("nav.earrings") },
-        { to: "/boutique/bagues", label: t("nav.rings") },
-        { to: "/boutique/bracelets", label: t("nav.bracelets") },
+        ...universeLinks,
       ],
     },
     {
@@ -78,7 +82,7 @@ const Footer = () => {
 
       <div className="container py-14 grid md:grid-cols-4 gap-10">
         <div className="space-y-4">
-          <Link to="/" className="font-serif text-2xl tracking-luxe">MAISON LUNE</Link>
+          <Link to="/" className="font-serif text-2xl tracking-luxe">{settings.siteName}</Link>
           <p className="text-ivory/60 text-sm leading-relaxed">
             {t("footer.tagline")}
           </p>

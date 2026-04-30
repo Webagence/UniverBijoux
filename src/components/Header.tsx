@@ -8,12 +8,14 @@ import { useLang } from "@/context/LanguageContext";
 
 const Header = () => {
   const { lang, setLang, t } = useLang();
+  const { universesList } = useAdmin();
+  const universeLinks = universesList?.slice(0, 4).map((u) => ({
+    to: `/boutique/${u.slug}`,
+    label: u.name,
+  })) || [];
   const links = [
     { to: "/nouveautes", label: t("nav.new") },
-    { to: "/boutique/colliers", label: t("nav.necklaces") },
-    { to: "/boutique/boucles", label: t("nav.earrings") },
-    { to: "/boutique/bagues", label: t("nav.rings") },
-    { to: "/boutique/bracelets", label: t("nav.bracelets") },
+    ...universeLinks,
     { to: "/atelier", label: t("nav.atelier") },
   ];
   const [scrolled, setScrolled] = useState(false);
@@ -157,7 +159,7 @@ const Header = () => {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between">
-              <span className="font-serif text-xl text-bordeaux tracking-luxe">MAISON LUNE</span>
+              <span className="font-serif text-xl text-bordeaux tracking-luxe">{settings.siteName}</span>
               <button onClick={() => setMobileOpen(false)} aria-label="Fermer">
                 <X className="h-5 w-5 text-bordeaux" />
               </button>

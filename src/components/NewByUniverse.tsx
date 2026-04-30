@@ -1,10 +1,12 @@
 import { Link } from "react-router-dom";
-import { universes, Universe } from "@/data/products";
 import ProductCard from "./ProductCard";
 import { useAdmin } from "@/context/AdminContext";
 
 const NewByUniverse = () => {
-  const { products } = useAdmin();
+  const { products, universesList } = useAdmin();
+
+  if (!universesList || universesList.length === 0) return null;
+
   return (
     <section className="container py-20 md:py-28 space-y-20">
       <div className="text-center max-w-2xl mx-auto space-y-4">
@@ -17,20 +19,20 @@ const NewByUniverse = () => {
         </p>
       </div>
 
-      {universes.map((u) => {
+      {universesList.map((u) => {
         const items = products
-          .filter((p) => p.universe === (u.key as Universe) && p.isNew)
+          .filter((p) => p.universe === u.slug && p.isNew)
           .slice(0, 4);
         if (!items.length) return null;
         return (
-          <div key={u.key} className="space-y-8">
+          <div key={u.id} className="space-y-8">
             <div className="flex items-end justify-between gap-4">
               <div>
                 <div className="text-[11px] tracking-luxe uppercase text-gold mb-2">Univers</div>
-                <h3 className="font-serif text-2xl md:text-3xl text-bordeaux">{u.label}</h3>
+                <h3 className="font-serif text-2xl md:text-3xl text-bordeaux">{u.name}</h3>
               </div>
               <Link
-                to={`/boutique/${u.key}`}
+                to={`/boutique/${u.slug}`}
                 className="text-xs tracking-luxe uppercase text-bordeaux border-b border-gold pb-1 hover:text-gold transition-smooth whitespace-nowrap"
               >
                 Voir tout →

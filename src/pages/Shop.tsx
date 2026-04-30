@@ -2,13 +2,12 @@ import { useMemo, useState } from "react";
 import Layout from "@/components/Layout";
 import PageHeader from "@/components/PageHeader";
 import ProductCard from "@/components/ProductCard";
-import { universes, Universe } from "@/data/products";
 import { useAdmin } from "@/context/AdminContext";
 
 const Shop = () => {
-  const { products } = useAdmin();
+  const { products, universesList } = useAdmin();
   const [query, setQuery] = useState("");
-  const [univ, setUniv] = useState<Universe | "all">("all");
+  const [univ, setUniv] = useState<string>("all");
   const [sort, setSort] = useState<"default" | "asc" | "desc">("default");
 
   const filtered = useMemo(() => {
@@ -44,13 +43,13 @@ const Shop = () => {
           />
           <select
             value={univ}
-            onChange={(e) => setUniv(e.target.value as Universe | "all")}
+            onChange={(e) => setUniv(e.target.value)}
             className="bg-ivory border border-border px-4 py-3 text-sm focus:outline-none focus:border-gold transition-smooth"
           >
             <option value="all">Tous les univers</option>
-            {universes.map((u) => (
-              <option key={u.key} value={u.key}>
-                {u.label}
+            {universesList?.map((u) => (
+              <option key={u.slug} value={u.slug}>
+                {u.name}
               </option>
             ))}
           </select>

@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Product, formatEUR } from "@/data/products";
+import { Product, formatEUR } from "@/types/product";
 import { useAuth } from "@/context/AuthContext";
 import { useCart } from "@/context/CartContext";
 import { toast } from "@/hooks/use-toast";

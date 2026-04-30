@@ -7,12 +7,14 @@ import NewByUniverse from "@/components/NewByUniverse";
 import Atelier from "@/components/Atelier";
 import Testimonials from "@/components/Testimonials";
 import { useEffect } from "react";
+import { useAdmin } from "@/context/AdminContext";
 
 const Index = () => {
+  const { settings, hero } = useAdmin();
+
   useEffect(() => {
-    document.title = "Maison Lune · Grossiste bijoux faits main à Paris";
-    const desc =
-      "Maison Lune — grossiste B2B de bijoux délicats en or recyclé, fabriqués à Paris. Catalogue colliers, boucles, bagues, bracelets pour revendeurs.";
+    document.title = `${settings.siteName} · ${settings.tagline}`;
+    const desc = hero.paragraph || settings.tagline;
     let meta = document.querySelector('meta[name="description"]');
     if (!meta) {
       meta = document.createElement("meta");
@@ -20,7 +22,7 @@ const Index = () => {
       document.head.appendChild(meta);
     }
     meta.setAttribute("content", desc);
-  }, []);
+  }, [settings, hero]);
 
   return (
     <Layout>
