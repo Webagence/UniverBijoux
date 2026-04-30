@@ -1,0 +1,167 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Soft ivory background, deep bordeaux text, gold & blush accents */
+    --background: 35 30% 97%;
+    --foreground: 350 25% 15%;
+
+    --card: 35 30% 99%;
+    --card-foreground: 350 25% 15%;
+
+    --popover: 35 30% 99%;
+    --popover-foreground: 350 25% 15%;
+
+    /* Primary: bordeaux profond */
+    --primary: 350 35% 22%;
+    --primary-foreground: 35 35% 96%;
+
+    /* Secondary: rose poudré */
+    --secondary: 12 45% 92%;
+    --secondary-foreground: 350 35% 22%;
+
+    --muted: 30 20% 94%;
+    --muted-foreground: 350 10% 40%;
+
+    /* Accent: or champagne */
+    --accent: 38 55% 65%;
+    --accent-foreground: 350 35% 18%;
+
+    --destructive: 0 70% 45%;
+    --destructive-foreground: 35 35% 96%;
+
+    --border: 30 20% 88%;
+    --input: 30 20% 88%;
+    --ring: 38 55% 55%;
+
+    --radius: 0.25rem;
+
+    /* Custom brand tokens */
+    --gold: 38 55% 55%;
+    --gold-light: 42 65% 78%;
+    --gold-dark: 35 50% 38%;
+    --blush: 12 55% 90%;
+    --blush-deep: 8 45% 78%;
+    --bordeaux: 350 45% 25%;
+    --ivory: 35 30% 97%;
+    --cream: 38 35% 93%;
+
+    --gradient-gold: linear-gradient(135deg, hsl(42 65% 78%), hsl(38 55% 55%));
+    --gradient-blush: linear-gradient(180deg, hsl(35 30% 97%), hsl(12 45% 94%));
+    --gradient-hero: linear-gradient(120deg, hsl(12 45% 92% / 0.4), hsl(38 55% 78% / 0.3));
+
+    --shadow-elegant: 0 20px 60px -20px hsl(350 35% 22% / 0.15);
+    --shadow-soft: 0 8px 32px -12px hsl(350 35% 22% / 0.1);
+    --shadow-gold: 0 10px 40px -10px hsl(38 55% 55% / 0.4);
+
+    --transition-smooth: cubic-bezier(0.65, 0, 0.35, 1);
+
+    --sidebar-background: 35 30% 97%;
+    --sidebar-foreground: 350 25% 15%;
+    --sidebar-primary: 350 35% 22%;
+    --sidebar-primary-foreground: 35 35% 96%;
+    --sidebar-accent: 30 20% 94%;
+    --sidebar-accent-foreground: 350 35% 22%;
+    --sidebar-border: 30 20% 88%;
+    --sidebar-ring: 38 55% 55%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Inter', sans-serif;
+    font-weight: 300;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1, h2, h3, h4, h5 {
+    font-family: 'Playfair Display', serif;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+  }
+}
+
+@layer utilities {
+  .font-serif {
+    font-family: 'Playfair Display', serif;
+  }
+  .font-sans {
+    font-family: 'Inter', sans-serif;
+  }
+  .tracking-luxe {
+    letter-spacing: 0.25em;
+  }
+  .text-gold {
+    color: hsl(var(--gold));
+  }
+  .bg-gradient-gold {
+    background: var(--gradient-gold);
+  }
+  .bg-gradient-blush {
+    background: var(--gradient-blush);
+  }
+  .bg-gradient-hero {
+    background: var(--gradient-hero);
+  }
+  .shadow-elegant {
+    box-shadow: var(--shadow-elegant);
+  }
+  .shadow-soft {
+    box-shadow: var(--shadow-soft);
+  }
+  .shadow-gold {
+    box-shadow: var(--shadow-gold);
+  }
+  .transition-smooth {
+    transition: all 0.5s cubic-bezier(0.65, 0, 0.35, 1);
+  }
+  .input {
+    width: 100%;
+    background-color: hsl(var(--background));
+    border: 1px solid hsl(var(--border));
+    padding: 0.625rem 0.75rem;
+    font-size: 0.875rem;
+    color: hsl(var(--foreground));
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .input:focus {
+    border-color: hsl(var(--gold));
+  }
+}
+
+@keyframes shimmer {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+.animate-fade-up {
+  animation: fade-up 0.9s cubic-bezier(0.65, 0, 0.35, 1) both;
+}
+
+.animate-shimmer {
+  animation: shimmer 3s ease-in-out infinite;
+}
+
+.animate-marquee {
+  animation: marquee 30s linear infinite;
+}
