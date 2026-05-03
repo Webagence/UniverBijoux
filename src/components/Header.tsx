@@ -73,7 +73,11 @@ const Header = () => {
           </nav>
 
           <Link to="/" className="font-serif text-2xl md:text-3xl text-bordeaux tracking-luxe whitespace-nowrap">
-            {settings.siteName}
+            {settings.logo ? (
+              <img src={settings.logo} alt={settings.siteName} className="h-8 md:h-10 w-auto object-contain" />
+            ) : (
+              settings.siteName
+            )}
           </Link>
 
           <nav className="hidden lg:flex items-center gap-7 text-sm flex-1 justify-end">
@@ -159,7 +163,13 @@ const Header = () => {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between">
-              <span className="font-serif text-xl text-bordeaux tracking-luxe">{settings.siteName}</span>
+              <span className="font-serif text-xl text-bordeaux tracking-luxe">
+                {settings.logo ? (
+                  <img src={settings.logo} alt={settings.siteName} className="h-8 w-auto object-contain" />
+                ) : (
+                  settings.siteName
+                )}
+              </span>
               <button onClick={() => setMobileOpen(false)} aria-label="Fermer">
                 <X className="h-5 w-5 text-bordeaux" />
               </button>
