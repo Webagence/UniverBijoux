@@ -5,7 +5,8 @@ import PageHeader from "@/components/PageHeader";
 import { useAuth } from "@/context/AuthContext";
 import { orderApi } from "@/services/orderApi";
 import { formatEUR } from "@/types/product";
-import { Download, FileText } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
+import { Download, FileText, XCircle } from "lucide-react";
 
 interface OrderRow {
   id: string;
@@ -63,6 +64,19 @@ const Orders = () => {
       setTimeout(() => w.print(), 400);
     }
   };
+
+  const cancelOrder = async (order: OrderRow) => {
+    if (!confirm(`Annuler la commande ${order.reference} ?`)) return;
+    try {
+      await orderApi.cancel(order.id);
+      setOrders((prev) => prev.map((o) => o.id === order.id ? { ...o, status: "cancelled" } : o));
+      toast({ title: "Commande annulée", description: `La référence ${order.reference} a été annulée.` });
+    } catch {
+      toast({ title: "Erreur", description: "Impossible d'annuler cette commande.", variant: "destructive" });
+    }
+  };
+
+  const canCancel = (status: string) => ["pending", "confirmed"].includes(status);
 
   return (
     <Layout>
@@ -131,6 +145,15 @@ const Orders = () => {
                     <FileText className="h-3.5 w-3.5" />
                     Ouvrir un ticket
                   </Link>
+                  {canCancel(o.status) && (
+                    <button
+                      onClick={() => cancelOrder(o)}
+                      className="inline-flex items-center gap-2 border border-destructive/30 text-destructive px-4 py-2 text-xs tracking-luxe uppercase hover:bg-destructive hover:text-ivory transition-smooth"
+                    >
+                      <XCircle className="h-3.5 w-3.5" />
+                      Annuler
+                    </button>
+                  )}
                 </div>
               </article>
             ))}

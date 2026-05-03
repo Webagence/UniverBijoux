@@ -66,7 +66,10 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const removeItem = (productId: string) =>
     setLines((prev) => prev.filter((l) => l.productId !== productId));
 
-  const clear = () => setLines([]);
+  const clear = () => {
+    localStorage.removeItem(KEY);
+    setLines([]);
+  };
 
   const { itemCount, subtotalHT, vat, totalTTC } = useMemo(() => {
     let count = 0;

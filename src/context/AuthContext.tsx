@@ -1,6 +1,8 @@
 import { createContext, useContext, useEffect, useState, ReactNode, useCallback } from "react";
 import { authApi } from "@/services/authApi";
 
+const CART_KEY = "ml_cart";
+
 export interface ProProfile {
   id: string;
   email: string;
@@ -64,12 +66,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
 
     try {
-      const userData = await authApi.me();
+      const { user: userData, profile: profileData } = await authApi.me();
       setUser(userData);
+      setProfile(profileData);
       setIsAdmin(userData.roles?.some((r: { name: string }) => r.name === 'admin') ?? false);
     } catch {
       localStorage.removeItem('auth_token');
       setUser(null);
+      setProfile(null);
       setIsAdmin(false);
     } finally {
       setLoading(false);
@@ -104,7 +108,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
 
     try {
-      await authApi.register({
+      const result = await authApi.register({
         name: data.companyName,
         email: data.email.trim().toLowerCase(),
         password: data.password,
@@ -112,7 +116,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         phone: data.phone ?? "",
         company_name: data.companyName,
         siret: cleanSiret,
+        contact_name: data.contactName,
       });
+      if (result.token) {
+        localStorage.setItem('auth_token', result.token);
+        await loadUser();
+      }
       return { ok: true };
     } catch (err: any) {
       return {
@@ -127,6 +136,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setUser(null);
     setProfile(null);
     setIsAdmin(false);
+    localStorage.removeItem(CART_KEY);
     window.location.href = '/connexion';
   };
 

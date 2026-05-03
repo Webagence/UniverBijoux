@@ -60,11 +60,22 @@ export const authApi = {
 
   me: async () => {
     const { data } = await api.get('/auth/me');
-    return data.user;
+    return { user: data.user, profile: data.profile };
   },
 
-  updateProfile: async (payload: { name?: string; phone?: string }) => {
+  updateProfile: async (payload: {
+    name?: string;
+    contact_name?: string;
+    phone?: string;
+    company_name?: string;
+    siret?: string;
+    address?: string;
+    city?: string;
+    postal_code?: string;
+    country?: string;
+    vat_number?: string;
+  }) => {
     const { data } = await api.put('/auth/profile', payload);
-    return data.user;
+    return { user: data.user, profile: data.profile };
   },
 };

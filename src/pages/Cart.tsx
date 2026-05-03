@@ -4,6 +4,7 @@ import Layout from "@/components/Layout";
 import PageHeader from "@/components/PageHeader";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
+import { useAdmin } from "@/context/AdminContext";
 import { formatEUR } from "@/types/product";
 import { toast } from "@/hooks/use-toast";
 import { orderApi } from "@/services/orderApi";
@@ -12,8 +13,12 @@ import { Trash2, Minus, Plus } from "lucide-react";
 const Cart = () => {
   const { lines, getProduct, updateQty, removeItem, subtotalHT, vat, totalTTC, clear } = useCart();
   const { user, profile } = useAuth();
+  const { settings } = useAdmin();
   const navigate = useNavigate();
   const [submitting, setSubmitting] = useState(false);
+
+  const freeShippingThreshold = Number(settings.freeShippingFrom) || 300;
+  const shippingHT = subtotalHT >= freeShippingThreshold ? 0 : 15;
 
   const checkout = async () => {
     if (!user) {
@@ -30,7 +35,6 @@ const Cart = () => {
     }
     setSubmitting(true);
 
-    const shippingHT = subtotalHT >= 300 ? 0 : 15;
     const items = lines
       .map((l) => {
         const p = getProduct(l.productId);
@@ -140,9 +144,9 @@ const Cart = () => {
               <dl className="space-y-2 text-sm">
                 <div className="flex justify-between"><dt>Sous-total HT</dt><dd>{formatEUR(subtotalHT)}</dd></div>
                 <div className="flex justify-between"><dt>TVA (20%)</dt><dd>{formatEUR(vat)}</dd></div>
-                <div className="flex justify-between"><dt>Livraison</dt><dd>{subtotalHT >= 300 ? "Offerte" : "à calculer"}</dd></div>
+                <div className="flex justify-between"><dt>Livraison</dt><dd>{subtotalHT >= freeShippingThreshold ? "Offerte" : `${formatEUR(shippingHT)}`}</dd></div>
                 <div className="flex justify-between border-t border-border pt-3 font-serif text-lg text-bordeaux">
-                  <dt>Total TTC</dt><dd>{formatEUR(totalTTC)}</dd>
+                  <dt>Total TTC</dt><dd>{formatEUR(totalTTC + shippingHT)}</dd>
                 </div>
               </dl>
               <button
@@ -153,7 +157,7 @@ const Cart = () => {
                 {submitting ? "Enregistrement…" : "Valider la commande"}
               </button>
               <p className="text-[11px] text-bordeaux/50 text-center">
-                Paiement à 30 jours après validation de votre compte pro.
+                Livraison offerte dès {formatEUR(freeShippingThreshold)} HT. Paiement à 30 jours après validation.
               </p>
             </aside>
           </div>
