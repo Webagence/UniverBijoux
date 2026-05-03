@@ -94,6 +94,14 @@ const dbToProduct = (row: any): Product => {
   const universeSlug = universeCache.byId[row.universe_id] || "colliers";
   const universeLabel = universeNameCache[row.universe_id] || universeSlug;
   const imgs = Array.isArray(row.images) && row.images.length > 0 ? row.images : [];
+  let variations: Product['variations'] = undefined;
+  if (row.variations) {
+    if (typeof row.variations === 'string') {
+      try { variations = JSON.parse(row.variations); } catch { variations = undefined; }
+    } else if (Array.isArray(row.variations)) {
+      variations = row.variations;
+    }
+  }
   return {
     id: row.id,
     slug: row.slug,
@@ -101,15 +109,18 @@ const dbToProduct = (row: any): Product => {
     universe: universeSlug as Universe,
     universeLabel,
     priceHT: Number(row.price_ht),
+    salePriceHT: row.sale_price_ht ? Number(row.sale_price_ht) : undefined,
     retailTTC: row.retail_ttc ? Number(row.retail_ttc) : Math.round(Number(row.price_ht) * 2.8 * 1.2),
     moq: row.moq,
     packSize: row.pack_size,
     reference: row.reference || "",
     material: row.material || "",
     finish: row.finish || "Finition mate & brillante",
+    qualityGrade: row.quality_grade || undefined,
     description: row.description || "",
     images: imgs,
     tag: row.tag,
+    variations,
     isNew: row.is_new,
     stock: row.stock,
   };
@@ -320,6 +331,7 @@ export const AdminProvider = ({ children }: { children: ReactNode }) => {
       description: p.description,
       universe_id: universeId,
       price_ht: p.priceHT,
+      sale_price_ht: p.salePriceHT,
       retail_ttc: p.retailTTC,
       moq: p.moq,
       pack_size: p.packSize,
@@ -328,7 +340,9 @@ export const AdminProvider = ({ children }: { children: ReactNode }) => {
       is_new: !!p.isNew,
       material: p.material,
       finish: p.finish,
+      quality_grade: p.qualityGrade,
       tag: p.tag,
+      variations: p.variations,
       active: true,
     };
 

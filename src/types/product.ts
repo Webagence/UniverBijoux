@@ -7,15 +7,18 @@ export interface Product {
   universe: Universe;
   universeLabel: string;
   priceHT: number;
+  salePriceHT?: number;
   retailTTC: number;
   moq: number;
   packSize: number;
   reference: string;
   material: string;
   finish: string;
+  qualityGrade?: string;
   description: string;
   images: string[];
   tag?: "Nouveauté" | "Best-seller" | "Réassort" | "Édition limitée";
+  variations?: Array<{ name: string; options: string[] }>;
   isNew?: boolean;
   stock: number;
 }

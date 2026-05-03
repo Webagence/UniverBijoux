@@ -9,10 +9,12 @@ const Shop = () => {
   const [query, setQuery] = useState("");
   const [univ, setUniv] = useState<string>("all");
   const [sort, setSort] = useState<"default" | "asc" | "desc">("default");
+  const [inStockOnly, setInStockOnly] = useState(false);
 
   const filtered = useMemo(() => {
     let list = [...products];
     if (univ !== "all") list = list.filter((p) => p.universe === univ);
+    if (inStockOnly) list = list.filter((p) => p.stock > 0);
     if (query.trim())
       list = list.filter(
         (p) =>
@@ -22,7 +24,7 @@ const Shop = () => {
     if (sort === "asc") list.sort((a, b) => a.priceHT - b.priceHT);
     if (sort === "desc") list.sort((a, b) => b.priceHT - a.priceHT);
     return list;
-  }, [query, univ, sort, products]);
+  }, [query, univ, sort, inStockOnly, products]);
 
   return (
     <Layout>
@@ -62,6 +64,15 @@ const Shop = () => {
             <option value="asc">Prix croissant</option>
             <option value="desc">Prix décroissant</option>
           </select>
+          <label className="flex items-center gap-2 bg-ivory border border-border px-4 py-3 text-sm cursor-pointer">
+            <input
+              type="checkbox"
+              checked={inStockOnly}
+              onChange={(e) => setInStockOnly(e.target.checked)}
+              className="accent-bordeaux"
+            />
+            En stock
+          </label>
         </div>
         <p className="text-xs uppercase tracking-luxe text-bordeaux/50 mb-6">
           {filtered.length} référence{filtered.length > 1 ? "s" : ""}

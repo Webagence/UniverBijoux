@@ -17,6 +17,7 @@ const ProductDetail = () => {
   const { user } = useAuth();
   const { addItem } = useCart();
   const [qty, setQty] = useState(product?.moq ?? 1);
+  const [selectedVariations, setSelectedVariations] = useState<Record<number, string>>({});
 
   if (!product) return <Navigate to="/boutique" replace />;
 
@@ -30,12 +31,24 @@ const ProductDetail = () => {
       });
       return;
     }
+    if (product.variations && product.variations.length > 0) {
+      const allSelected = product.variations.every((_, i) => selectedVariations[i]);
+      if (!allSelected) {
+        toast({ title: "Variations requises", description: "Veuillez choisir une option pour chaque variation." });
+        return;
+      }
+    }
     if (qty < product.moq) {
       toast({ title: "Quantité insuffisante", description: `Minimum ${product.moq} pièces.` });
       return;
     }
     addItem(product.id, qty);
-    toast({ title: "Ajouté au panier", description: `${product.name} × ${qty}` });
+    const variationDesc = Object.values(selectedVariations).join(" / ");
+    toast({ title: "Ajouté au panier", description: `${product.name}${variationDesc ? ` (${variationDesc})` : ""} × ${qty}` });
+  };
+
+  const selectVariation = (variationIndex: number, option: string) => {
+    setSelectedVariations((prev) => ({ ...prev, [variationIndex]: option }));
   };
 
   return (
@@ -69,8 +82,18 @@ const ProductDetail = () => {
 
             <div className="space-y-1">
               <div className="flex items-baseline gap-3">
-                <span className="font-serif text-3xl text-bordeaux">{formatEUR(product.priceHT)}</span>
-                <span className="text-xs tracking-luxe uppercase text-bordeaux/50">HT / pièce</span>
+                {product.salePriceHT ? (
+                  <>
+                    <span className="font-serif text-3xl text-red-600">{formatEUR(product.salePriceHT)}</span>
+                    <span className="text-lg text-bordeaux/40 line-through">{formatEUR(product.priceHT)}</span>
+                    <span className="text-xs tracking-luxe uppercase text-bordeaux/50">HT / pièce</span>
+                  </>
+                ) : (
+                  <>
+                    <span className="font-serif text-3xl text-bordeaux">{formatEUR(product.priceHT)}</span>
+                    <span className="text-xs tracking-luxe uppercase text-bordeaux/50">HT / pièce</span>
+                  </>
+                )}
               </div>
               <p className="text-sm text-bordeaux/60">
                 Prix public conseillé : {formatEUR(product.retailTTC)} TTC
@@ -88,6 +111,12 @@ const ProductDetail = () => {
                 <dt className="text-[11px] tracking-luxe uppercase text-bordeaux/50">Finition</dt>
                 <dd className="text-bordeaux">{product.finish}</dd>
               </div>
+              {product.qualityGrade && (
+                <div>
+                  <dt className="text-[11px] tracking-luxe uppercase text-bordeaux/50">Qualité</dt>
+                  <dd className="text-bordeaux">{product.qualityGrade}</dd>
+                </div>
+              )}
               <div>
                 <dt className="text-[11px] tracking-luxe uppercase text-bordeaux/50">Quantité minimale</dt>
                 <dd className="text-bordeaux">{product.moq} pièces</dd>
@@ -96,7 +125,47 @@ const ProductDetail = () => {
                 <dt className="text-[11px] tracking-luxe uppercase text-bordeaux/50">Conditionnement</dt>
                 <dd className="text-bordeaux">Par {product.packSize}</dd>
               </div>
+              <div>
+                <dt className="text-[11px] tracking-luxe uppercase text-bordeaux/50">Stock</dt>
+                <dd className={product.stock <= 0 ? "text-red-600 font-medium" : "text-bordeaux"}>
+                  {product.stock <= 0 ? "Épuisé" : `${product.stock} pièces`}
+                </dd>
+              </div>
             </dl>
+
+            {product.variations && product.variations.length > 0 && (
+              <div className="space-y-4">
+                <h3 className="text-sm font-medium text-bordeaux">Choisir les variations</h3>
+                {product.variations.map((v, i) => {
+                  const opts = Array.isArray(v?.options) ? v.options : [];
+                  if (opts.length === 0) return null;
+                  return (
+                    <div key={i}>
+                      <p className="text-[11px] tracking-luxe uppercase text-bordeaux/50 mb-2">
+                        {v.name || `Option ${i + 1}`}
+                        {selectedVariations[i] && <span className="text-gold ml-1">— {selectedVariations[i]}</span>}
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        {opts.map((opt, j) => (
+                          <button
+                            key={j}
+                            type="button"
+                            onClick={() => selectVariation(i, opt)}
+                            className={`px-3 py-1.5 text-xs border transition-smooth ${
+                              selectedVariations[i] === opt
+                                ? "border-gold bg-gold/10 text-gold font-medium"
+                                : "border-border text-bordeaux/70 hover:border-gold hover:text-gold"
+                            }`}
+                          >
+                            {opt}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
 
             <div className="flex items-center gap-4">
               <div className="flex items-center border border-border">
