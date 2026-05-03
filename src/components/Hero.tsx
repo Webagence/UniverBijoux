@@ -1,5 +1,6 @@
 import heroImg from "@/assets/hero-jewelry.jpg";
 import { Link } from "react-router-dom";
+import { MapPin, Truck, Clock, Phone } from "lucide-react";
 import { useAdmin } from "@/context/AdminContext";
 
 const Hero = () => {
@@ -42,6 +43,34 @@ const Hero = () => {
               {hero.stat2Label}
             </div>
           </div>
+          {(hero.address || hero.shipping || hero.hours || hero.phone) && (
+            <div className="grid grid-cols-2 gap-4 pt-6 border-t border-bordeaux/10">
+              {hero.address && (
+                <div className="flex items-start gap-2 text-bordeaux/70">
+                  <MapPin className="h-4 w-4 text-gold shrink-0 mt-0.5" />
+                  <span className="text-xs leading-relaxed">{hero.address}</span>
+                </div>
+              )}
+              {hero.shipping && (
+                <div className="flex items-start gap-2 text-bordeaux/70">
+                  <Truck className="h-4 w-4 text-gold shrink-0 mt-0.5" />
+                  <span className="text-xs leading-relaxed">{hero.shipping}</span>
+                </div>
+              )}
+              {hero.hours && (
+                <div className="flex items-start gap-2 text-bordeaux/70">
+                  <Clock className="h-4 w-4 text-gold shrink-0 mt-0.5" />
+                  <span className="text-xs leading-relaxed">{hero.hours}</span>
+                </div>
+              )}
+              {hero.phone && (
+                <div className="flex items-start gap-2 text-bordeaux/70">
+                  <Phone className="h-4 w-4 text-gold shrink-0 mt-0.5" />
+                  <span className="text-xs leading-relaxed">{hero.phone}</span>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         <div className="relative order-1 md:order-2 animate-fade-up">

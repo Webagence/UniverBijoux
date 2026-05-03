@@ -14,6 +14,10 @@ export interface HeroContent {
   stat2Label: string;
   quote: string;
   image?: string;
+  address?: string;
+  shipping?: string;
+  hours?: string;
+  phone?: string;
 }
 
 export interface AtelierContent {
