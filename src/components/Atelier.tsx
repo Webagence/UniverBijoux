@@ -1,8 +1,15 @@
 import atelier from "@/assets/atelier.jpg";
 import { useAdmin } from "@/context/AdminContext";
 
+const defaultStats = [
+  ["Or recyclé", "100%"],
+  ["Garantie", "À vie"],
+  ["Made in", "France"],
+];
+
 const Atelier = () => {
   const { atelier: a } = useAdmin();
+  const stats = a.stats && Array.isArray(a.stats) ? a.stats : defaultStats;
   return (
     <section id="atelier" className="container py-20 md:py-28">
       <div className="grid md:grid-cols-2 gap-12 md:gap-20 items-center">
@@ -29,12 +36,8 @@ const Atelier = () => {
           <p className="text-bordeaux/70 leading-relaxed">{a.paragraph1}</p>
           <p className="text-bordeaux/70 leading-relaxed">{a.paragraph2}</p>
           <div className="grid grid-cols-3 gap-6 pt-6 border-t border-border">
-            {[
-              ["Or recyclé", "100%"],
-              ["Garantie", "À vie"],
-              ["Made in", "France"],
-            ].map(([label, val]) => (
-              <div key={label}>
+            {stats.map(([label, val], i) => (
+              <div key={i}>
                 <div className="font-serif text-2xl text-bordeaux">{val}</div>
                 <div className="text-xs tracking-luxe uppercase text-bordeaux/50 mt-1">{label}</div>
               </div>

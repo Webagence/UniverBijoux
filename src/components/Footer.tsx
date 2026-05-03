@@ -87,9 +87,9 @@ const Footer = () => {
             {t("footer.tagline")}
           </p>
           <div className="flex gap-4 pt-2 text-ivory/60">
-            <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="hover:text-gold transition-smooth"><Instagram className="h-4 w-4" /></a>
-            <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" aria-label="Facebook" className="hover:text-gold transition-smooth"><Facebook className="h-4 w-4" /></a>
-            <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" className="hover:text-gold transition-smooth"><Linkedin className="h-4 w-4" /></a>
+            <a href={settings.socialInstagram || "https://instagram.com"} target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="hover:text-gold transition-smooth"><Instagram className="h-4 w-4" /></a>
+            <a href={settings.socialFacebook || "https://facebook.com"} target="_blank" rel="noopener noreferrer" aria-label="Facebook" className="hover:text-gold transition-smooth"><Facebook className="h-4 w-4" /></a>
+            <a href={settings.socialLinkedin || "https://linkedin.com"} target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" className="hover:text-gold transition-smooth"><Linkedin className="h-4 w-4" /></a>
           </div>
         </div>
 
@@ -109,7 +109,7 @@ const Footer = () => {
 
       <div className="border-t border-ivory/10">
         <div className="container py-6 flex flex-col sm:flex-row justify-between items-center gap-3 text-xs text-ivory/50">
-          <p>© 2026 Maison Lune · Grossiste B2B · SIRET 123 456 789 00012</p>
+          <p>© {new Date().getFullYear()} {settings.siteName} · Grossiste B2B{settings.siret ? ` · SIRET ${settings.siret}` : ""}</p>
           <div className="flex gap-6">
             <Link to="/mentions-legales" className="hover:text-ivory transition-smooth">Mentions légales</Link>
             <Link to="/cgv" className="hover:text-ivory transition-smooth">CGV</Link>

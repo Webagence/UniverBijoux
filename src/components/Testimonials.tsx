@@ -2,14 +2,14 @@ import { Star } from "lucide-react";
 import { useAdmin } from "@/context/AdminContext";
 
 const Testimonials = () => {
-  const { testimonials } = useAdmin();
+  const { testimonials, testimonialsSection } = useAdmin();
   return (
     <section className="bg-gradient-blush py-20 md:py-28">
       <div className="container">
         <div className="text-center max-w-2xl mx-auto mb-14 space-y-3">
-          <div className="text-gold text-xs tracking-luxe uppercase">Nos revendeurs en parlent</div>
+          <div className="text-gold text-xs tracking-luxe uppercase">{testimonialsSection.eyebrow || "Nos revendeurs en parlent"}</div>
           <h2 className="font-serif text-4xl md:text-5xl text-bordeaux">
-            <em>850</em> partenaires nous font confiance
+            <em>{testimonialsSection.heading || "850 partenaires nous"}</em> {testimonialsSection.headingEm || "font confiance"}
           </h2>
         </div>
 

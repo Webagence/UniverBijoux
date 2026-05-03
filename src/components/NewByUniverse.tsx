@@ -3,19 +3,19 @@ import ProductCard from "./ProductCard";
 import { useAdmin } from "@/context/AdminContext";
 
 const NewByUniverse = () => {
-  const { products, universesList } = useAdmin();
+  const { products, universesList, newByUniverseSection } = useAdmin();
 
   if (!universesList || universesList.length === 0) return null;
 
   return (
     <section className="container py-20 md:py-28 space-y-20">
       <div className="text-center max-w-2xl mx-auto space-y-4">
-        <div className="text-gold text-xs tracking-luxe uppercase">Nouveautés par univers</div>
+        <div className="text-gold text-xs tracking-luxe uppercase">{newByUniverseSection.eyebrow || "Nouveautés par univers"}</div>
         <h2 className="font-serif text-4xl md:text-5xl text-bordeaux">
-          Les <em>nouvelles pièces</em> de la saison
+          {newByUniverseSection.heading || "Les"} <em>{newByUniverseSection.headingEm || "nouvelles pièces"}</em>
         </h2>
         <p className="text-bordeaux/60">
-          Les 4 dernières références référencées dans chacun de nos univers.
+          {newByUniverseSection.description || ""}
         </p>
       </div>
 
@@ -35,7 +35,7 @@ const NewByUniverse = () => {
                 to={`/boutique/${u.slug}`}
                 className="text-xs tracking-luxe uppercase text-bordeaux border-b border-gold pb-1 hover:text-gold transition-smooth whitespace-nowrap"
               >
-                Voir tout →
+                {newByUniverseSection.ctaText || "Voir tout →"}
               </Link>
             </div>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-5 md:gap-8">

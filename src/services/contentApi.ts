@@ -82,4 +82,44 @@ export const contentApi = {
     const { data } = await api.get('/content/settings');
     return data.settings as SiteSettings;
   },
+
+  getPromises: async () => {
+    const { data } = await api.get('/content/promises');
+    return data.promises || [];
+  },
+
+  getCategoriesSection: async () => {
+    const { data } = await api.get('/content/categories_section');
+    return data.content || {};
+  },
+
+  getProductGridSection: async () => {
+    const { data } = await api.get('/content/product_grid_section');
+    return data.content || {};
+  },
+
+  getNewByUniverseSection: async () => {
+    const { data } = await api.get('/content/new_by_universe_section');
+    return data.content || {};
+  },
+
+  getTestimonialsSection: async () => {
+    const { data } = await api.get('/content/testimonials_section');
+    return data.content || {};
+  },
+
+  getLegalPage: async (page: string) => {
+    const { data } = await api.get(`/content/legal/${page}`);
+    return data.content || {};
+  },
+
+  getContactPage: async () => {
+    const { data } = await api.get('/content/contact_page');
+    return data.content || {};
+  },
+
+  getFAQPageHeader: async () => {
+    const { data } = await api.get('/content/faq_page_header');
+    return data.content || {};
+  },
 };

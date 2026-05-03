@@ -4,13 +4,13 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { useAdmin } from "@/context/AdminContext";
 
 const FAQ = () => {
-  const { faq, settings } = useAdmin();
+  const { faq, settings, faqPageHeader } = useAdmin();
   return (
     <Layout>
       <PageHeader
-        eyebrow="Aide"
-        title="Questions fréquentes"
-        subtitle={`Tout ce que les revendeurs nous demandent le plus souvent. ${settings.siteName}`}
+        eyebrow={faqPageHeader.eyebrow || "Aide"}
+        title={faqPageHeader.title || "Questions fréquentes"}
+        subtitle={faqPageHeader.subtitle || `Tout ce que les revendeurs nous demandent le plus souvent. ${settings.siteName}`}
         crumbs={[{ label: "FAQ" }]}
       />
       <section className="container py-12 md:py-16 max-w-3xl">

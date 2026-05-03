@@ -48,7 +48,64 @@ export interface SiteSettings {
   address: string;
   freeShippingFrom: string;
   announcements: string[];
+  copyright?: string;
+  siret?: string;
+  socialInstagram?: string;
+  socialFacebook?: string;
+  socialLinkedin?: string;
 }
+
+export interface PromiseItem {
+  icon: string;
+  title: string;
+  text: string;
+}
+
+export interface SectionHeader {
+  eyebrow: string;
+  heading: string;
+  headingEm: string;
+  description: string;
+  ctaText?: string;
+}
+
+export interface TestimonialsSection {
+  eyebrow: string;
+  heading: string;
+  headingEm: string;
+}
+
+export interface LegalSection {
+  heading: string;
+  body: string;
+}
+
+export interface LegalPageContent {
+  eyebrow?: string;
+  title: string;
+  subtitle?: string;
+  sections: LegalSection[];
+}
+
+export interface ContactPageContent {
+  eyebrow: string;
+  title: string;
+  subtitle: string;
+  showroomTitle: string;
+  showroomText: string;
+}
+
+export interface FAQPageHeader {
+  eyebrow: string;
+  title: string;
+  subtitle: string;
+}
+
+export const defaultTestimonialsSection: TestimonialsSection = {
+  eyebrow: "Nos revendeurs en parlent",
+  heading: "850 partenaires nous",
+  headingEm: "font confiance",
+};
 
 export const defaultHero: HeroContent = {
   eyebrow: "Grossiste bijoux · Collection Printemps 2026",
@@ -64,6 +121,71 @@ export const defaultHero: HeroContent = {
   stat2Value: "48h",
   stat2Label: "délai de livraison",
   quote: "Un bijou est un sourire qui ne s'efface jamais.",
+};
+
+export const defaultLegalContent: Record<string, LegalPageContent> = {
+  legal: {
+    title: "Mentions légales",
+    sections: [
+      { heading: "Éditeur", body: "MAISON LUNE · 12 rue Saint-Honoré, 75001 Paris" },
+      { heading: "Directeur de la publication", body: "Responsable de la publication." },
+      { heading: "Hébergeur", body: "Hébergement et distribution en Europe." },
+      { heading: "Contact", body: "pro@maisonlune.fr · +33 1 42 00 00 00" },
+      { heading: "Propriété intellectuelle", body: "L'ensemble du site (textes, images, logos, graphismes) est protégé par le droit d'auteur et est la propriété exclusive de MAISON LUNE." },
+    ],
+  },
+  cgv: {
+    eyebrow: "Conditions",
+    title: "Conditions générales de vente",
+    subtitle: "Applicables aux clients professionnels de MAISON LUNE.",
+    sections: [
+      { heading: "1. Objet", body: "Les présentes CGV régissent les ventes conclues entre MAISON LUNE et ses clients professionnels titulaires d'un numéro SIRET valide." },
+      { heading: "2. Prix", body: "Tous les prix sont exprimés en euros hors taxes (HT). La TVA au taux de 20% s'applique sauf pour les clients intracommunautaires fournissant un numéro de TVA valide." },
+      { heading: "3. Commandes", body: "La quantité minimale est de 3 pièces par référence. Les commandes sont fermes après validation. Franco de port à partir de 300€ HT en France métropolitaine." },
+      { heading: "4. Paiement", body: "Paiement à 30 jours date de facture pour les comptes validés. Premier achat : paiement à la commande par virement ou carte." },
+      { heading: "5. Livraison", body: "Délai standard de 48h après validation pour les pièces en stock. Les risques sont transférés à la remise au transporteur." },
+      { heading: "6. Retours & garantie", body: "Garantie à vie sur les défauts de fabrication. Retours acceptés sous 14 jours, produits en parfait état et dans leur emballage d'origine." },
+      { heading: "7. Propriété intellectuelle", body: "Tous les visuels, fiches produit et marques restent la propriété exclusive de MAISON LUNE." },
+      { heading: "8. Litiges", body: "Le droit français s'applique. Tout litige relève de la compétence exclusive du Tribunal de Commerce de Paris." },
+    ],
+  },
+  privacy: {
+    title: "Politique de confidentialité",
+    subtitle: "Nous traitons vos données personnelles conformément au RGPD. MAISON LUNE.",
+    sections: [
+      { heading: "Données collectées", body: "Raison sociale, SIRET, nom du contact, email et mot de passe chiffré, historique des commandes." },
+      { heading: "Finalités", body: "Gestion du compte professionnel, traitement des commandes, facturation, service client, relation commerciale." },
+      { heading: "Durée de conservation", body: "Données de compte : durée de la relation commerciale + 3 ans. Données de facturation : 10 ans (obligation légale)." },
+      { heading: "Vos droits", body: "Accès, rectification, effacement, portabilité, opposition : écrivez à pro@maisonlune.fr." },
+      { heading: "Cookies", body: "Nous utilisons uniquement des cookies strictement nécessaires au bon fonctionnement du site (panier, session)." },
+    ],
+  },
+  shipping: {
+    eyebrow: "Infos pro",
+    title: "Livraison & retours",
+    subtitle: "Nos engagements logistiques pour nos partenaires revendeurs. MAISON LUNE.",
+    sections: [
+      { heading: "Délais & zones", body: "France métropolitaine : 48h ouvrées. UE : 3 à 5 jours ouvrés. International : sur devis." },
+      { heading: "Frais de port", body: "Offerts dès 300€ HT en France. 12€ HT en dessous. UE : 25€ HT forfaitaire." },
+      { heading: "Suivi", body: "Un email de suivi Colissimo ou Chronopost vous est envoyé dès l'expédition depuis notre atelier." },
+      { heading: "Retours", body: "Retours acceptés sous 14 jours, produits non portés et dans leur écrin d'origine. Demandez un bon de retour via votre espace pro." },
+      { heading: "Garantie", body: "Tous nos bijoux sont garantis à vie contre les défauts de fabrication. SAV dédié pour nos revendeurs." },
+    ],
+  },
+};
+
+export const defaultContactPage: ContactPageContent = {
+  eyebrow: "Nous écrire",
+  title: "Contact commercial",
+  subtitle: "Une question sur un produit, un devis, ou une demande de partenariat ?",
+  showroomTitle: "Showroom sur rendez-vous",
+  showroomText: "Du lundi au vendredi, 10h–18h. Prenez contact pour venir découvrir les collections en avant-première.",
+};
+
+export const defaultFAQPageHeader: FAQPageHeader = {
+  eyebrow: "Aide",
+  title: "Questions fréquentes",
+  subtitle: "Tout ce que les revendeurs nous demandent le plus souvent.",
 };
 
 export const defaultAtelier: AtelierContent = {
@@ -125,4 +247,34 @@ export const defaultSettings: SiteSettings = {
     "Tarifs dégressifs",
     "Livraison 48h",
   ],
+};
+
+export const defaultPromises: PromiseItem[] = [
+  { icon: "Truck", title: "Livraison 48h", text: "Franco dès 300€ HT" },
+  { icon: "TrendingDown", title: "Tarifs dégressifs", text: "Dès -10% à 500€" },
+  { icon: "ShieldCheck", title: "Garantie à vie", text: "Sur toutes les pièces" },
+  { icon: "Factory", title: "Fabrication française", text: "Atelier parisien" },
+];
+
+export const defaultCategoriesSection: SectionHeader = {
+  eyebrow: "Univers",
+  heading: "Explorez nos",
+  headingEm: "collections",
+  description: "Chaque pièce est dessinée et fabriquée dans nos ateliers français.",
+};
+
+export const defaultProductGridSection: SectionHeader = {
+  eyebrow: "Best-sellers",
+  heading: "Les pièces que vos clients",
+  headingEm: "adorent",
+  description: "Les références les plus commandées par notre réseau de revendeurs.",
+  ctaText: "Voir tout le catalogue →",
+};
+
+export const defaultNewByUniverseSection: SectionHeader = {
+  eyebrow: "Nouveautés par univers",
+  heading: "Les",
+  headingEm: "nouvelles pièces",
+  description: "Les 4 dernières références dans chacun de nos univers.",
+  ctaText: "Voir tout →",
 };

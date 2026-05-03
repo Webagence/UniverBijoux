@@ -6,7 +6,7 @@ import { Mail, Phone, MapPin } from "lucide-react";
 import { useAdmin } from "@/context/AdminContext";
 
 const Contact = () => {
-  const { settings } = useAdmin();
+  const { settings, contactPage } = useAdmin();
   const [form, setForm] = useState({ name: "", company: "", email: "", message: "" });
 
   const submit = (e: React.FormEvent) => {
@@ -18,9 +18,9 @@ const Contact = () => {
   return (
     <Layout>
       <PageHeader
-        eyebrow="Nous écrire"
-        title="Contact commercial"
-        subtitle="Une question sur un produit, un devis, ou une demande de partenariat ?"
+        eyebrow={contactPage.eyebrow || "Nous écrire"}
+        title={contactPage.title || "Contact commercial"}
+        subtitle={contactPage.subtitle || "Une question sur un produit, un devis, ou une demande de partenariat ?"}
         crumbs={[{ label: "Contact" }]}
       />
       <section className="container py-12 md:py-16 grid md:grid-cols-2 gap-12">
@@ -76,8 +76,8 @@ const Contact = () => {
             <p className="text-bordeaux whitespace-pre-line">{settings.address}</p>
           </div></div>
           <div className="bg-cream p-6 text-sm text-bordeaux/70">
-            <p className="font-serif text-base text-bordeaux mb-1">Showroom sur rendez-vous</p>
-            Du lundi au vendredi, 10h–18h. Prenez contact pour venir découvrir les collections en avant-première.
+            <p className="font-serif text-base text-bordeaux mb-1">{contactPage.showroomTitle || "Showroom sur rendez-vous"}</p>
+            {contactPage.showroomText || "Du lundi au vendredi, 10h–18h. Prenez contact pour venir découvrir les collections en avant-première."}
           </div>
         </aside>
       </section>

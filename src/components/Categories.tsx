@@ -4,7 +4,7 @@ import { useAdmin } from "@/context/AdminContext";
 const FALLBACK_IMG = "/placeholder.svg";
 
 const Categories = () => {
-  const { universesList } = useAdmin();
+  const { universesList, categoriesSection } = useAdmin();
 
   if (!universesList || universesList.length === 0) return null;
 
@@ -13,13 +13,13 @@ const Categories = () => {
       <div className="container">
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
           <div className="space-y-3">
-            <div className="text-gold text-xs tracking-luxe uppercase">Univers</div>
+            <div className="text-gold text-xs tracking-luxe uppercase">{categoriesSection.eyebrow || "Univers"}</div>
             <h2 className="font-serif text-4xl md:text-5xl text-bordeaux max-w-xl">
-              Explorez nos <em>collections</em>
+              {categoriesSection.heading || "Explorez nos"} <em>{categoriesSection.headingEm || "collections"}</em>
             </h2>
           </div>
           <p className="text-bordeaux/60 max-w-sm">
-            Chaque pièce est dessinée et fabriquée dans nos ateliers français.
+            {categoriesSection.description || ""}
           </p>
         </div>
 

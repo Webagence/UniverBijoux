@@ -6,11 +6,25 @@ import {
   Testimonial,
   FaqItem,
   SiteSettings,
+  PromiseItem,
+  SectionHeader,
+  TestimonialsSection,
+  LegalPageContent,
+  ContactPageContent,
+  FAQPageHeader,
   defaultHero,
   defaultAtelier,
   defaultTestimonials,
   defaultFaq,
   defaultSettings,
+  defaultPromises,
+  defaultCategoriesSection,
+  defaultProductGridSection,
+  defaultNewByUniverseSection,
+  defaultTestimonialsSection,
+  defaultLegalContent,
+  defaultContactPage,
+  defaultFAQPageHeader,
 } from "@/data/content";
 import { Product, Universe } from "@/types/product";
 import { productApi } from "@/services/productApi";
@@ -133,6 +147,14 @@ export const AdminProvider = ({ children }: { children: ReactNode }) => {
   const [testimonials, setTestimonialsState] = useState<Testimonial[]>(defaultTestimonials);
   const [faq, setFaqState] = useState<FaqItem[]>(defaultFaq);
   const [settings, setSettingsState] = useState<SiteSettings>(defaultSettings);
+  const [promises, setPromisesState] = useState<PromiseItem[]>(defaultPromises);
+  const [categoriesSection, setCategoriesSectionState] = useState<SectionHeader>(defaultCategoriesSection);
+  const [productGridSection, setProductGridSectionState] = useState<SectionHeader>(defaultProductGridSection);
+  const [newByUniverseSection, setNewByUniverseSectionState] = useState<SectionHeader>(defaultNewByUniverseSection);
+  const [testimonialsSection, setTestimonialsSectionState] = useState<TestimonialsSection>(defaultTestimonialsSection);
+  const [legalContent, setLegalContentState] = useState<Record<string, LegalPageContent>>(defaultLegalContent);
+  const [contactPage, setContactPageState] = useState<ContactPageContent>(defaultContactPage);
+  const [faqPageHeader, setFAQPageHeaderState] = useState<FAQPageHeader>(defaultFAQPageHeader);
   const [products, setProductsState] = useState<Product[]>([]);
   const [accounts, setAccounts] = useState<ProAccount[]>([]);
   const [orders, setOrders] = useState<AdminOrder[]>([]);
@@ -142,7 +164,7 @@ export const AdminProvider = ({ children }: { children: ReactNode }) => {
   const loadAll = useCallback(async () => {
     setLoading(true);
     try {
-      const [universes, heroData, atelierData, testimonialsData, faqData, settingsData, productsData] = await Promise.all([
+      const [universes, heroData, atelierData, testimonialsData, faqData, settingsData, productsData, promisesData, categoriesData, productGridData, newByUniverseData, testimonialsSectionData, legalLegalData, legalCgvData, legalPrivacyData, legalShippingData, contactPageData, faqPageHeaderData] = await Promise.all([
         productApi.getUniverses(),
         contentApi.getHero().catch(() => defaultHero),
         contentApi.getAtelier().catch(() => defaultAtelier),
@@ -150,6 +172,17 @@ export const AdminProvider = ({ children }: { children: ReactNode }) => {
         contentApi.getFaq().catch(() => []),
         contentApi.getSettings().catch(() => ({})),
         productApi.getAll({ per_page: 200 }).catch(() => ({ data: [] })),
+        contentApi.getPromises().catch(() => defaultPromises),
+        contentApi.getCategoriesSection().catch(() => defaultCategoriesSection),
+        contentApi.getProductGridSection().catch(() => defaultProductGridSection),
+        contentApi.getNewByUniverseSection().catch(() => defaultNewByUniverseSection),
+        contentApi.getTestimonialsSection().catch(() => defaultTestimonialsSection),
+        contentApi.getLegalPage('legal').catch(() => ({})),
+        contentApi.getLegalPage('cgv').catch(() => ({})),
+        contentApi.getLegalPage('privacy').catch(() => ({})),
+        contentApi.getLegalPage('shipping').catch(() => ({})),
+        contentApi.getContactPage().catch(() => ({})),
+        contentApi.getFAQPageHeader().catch(() => ({})),
       ]);
 
       if (universes) {
@@ -195,6 +228,24 @@ export const AdminProvider = ({ children }: { children: ReactNode }) => {
       if (productsData?.data) {
         setProductsState(productsData.data.map(dbToProduct));
       }
+
+      if (promisesData && Array.isArray(promisesData)) {
+        setPromisesState(promisesData.length > 0 ? promisesData : defaultPromises);
+      }
+      if (categoriesData) setCategoriesSectionState({ ...defaultCategoriesSection, ...categoriesData });
+      if (productGridData) setProductGridSectionState({ ...defaultProductGridSection, ...productGridData });
+      if (newByUniverseData) setNewByUniverseSectionState({ ...defaultNewByUniverseSection, ...newByUniverseData });
+      if (testimonialsSectionData) setTestimonialsSectionState({ ...defaultTestimonialsSection, ...testimonialsSectionData });
+
+      const legalMap: Record<string, LegalPageContent> = { ...defaultLegalContent };
+      if (legalLegalData && Object.keys(legalLegalData).length > 0) legalMap.legal = { ...defaultLegalContent.legal, ...legalLegalData };
+      if (legalCgvData && Object.keys(legalCgvData).length > 0) legalMap.cgv = { ...defaultLegalContent.cgv, ...legalCgvData };
+      if (legalPrivacyData && Object.keys(legalPrivacyData).length > 0) legalMap.privacy = { ...defaultLegalContent.privacy, ...legalPrivacyData };
+      if (legalShippingData && Object.keys(legalShippingData).length > 0) legalMap.shipping = { ...defaultLegalContent.shipping, ...legalShippingData };
+      setLegalContentState(legalMap);
+
+      if (contactPageData && Object.keys(contactPageData).length > 0) setContactPageState({ ...defaultContactPage, ...contactPageData });
+      if (faqPageHeaderData && Object.keys(faqPageHeaderData).length > 0) setFAQPageHeaderState({ ...defaultFAQPageHeader, ...faqPageHeaderData });
     } catch (err) {
       console.error("Failed to load content:", err);
     } finally {
@@ -450,6 +501,14 @@ export const AdminProvider = ({ children }: { children: ReactNode }) => {
         setFaq,
         settings,
         setSettings,
+        promises,
+        categoriesSection,
+        productGridSection,
+        newByUniverseSection,
+        testimonialsSection,
+        legalContent,
+        contactPage,
+        faqPageHeader,
         products,
         upsertProduct,
         deleteProduct,
