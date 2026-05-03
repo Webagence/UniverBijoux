@@ -48,7 +48,7 @@ export interface SiteSettings {
   address: string;
   freeShippingFrom: string;
   announcements: string[];
-  copyright?: string;
+  footerBrand?: string;
   siret?: string;
   socialInstagram?: string;
   socialFacebook?: string;
