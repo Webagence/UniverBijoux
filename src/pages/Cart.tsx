@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Layout from "@/components/Layout";
 import PageHeader from "@/components/PageHeader";
@@ -6,8 +5,6 @@ import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { useAdmin } from "@/context/AdminContext";
 import { formatEUR } from "@/types/product";
-import { toast } from "@/hooks/use-toast";
-import { orderApi } from "@/services/orderApi";
 import { Trash2, Minus, Plus } from "lucide-react";
 
 const Cart = () => {
@@ -15,7 +12,6 @@ const Cart = () => {
   const { user, profile } = useAuth();
   const { settings } = useAdmin();
   const navigate = useNavigate();
-  const [submitting, setSubmitting] = useState(false);
 
   const freeShippingThreshold = Number(settings.freeShippingFrom) || 300;
   const shippingHT = subtotalHT >= freeShippingThreshold ? 0 : 15;
@@ -33,44 +29,7 @@ const Cart = () => {
       });
       return;
     }
-    setSubmitting(true);
-
-    const items = lines
-      .map((l) => {
-        const p = getProduct(l.productId);
-        if (!p) return null;
-        return {
-          product_id: p.id,
-          quantity: l.quantity,
-        };
-      })
-      .filter((x): x is NonNullable<typeof x> => x !== null);
-
-    try {
-      const result = await orderApi.create({
-        items,
-        shipping_address: {
-          name: profile.contact_name || profile.company_name,
-          company: profile.company_name,
-          address: profile.address || "",
-          city: profile.city || "",
-          postal_code: profile.postal_code || "",
-          country: profile.country || "France",
-        },
-        notes: "",
-      });
-
-      clear();
-      toast({ title: "Commande enregistrée", description: `Référence ${result.order.reference}` });
-      navigate("/commandes");
-    } catch (err: any) {
-      toast({
-        title: "Erreur",
-        description: err.response?.data?.message || "Impossible d'enregistrer la commande.",
-      });
-    } finally {
-      setSubmitting(false);
-    }
+    navigate("/paiement");
   };
 
   return (
@@ -151,10 +110,9 @@ const Cart = () => {
               </dl>
               <button
                 onClick={checkout}
-                disabled={submitting}
-                className="w-full bg-bordeaux text-ivory py-4 text-xs tracking-luxe uppercase hover:bg-gold transition-smooth disabled:opacity-50"
+                className="w-full bg-bordeaux text-ivory py-4 text-xs tracking-luxe uppercase hover:bg-gold transition-smooth"
               >
-                {submitting ? "Enregistrement…" : "Valider la commande"}
+                Procéder au paiement
               </button>
               <p className="text-[11px] text-bordeaux/50 text-center">
                 Livraison offerte dès {formatEUR(freeShippingThreshold)} HT. Paiement à 30 jours après validation.

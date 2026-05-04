@@ -29,6 +29,7 @@ import FAQ from "./pages/FAQ.tsx";
 import Shipping from "./pages/Shipping.tsx";
 import Support from "./pages/Support.tsx";
 import TicketDetail from "./pages/TicketDetail.tsx";
+import StripeCheckout from "./pages/StripeCheckout.tsx";
 
 const queryClient = new QueryClient();
 
@@ -50,6 +51,7 @@ const App = () => (
                   <Route path="/nouveautes" element={<NewArrivals />} />
                   <Route path="/produit/:slug" element={<ProductDetail />} />
                   <Route path="/panier" element={<Cart />} />
+                  <Route path="/paiement" element={<StripeCheckout />} />
                   <Route path="/connexion" element={<Login />} />
                   <Route path="/inscription" element={<Register />} />
                   <Route path="/compte" element={<Account />} />
