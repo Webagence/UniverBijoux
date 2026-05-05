@@ -16,10 +16,12 @@ import UniversePage from "./pages/UniversePage.tsx";
 import NewArrivals from "./pages/NewArrivals.tsx";
 import ProductDetail from "./pages/ProductDetail.tsx";
 import Cart from "./pages/Cart.tsx";
+import Checkout from "./pages/Checkout.tsx";
 import Login from "./pages/Login.tsx";
 import Register from "./pages/Register.tsx";
 import Account from "./pages/Account.tsx";
 import Orders from "./pages/Orders.tsx";
+import OrderDetail from "./pages/OrderDetail.tsx";
 import Contact from "./pages/Contact.tsx";
 import AtelierPage from "./pages/AtelierPage.tsx";
 import CGV from "./pages/CGV.tsx";
@@ -30,6 +32,8 @@ import Shipping from "./pages/Shipping.tsx";
 import Support from "./pages/Support.tsx";
 import TicketDetail from "./pages/TicketDetail.tsx";
 import StripeCheckout from "./pages/StripeCheckout.tsx";
+import PaymentSuccess from "./pages/PaymentSuccess.tsx";
+import PaymentFailed from "./pages/PaymentFailed.tsx";
 
 const queryClient = new QueryClient();
 
@@ -51,11 +55,15 @@ const App = () => (
                   <Route path="/nouveautes" element={<NewArrivals />} />
                   <Route path="/produit/:slug" element={<ProductDetail />} />
                   <Route path="/panier" element={<Cart />} />
+                  <Route path="/checkout" element={<Checkout />} />
                   <Route path="/paiement" element={<StripeCheckout />} />
+                  <Route path="/paiement/succes" element={<PaymentSuccess />} />
+                  <Route path="/paiement/echec" element={<PaymentFailed />} />
                   <Route path="/connexion" element={<Login />} />
                   <Route path="/inscription" element={<Register />} />
                   <Route path="/compte" element={<Account />} />
                   <Route path="/commandes" element={<Orders />} />
+                  <Route path="/commandes/:id" element={<OrderDetail />} />
                   <Route path="/contact" element={<Contact />} />
                   <Route path="/atelier" element={<AtelierPage />} />
                   <Route path="/cgv" element={<CGV />} />

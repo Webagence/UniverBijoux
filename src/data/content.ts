@@ -57,6 +57,7 @@ export interface SiteSettings {
   socialInstagram?: string;
   socialFacebook?: string;
   socialLinkedin?: string;
+  stripePublishableKey?: string;
 }
 
 export interface PromiseItem {

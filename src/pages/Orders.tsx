@@ -6,7 +6,7 @@ import { useAuth } from "@/context/AuthContext";
 import { orderApi } from "@/services/orderApi";
 import { formatEUR } from "@/types/product";
 import { toast } from "@/hooks/use-toast";
-import { Download, FileText, XCircle } from "lucide-react";
+import { Download, FileText, XCircle, ChevronRight } from "lucide-react";
 
 interface OrderRow {
   id: string;
@@ -99,10 +99,10 @@ const Orders = () => {
             {orders.map((o) => (
               <article key={o.id} className="bg-ivory border border-border p-6">
                 <header className="flex flex-wrap justify-between gap-4 mb-4 pb-4 border-b border-border">
-                  <div>
+                  <Link to={`/commandes/${o.id}`} className="hover:text-gold transition-smooth">
                     <p className="text-[11px] tracking-luxe uppercase text-bordeaux/50">Référence</p>
                     <p className="font-serif text-lg text-bordeaux">{o.reference}</p>
-                  </div>
+                  </Link>
                   <div>
                     <p className="text-[11px] tracking-luxe uppercase text-bordeaux/50">Date</p>
                     <p className="text-sm text-bordeaux">
@@ -131,6 +131,13 @@ const Orders = () => {
                   </p>
                 )}
                 <div className="mt-4 flex flex-wrap gap-3">
+                  <Link
+                    to={`/commandes/${o.id}`}
+                    className="inline-flex items-center gap-2 bg-bordeaux text-ivory px-4 py-2 text-xs tracking-luxe uppercase hover:bg-gold transition-smooth"
+                  >
+                    Voir les détails
+                    <ChevronRight className="h-3.5 w-3.5" />
+                  </Link>
                   <button
                     onClick={() => generateInvoice(o)}
                     className="inline-flex items-center gap-2 border border-bordeaux text-bordeaux px-4 py-2 text-xs tracking-luxe uppercase hover:bg-bordeaux hover:text-ivory transition-smooth"

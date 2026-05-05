@@ -208,7 +208,14 @@ export const AdminProvider = ({ children }: { children: ReactNode }) => {
 
       if (heroData) setHeroState({ ...defaultHero, ...heroData });
       if (atelierData) setAtelierState({ ...defaultAtelier, ...atelierData });
-      if (settingsData) setSettingsState({ ...defaultSettings, ...settingsData });
+      if (settingsData) {
+        const mappedSettings = {
+          ...defaultSettings,
+          ...settingsData,
+          stripePublishableKey: (settingsData as any).publishable_key || (settingsData as any).stripePublishableKey || "",
+        };
+        setSettingsState(mappedSettings);
+      }
 
       if (testimonialsData) {
         setTestimonialsState(

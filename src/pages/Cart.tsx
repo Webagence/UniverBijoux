@@ -30,7 +30,7 @@ const Cart = () => {
       });
       return;
     }
-    navigate("/paiement");
+    navigate("/checkout");
   };
 
   return (
@@ -113,7 +113,7 @@ const Cart = () => {
                 onClick={checkout}
                 className="w-full bg-bordeaux text-ivory py-4 text-xs tracking-luxe uppercase hover:bg-gold transition-smooth"
               >
-                Procéder au paiement
+                Procéder à la commande
               </button>
               <p className="text-[11px] text-bordeaux/50 text-center">
                 Livraison offerte dès {formatEUR(freeShippingThreshold)} HT. Paiement à 30 jours après validation.

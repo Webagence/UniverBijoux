@@ -55,6 +55,7 @@ export interface SiteSettings {
   address: string;
   freeShippingFrom: string;
   announcements: string[];
+  stripePublishableKey?: string;
 }
 
 export const contentApi = {
