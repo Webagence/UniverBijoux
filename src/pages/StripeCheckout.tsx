@@ -117,11 +117,11 @@ const StripeCheckout = () => {
         const result = await stripeApi.createPaymentIntent({
           items,
           shipping_address: {
-            name: profile.contact_name || profile.company_name,
-            company: profile.company_name,
-            address: profile.address || "",
-            city: profile.city || "",
-            postal_code: profile.postal_code || "",
+            name: profile.contact_name || profile.company_name || "Client",
+            company: profile.company_name || "N/A",
+            address: profile.address || "Adresse non renseignée",
+            city: profile.city || "Paris",
+            postal_code: profile.postal_code || "75001",
             country: profile.country || "France",
           },
           notes: "",

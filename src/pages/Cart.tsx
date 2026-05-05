@@ -6,6 +6,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useAdmin } from "@/context/AdminContext";
 import { formatEUR } from "@/types/product";
 import { Trash2, Minus, Plus } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
 
 const Cart = () => {
   const { lines, getProduct, updateQty, removeItem, subtotalHT, vat, totalTTC, clear } = useCart();
