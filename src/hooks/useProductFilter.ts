@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Product } from "@/types/product";
 
 export type SortOption = "default" | "price-asc" | "price-desc" | "alpha-asc" | "alpha-desc";
@@ -29,6 +29,17 @@ export const useProductFilter = ({ products, initialUniverse = "all", initialFil
   const [material, setMaterial] = useState(initialFilters.material ?? "all");
   const [finish, setFinish] = useState(initialFilters.finish ?? "all");
   const [letter, setLetter] = useState(initialFilters.letter ?? "");
+
+  useEffect(() => {
+    setUniv(initialUniverse);
+    setQuery("");
+    setSort("default");
+    setInStockOnly(false);
+    setTag("all");
+    setMaterial("all");
+    setFinish("all");
+    setLetter("");
+  }, [initialUniverse]);
 
   const uniqueMaterials = useMemo(() => {
     const materials = new Set(products.map((p) => p.material).filter(Boolean));
