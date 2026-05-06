@@ -1,30 +1,21 @@
-import { useMemo, useState } from "react";
 import Layout from "@/components/Layout";
 import PageHeader from "@/components/PageHeader";
 import ProductCard from "@/components/ProductCard";
+import ProductFilterBar from "@/components/ProductFilterBar";
 import { useAdmin } from "@/context/AdminContext";
+import { useProductFilter } from "@/hooks/useProductFilter";
 
 const Shop = () => {
   const { products, universesList } = useAdmin();
-  const [query, setQuery] = useState("");
-  const [univ, setUniv] = useState<string>("all");
-  const [sort, setSort] = useState<"default" | "asc" | "desc">("default");
-  const [inStockOnly, setInStockOnly] = useState(false);
-
-  const filtered = useMemo(() => {
-    let list = [...products];
-    if (univ !== "all") list = list.filter((p) => p.universe === univ);
-    if (inStockOnly) list = list.filter((p) => p.stock > 0);
-    if (query.trim())
-      list = list.filter(
-        (p) =>
-          p.name.toLowerCase().includes(query.toLowerCase()) ||
-          p.reference.toLowerCase().includes(query.toLowerCase())
-      );
-    if (sort === "asc") list.sort((a, b) => a.priceHT - b.priceHT);
-    if (sort === "desc") list.sort((a, b) => b.priceHT - a.priceHT);
-    return list;
-  }, [query, univ, sort, inStockOnly, products]);
+  const {
+    filters,
+    setters,
+    filtered,
+    uniqueMaterials,
+    uniqueFinishes,
+    tags,
+    resetFilters,
+  } = useProductFilter({ products });
 
   return (
     <Layout>
@@ -35,48 +26,29 @@ const Shop = () => {
         crumbs={[{ label: "Boutique" }]}
       />
       <section className="container py-12 md:py-16">
-        <div className="flex flex-col md:flex-row gap-4 mb-10">
-          <input
-            type="search"
-            placeholder="Rechercher un nom, une référence..."
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            className="flex-1 bg-ivory border border-border px-4 py-3 text-sm focus:outline-none focus:border-gold transition-smooth"
-          />
-          <select
-            value={univ}
-            onChange={(e) => setUniv(e.target.value)}
-            className="bg-ivory border border-border px-4 py-3 text-sm focus:outline-none focus:border-gold transition-smooth"
-          >
-            <option value="all">Tous les univers</option>
-            {universesList?.map((u) => (
-              <option key={u.slug} value={u.slug}>
-                {u.name}
-              </option>
-            ))}
-          </select>
-          <select
-            value={sort}
-            onChange={(e) => setSort(e.target.value as "default" | "asc" | "desc")}
-            className="bg-ivory border border-border px-4 py-3 text-sm focus:outline-none focus:border-gold transition-smooth"
-          >
-            <option value="default">Trier par : pertinence</option>
-            <option value="asc">Prix croissant</option>
-            <option value="desc">Prix décroissant</option>
-          </select>
-          <label className="flex items-center gap-2 bg-ivory border border-border px-4 py-3 text-sm cursor-pointer">
-            <input
-              type="checkbox"
-              checked={inStockOnly}
-              onChange={(e) => setInStockOnly(e.target.checked)}
-              className="accent-bordeaux"
-            />
-            En stock
-          </label>
-        </div>
-        <p className="text-xs uppercase tracking-luxe text-bordeaux/50 mb-6">
-          {filtered.length} référence{filtered.length > 1 ? "s" : ""}
-        </p>
+        <ProductFilterBar
+          query={filters.query}
+          setQuery={setters.setQuery}
+          univ={filters.univ}
+          setUniv={setters.setUniv}
+          sort={filters.sort}
+          setSort={setters.setSort}
+          inStockOnly={filters.inStockOnly}
+          setInStockOnly={setters.setInStockOnly}
+          tag={filters.tag}
+          setTag={setters.setTag}
+          material={filters.material}
+          setMaterial={setters.setMaterial}
+          finish={filters.finish}
+          setFinish={setters.setFinish}
+          universesList={universesList}
+          uniqueMaterials={uniqueMaterials}
+          uniqueFinishes={uniqueFinishes}
+          tags={tags}
+          showUniverseFilter
+          count={filtered.length}
+          onReset={resetFilters}
+        />
         {filtered.length === 0 ? (
           <p className="text-bordeaux/60 text-center py-20">Aucun résultat pour votre recherche.</p>
         ) : (
