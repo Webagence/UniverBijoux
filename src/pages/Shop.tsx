@@ -13,6 +13,7 @@ const Shop = () => {
     filtered,
     uniqueMaterials,
     uniqueFinishes,
+    availableLetters,
     tags,
     resetFilters,
   } = useProductFilter({ products });
@@ -41,9 +42,12 @@ const Shop = () => {
           setMaterial={setters.setMaterial}
           finish={filters.finish}
           setFinish={setters.setFinish}
+          letter={filters.letter}
+          setLetter={setters.setLetter}
           universesList={universesList}
           uniqueMaterials={uniqueMaterials}
           uniqueFinishes={uniqueFinishes}
+          availableLetters={availableLetters}
           tags={tags}
           showUniverseFilter
           count={filtered.length}

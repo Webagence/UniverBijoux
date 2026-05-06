@@ -16,9 +16,12 @@ interface ProductFilterBarProps {
   setMaterial: (v: string) => void;
   finish: string;
   setFinish: (v: string) => void;
+  letter: string;
+  setLetter: (v: string) => void;
   universesList?: UniverseRow[];
   uniqueMaterials?: string[];
   uniqueFinishes?: string[];
+  availableLetters?: string[];
   tags?: string[];
   showUniverseFilter?: boolean;
   count: number;
@@ -40,9 +43,12 @@ const ProductFilterBar = ({
   setMaterial,
   finish,
   setFinish,
+  letter,
+  setLetter,
   universesList,
   uniqueMaterials = [],
   uniqueFinishes = [],
+  availableLetters = [],
   tags = ["all"],
   showUniverseFilter = true,
   count,
@@ -146,6 +152,37 @@ const ProductFilterBar = ({
           </button>
         )}
       </div>
+
+      {availableLetters.length > 0 && (
+        <div>
+          <p className="text-xs uppercase tracking-luxe text-bordeaux/50 mb-2">Filtrer par lettre</p>
+          <div className="flex flex-wrap gap-1">
+            <button
+              onClick={() => setLetter("")}
+              className={`w-8 h-8 text-xs font-medium border transition-smooth ${
+                letter === ""
+                  ? "bg-bordeaux text-white border-bordeaux"
+                  : "bg-ivory border-border text-bordeaux hover:border-gold"
+              }`}
+            >
+              #
+            </button>
+            {availableLetters.map((l) => (
+              <button
+                key={l}
+                onClick={() => setLetter(l)}
+                className={`w-8 h-8 text-xs font-medium border transition-smooth ${
+                  letter === l
+                    ? "bg-bordeaux text-white border-bordeaux"
+                    : "bg-ivory border-border text-bordeaux hover:border-gold"
+                }`}
+              >
+                {l}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       <p className="text-xs uppercase tracking-luxe text-bordeaux/50">
         {count} référence{count > 1 ? "s" : ""}

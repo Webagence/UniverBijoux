@@ -18,6 +18,7 @@ const UniversePage = () => {
     filtered,
     uniqueMaterials,
     uniqueFinishes,
+    availableLetters,
     tags,
     resetFilters,
   } = useProductFilter({
@@ -54,9 +55,12 @@ const UniversePage = () => {
           setMaterial={setters.setMaterial}
           finish={filters.finish}
           setFinish={setters.setFinish}
+          letter={filters.letter}
+          setLetter={setters.setLetter}
           universesList={universesList}
           uniqueMaterials={uniqueMaterials}
           uniqueFinishes={uniqueFinishes}
+          availableLetters={availableLetters}
           tags={tags}
           showUniverseFilter={false}
           count={filtered.length}
