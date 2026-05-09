@@ -6,7 +6,7 @@ import { useAuth } from "@/context/AuthContext";
 import { orderApi } from "@/services/orderApi";
 import { formatEUR } from "@/types/product";
 import { toast } from "@/hooks/use-toast";
-import { ArrowLeft, Download, FileText, Package, Truck, XCircle, Clock, CheckCircle } from "lucide-react";
+import { ArrowLeft, Download, FileText, Package, Truck, XCircle, Clock, CheckCircle, ExternalLink } from "lucide-react";
 
 interface OrderDetail {
   id: string;
@@ -206,6 +206,20 @@ const OrderDetail = () => {
                 <div>
                   <p className="text-[11px] tracking-luxe uppercase text-bordeaux/50">N° de suivi</p>
                   <p className="text-sm text-bordeaux mt-1 font-mono">{order.tracking_number}</p>
+                </div>
+              )}
+
+              {order.tracking_number && order.carrier && (
+                <div>
+                  <a
+                    href={`https://www.google.com/search?q=${encodeURIComponent(order.carrier + ' tracking ' + order.tracking_number)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 text-xs text-gold hover:text-bordeaux transition-smooth mt-1"
+                  >
+                    <ExternalLink className="h-3 w-3" />
+                    Suivre mon colis
+                  </a>
                 </div>
               )}
             </div>
