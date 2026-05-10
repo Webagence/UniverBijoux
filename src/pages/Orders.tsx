@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
-import { Navigate, Link } from "react-router-dom";
+import { Navigate, Link, useSearchParams } from "react-router-dom";
 import Layout from "@/components/Layout";
 import PageHeader from "@/components/PageHeader";
 import ProSidebar from "@/components/ProSidebar";
@@ -44,6 +44,7 @@ const STATUS_LABEL: Record<string, string> = {
 
 const Orders = () => {
   const { user, loading } = useAuth();
+  const [searchParams] = useSearchParams();
   const [orders, setOrders] = useState<OrderRow[]>([]);
   const [busy, setBusy] = useState(true);
   const [search, setSearch] = useState("");
@@ -52,10 +53,13 @@ const Orders = () => {
 
   useEffect(() => {
     if (!user) return;
-    (async () => {
+    
+    const fetchOrders = async () => {
       setBusy(true);
       try {
         const data = await orderApi.getAll();
+        console.log('Orders API Response:', data);
+        console.log('Orders data.data:', data.data);
         setOrders(data.data || []);
       } catch (err) {
         console.error("Failed to load orders:", err);
@@ -63,8 +67,17 @@ const Orders = () => {
       } finally {
         setBusy(false);
       }
-    })();
-  }, [user]);
+    };
+
+    fetchOrders();
+
+    const handleFocus = () => fetchOrders();
+    window.addEventListener('focus', handleFocus);
+
+    return () => {
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, [user, searchParams.get('refresh')]);
 
   if (loading) return null;
   if (!user) return <Navigate to="/connexion" replace />;

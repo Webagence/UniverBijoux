@@ -130,7 +130,7 @@ const PaymentSuccess = () => {
 
             <div className="flex flex-wrap gap-3 pt-4">
               <Link
-                to="/commandes"
+                to="/commandes?refresh=true"
                 className="inline-flex items-center gap-2 bg-bordeaux text-ivory px-6 py-3 text-xs tracking-luxe uppercase hover:bg-gold transition-smooth"
               >
                 <Package className="w-4 h-4" />
