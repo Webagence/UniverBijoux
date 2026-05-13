@@ -6,9 +6,11 @@ import ProSidebar from "@/components/ProSidebar";
 import StatCard from "@/components/StatCard";
 import OrderStatusBadge from "@/components/OrderStatusBadge";
 import { useAuth } from "@/context/AuthContext";
+import { useAdmin } from "@/context/AdminContext";
 import { orderApi } from "@/services/orderApi";
 import { ticketApi } from "@/services/ticketApi";
 import { authApi } from "@/services/authApi";
+import { renderInvoiceHTML } from "@/utils/invoice";
 import { toast } from "@/hooks/use-toast";
 import { formatEUR } from "@/types/product";
 import {
@@ -51,6 +53,7 @@ interface TicketRow {
 
 const Account = () => {
   const { user, profile, logout, loading, refreshProfile } = useAuth();
+  const { settings } = useAdmin();
   const [params] = useSearchParams();
   const navigate = useNavigate();
   const [orders, setOrders] = useState<OrderRow[]>([]);
@@ -165,7 +168,14 @@ const Account = () => {
     setForm((f) => ({ ...f, [k]: e.target.value }));
 
   const generateInvoice = (order: OrderRow) => {
-    const html = renderInvoiceHTML(order);
+    const html = renderInvoiceHTML(
+      {
+        ...order,
+        items: order.items.map((i) => ({ ...i, line_total_ht: i.unit_price_ht * i.quantity })),
+      },
+      settings,
+      profile
+    );
     const w = window.open("", "_blank");
     if (w) {
       w.document.write(html);
@@ -511,45 +521,5 @@ const Account = () => {
     </Layout>
   );
 };
-
-function renderInvoiceHTML(o: OrderRow) {
-  const date = new Date(o.created_at).toLocaleDateString("fr-FR");
-  const rows = (o.items || [])
-    .map(
-      (l) => `<tr>
-        <td>${l.product_name}</td>
-        <td style="text-align:center">${l.quantity}</td>
-        <td style="text-align:right">${Number(l.unit_price_ht).toFixed(2)} €</td>
-        <td style="text-align:right">${Number(l.line_total_ht).toFixed(2)} €</td>
-      </tr>`
-    )
-    .join("");
-  return `<!doctype html><html><head><meta charset="utf-8"><title>Facture ${o.reference}</title>
-  <style>
-    body{font-family:Georgia,serif;color:#3a1a25;padding:40px;max-width:800px;margin:auto}
-    h1{font-size:28px;margin-bottom:0}
-    table{width:100%;border-collapse:collapse;margin-top:24px}
-    th,td{padding:8px;border-bottom:1px solid #e6dfd3;font-size:13px}
-    th{background:#f5efe4;text-align:left;font-size:11px;letter-spacing:1px;text-transform:uppercase}
-    .totals{margin-top:24px;width:300px;margin-left:auto}
-    .totals td{padding:6px}
-    .total{font-weight:bold;font-size:16px;border-top:2px solid #3a1a25}
-  </style></head><body>
-  <div style="display:flex;justify-content:space-between;align-items:flex-start">
-    <div><h1>UNIVER BIJOUX</h1><p style="color:#9a7a5a">Grossiste bijoux français</p></div>
-    <div style="text-align:right"><h2>Facture</h2><p>N° ${o.reference}<br>Date : ${date}</p></div>
-  </div>
-  <table>
-    <thead><tr><th>Article</th><th style="text-align:center">Qté</th><th style="text-align:right">PU HT</th><th style="text-align:right">Total HT</th></tr></thead>
-    <tbody>${rows}</tbody>
-  </table>
-  <table class="totals">
-    <tr><td>Sous-total HT</td><td style="text-align:right">${Number(o.subtotal_ht).toFixed(2)} €</td></tr>
-    <tr><td>Livraison HT</td><td style="text-align:right">${Number(o.shipping_ht).toFixed(2)} €</td></tr>
-    <tr><td>TVA (20%)</td><td style="text-align:right">${Number(o.vat_amount).toFixed(2)} €</td></tr>
-    <tr class="total"><td>Total TTC</td><td style="text-align:right">${Number(o.total_ttc).toFixed(2)} €</td></tr>
-  </table>
-  </body></html>`;
-}
 
 export default Account;

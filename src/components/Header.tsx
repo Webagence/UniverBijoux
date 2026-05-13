@@ -72,11 +72,13 @@ const Header = () => {
             ))}
           </nav>
 
-          <Link to="/" className="font-serif text-2xl md:text-3xl text-bordeaux tracking-luxe whitespace-nowrap">
+          <Link to="/" className="flex items-center">
             {settings.logo ? (
-              <img src={settings.logo} alt={settings.siteName} className="h-8 md:h-10 w-auto object-contain" />
+              <img src={settings.logo} alt={settings.siteName} className="h-16 md:h-24 w-auto object-contain" />
             ) : (
-              settings.siteName
+              <span className="font-serif text-2xl md:text-3xl text-bordeaux tracking-luxe whitespace-nowrap">
+                {settings.siteName}
+              </span>
             )}
           </Link>
 
@@ -163,9 +165,9 @@ const Header = () => {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between">
-              <span className="font-serif text-xl text-bordeaux tracking-luxe">
+              <span className="font-serif text-xl text-bordeaux tracking-luxe flex items-center">
                 {settings.logo ? (
-                  <img src={settings.logo} alt={settings.siteName} className="h-8 w-auto object-contain" />
+                  <img src={settings.logo} alt={settings.siteName} className="h-16 md:h-20 w-auto object-contain" />
                 ) : (
                   settings.siteName
                 )}

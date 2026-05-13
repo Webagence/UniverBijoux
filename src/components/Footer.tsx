@@ -82,7 +82,13 @@ const Footer = () => {
 
       <div className="container py-14 grid md:grid-cols-4 gap-10">
         <div className="space-y-4">
-          <Link to="/" className="font-serif text-2xl tracking-luxe">{settings.siteName}</Link>
+          <Link to="/" className="flex items-center">
+            {settings.logo ? (
+              <img src={settings.logo} alt={settings.siteName} className="h-16 w-auto object-contain brightness-0 invert" />
+            ) : (
+              <span className="font-serif text-2xl tracking-luxe">{settings.siteName}</span>
+            )}
+          </Link>
           <p className="text-ivory/60 text-sm leading-relaxed">
             {t("footer.tagline")}
           </p>
