@@ -49,7 +49,7 @@ const Support = () => {
     setBusy(true);
     try {
       const data = await ticketApi.getAll();
-      setTickets(data.data || []);
+      setTickets(data?.data || []);
     } catch (err) {
       console.error("Failed to load tickets:", err);
       setTickets([]);

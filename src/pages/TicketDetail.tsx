@@ -31,7 +31,7 @@ const STATUS_LABEL: Record<string, string> = {
 };
 
 const TicketDetail = () => {
-  const { user, loading, isAdmin } = useAuth();
+  const { user, loading } = useAuth();
   const { id } = useParams<{ id: string }>();
   const [ticket, setTicket] = useState<Ticket | null>(null);
   const [msgs, setMsgs] = useState<Msg[]>([]);
@@ -104,15 +104,9 @@ const TicketDetail = () => {
                 <p className="font-mono text-xs text-bordeaux/50">{ticket.reference}</p>
                 <p className="text-bordeaux">{ticket.subject}</p>
               </div>
-              {isAdmin ? (
-                <span className="text-[10px] tracking-luxe uppercase bg-gold/20 text-gold px-2 py-1">
-                  {STATUS_LABEL[ticket.status]}
-                </span>
-              ) : (
-                <span className="text-[10px] tracking-luxe uppercase bg-gold/20 text-gold px-2 py-1">
-                  {STATUS_LABEL[ticket.status]}
-                </span>
-              )}
+              <span className="text-[10px] tracking-luxe uppercase bg-gold/20 text-gold px-2 py-1">
+                {STATUS_LABEL[ticket.status]}
+              </span>
             </div>
 
             <div className="bg-ivory border border-border min-h-[300px] max-h-[500px] overflow-y-auto p-4 space-y-3">
@@ -139,7 +133,7 @@ const TicketDetail = () => {
               <div ref={endRef} />
             </div>
 
-            {ticket.status !== "closed" && (
+            {(ticket.status === "open" || ticket.status === "pending") && (
               <div className="flex gap-2">
                 <input
                   value={input}
@@ -156,7 +150,7 @@ const TicketDetail = () => {
                 </button>
               </div>
             )}
-            <Link to={isAdmin ? "/admin/tickets" : "/support"} className="text-xs text-bordeaux/60 hover:text-gold">
+            <Link to="/support" className="text-xs text-bordeaux/60 hover:text-gold">
               ← Retour aux tickets
             </Link>
           </>
