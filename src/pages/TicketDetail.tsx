@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { Navigate, useParams, Link } from "react-router-dom";
 import Layout from "@/components/Layout";
 import PageHeader from "@/components/PageHeader";
@@ -38,36 +38,38 @@ const TicketDetail = () => {
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(true);
   const endRef = useRef<HTMLDivElement | null>(null);
+  const ticketStatusRef = useRef<string | null>(null);
 
-  const refresh = async () => {
+  const refresh = useCallback(async () => {
     if (!id) return;
-    setBusy(true);
     try {
       const data = await ticketApi.getById(id);
       setTicket(data);
       setMsgs(data.messages || []);
+      ticketStatusRef.current = data?.status || null;
     } catch (err) {
       console.error("Failed to load ticket:", err);
-      setTicket(null);
-      setMsgs([]);
     } finally {
       setBusy(false);
-      setTimeout(() => endRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
     }
-  };
+  }, [id]);
 
   useEffect(() => {
-    if (user && id) refresh();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, id]);
+    if (user && id) {
+      setBusy(true);
+      refresh();
+    }
+  }, [user, id, refresh]);
 
-  // Poll for new messages every 5 seconds (replaces Supabase realtime)
   useEffect(() => {
-    if (!id || ticket?.status === "closed") return;
-    const interval = setInterval(refresh, 5000);
+    if (!id || ticketStatusRef.current === "closed" || ticketStatusRef.current === "resolved") return;
+    const interval = setInterval(refresh, 15000);
     return () => clearInterval(interval);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id, ticket?.status]);
+  }, [id, refresh]);
+
+  useEffect(() => {
+    endRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [msgs.length]);
 
   if (loading) return null;
   if (!user) return <Navigate to="/connexion" replace />;
@@ -78,8 +80,9 @@ const TicketDetail = () => {
     setInput("");
     try {
       const result = await ticketApi.reply(ticket.id, text);
+      setTicket(result.ticket);
       setMsgs(result.ticket.messages || []);
-      setTimeout(() => endRef.current?.scrollIntoView({ behavior: "smooth" }), 50);
+      ticketStatusRef.current = result.ticket?.status || null;
     } catch (err: any) {
       toast({ title: "Erreur", description: err.response?.data?.message || "Impossible d'envoyer le message." });
       setInput(text);
