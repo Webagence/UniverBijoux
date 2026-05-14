@@ -44,7 +44,7 @@ const STATUS_LABEL: Record<string, string> = {
 };
 
 const Orders = () => {
-  const { user, loading } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const { settings } = useAdmin();
   const [searchParams] = useSearchParams();
   const [orders, setOrders] = useState<OrderRow[]>([]);
@@ -81,7 +81,7 @@ const Orders = () => {
     };
   }, [user, searchParams.get('refresh')]);
 
-  if (loading) return null;
+  if (authLoading) return null;
   if (!user) return <Navigate to="/connexion" replace />;
 
   const generateInvoice = async (order: OrderRow) => {

@@ -32,7 +32,7 @@ const PRIORITY_CONFIG: Record<string, { label: string; color: string }> = {
 };
 
 const Support = () => {
-  const { user, loading } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [params] = useSearchParams();
   const orderId = params.get("order");
   const [tickets, setTickets] = useState<Ticket[]>([]);
@@ -63,7 +63,7 @@ const Support = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
-  if (loading) return null;
+  if (authLoading) return null;
   if (!user) return <Navigate to="/connexion" replace />;
 
   const submit = async () => {

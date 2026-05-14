@@ -51,7 +51,7 @@ interface TicketRow {
 }
 
 const Account = () => {
-  const { user, profile, logout, loading, refreshProfile } = useAuth();
+  const { user, profile, logout, loading: authLoading, refreshProfile } = useAuth();
   const { settings } = useAdmin();
   const [params] = useSearchParams();
   const navigate = useNavigate();
@@ -114,7 +114,7 @@ const Account = () => {
     })();
   }, [user]);
 
-  if (loading) return <Layout><div className="container py-32 text-center text-bordeaux/60">Chargement…</div></Layout>;
+  if (authLoading) return <Layout><div className="container py-32 text-center text-bordeaux/60">Chargement…</div></Layout>;
   if (!user) return <Navigate to="/connexion" replace />;
 
   const contactName = profile?.contact_name || user.name || user.email?.split("@")[0] || "";

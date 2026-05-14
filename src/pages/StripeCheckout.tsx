@@ -102,7 +102,7 @@ const CheckoutForm = ({ clientSecret, orderId, orderReference, amount, onSuccess
 
 const StripeCheckout = () => {
   const { lines, getProduct, subtotalHT, clear } = useCart();
-  const { user, profile } = useAuth();
+  const { user, profile, loading: authLoading } = useAuth();
   const { settings } = useAdmin();
   const navigate = useNavigate();
 
@@ -193,6 +193,7 @@ const StripeCheckout = () => {
     createIntent();
   }, [user, profile, lines, checkoutData]);
 
+  if (authLoading) return <Layout><div className="container py-32 text-center text-bordeaux/60">Chargement…</div></Layout>;
   if (!user) return <Navigate to="/connexion" replace />;
   if (!profile?.approved) {
     return (

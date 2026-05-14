@@ -37,7 +37,7 @@ const STATUS_CONFIG: Record<string, { label: string; icon: React.ReactNode; colo
 const OrderDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const { settings } = useAdmin();
   const [order, setOrder] = useState<OrderDetail | null>(null);
   const [loading, setLoading] = useState(true);
@@ -63,6 +63,15 @@ const OrderDetail = () => {
 
     fetchOrder();
   }, [user, id]);
+
+  if (authLoading) {
+    return (
+      <Layout>
+        <PageHeader title="Commande" crumbs={[{ label: "Commandes", to: "/commandes" }, { label: "Détails" }]} />
+        <section className="container py-20 text-center text-bordeaux/60">Chargement…</section>
+      </Layout>
+    );
+  }
 
   if (!user) {
     navigate("/connexion");

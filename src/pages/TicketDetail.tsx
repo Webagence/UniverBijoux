@@ -31,7 +31,7 @@ const STATUS_LABEL: Record<string, string> = {
 };
 
 const TicketDetail = () => {
-  const { user, loading } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const { id } = useParams<{ id: string }>();
   const [ticket, setTicket] = useState<Ticket | null>(null);
   const [msgs, setMsgs] = useState<Msg[]>([]);
@@ -71,7 +71,7 @@ const TicketDetail = () => {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [msgs.length]);
 
-  if (loading) return null;
+  if (authLoading) return null;
   if (!user) return <Navigate to="/connexion" replace />;
 
   const send = async () => {
