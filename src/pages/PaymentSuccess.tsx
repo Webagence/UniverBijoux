@@ -5,7 +5,6 @@ import PageHeader from "@/components/PageHeader";
 import { useAuth } from "@/context/AuthContext";
 import { useAdmin } from "@/context/AdminContext";
 import { orderApi } from "@/services/orderApi";
-import { renderInvoiceHTML } from "@/utils/invoice";
 import { formatEUR } from "@/types/product";
 import { CheckCircle, Package, ArrowRight, Download } from "lucide-react";
 
@@ -31,7 +30,7 @@ const STATUS_LABEL: Record<string, string> = {
 };
 
 const PaymentSuccess = () => {
-  const { user, profile } = useAuth();
+  const { user } = useAuth();
   const { settings } = useAdmin();
   const [searchParams] = useSearchParams();
   const [order, setOrder] = useState<OrderData | null>(null);
@@ -140,20 +139,11 @@ const PaymentSuccess = () => {
                 Voir mes commandes
               </Link>
               <button
-                onClick={() => {
-                  const html = renderInvoiceHTML(
-                    {
-                      ...order,
-                      items: order.items.map((i) => ({ ...i, line_total_ht: i.unit_price_ht * i.quantity })),
-                    },
-                    settings,
-                    profile
-                  );
-                  const w = window.open("", "_blank");
-                  if (w) {
-                    w.document.write(html);
-                    w.document.close();
-                    setTimeout(() => w.print(), 400);
+                onClick={async () => {
+                  try {
+                    await orderApi.downloadInvoice(order.id);
+                  } catch {
+                    // fallback
                   }
                 }}
                 className="inline-flex items-center gap-2 border border-bordeaux text-bordeaux px-6 py-3 text-xs tracking-luxe uppercase hover:bg-bordeaux hover:text-ivory transition-smooth"

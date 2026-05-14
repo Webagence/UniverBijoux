@@ -55,4 +55,16 @@ export const orderApi = {
     const { data } = await api.post(`/orders/${id}/cancel`);
     return data;
   },
+
+  downloadInvoice: async (id: string) => {
+    const response = await api.get(`/orders/${id}/invoice`, { responseType: 'blob' });
+    const url = window.URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `facture-${id}.pdf`);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+  },
 };

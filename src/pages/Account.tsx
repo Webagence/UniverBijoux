@@ -10,7 +10,6 @@ import { useAdmin } from "@/context/AdminContext";
 import { orderApi } from "@/services/orderApi";
 import { ticketApi } from "@/services/ticketApi";
 import { authApi } from "@/services/authApi";
-import { renderInvoiceHTML } from "@/utils/invoice";
 import { toast } from "@/hooks/use-toast";
 import { formatEUR } from "@/types/product";
 import {
@@ -167,20 +166,11 @@ const Account = () => {
   const updateField = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement>) =>
     setForm((f) => ({ ...f, [k]: e.target.value }));
 
-  const generateInvoice = (order: OrderRow) => {
-    const html = renderInvoiceHTML(
-      {
-        ...order,
-        items: order.items.map((i) => ({ ...i, line_total_ht: i.unit_price_ht * i.quantity })),
-      },
-      settings,
-      profile
-    );
-    const w = window.open("", "_blank");
-    if (w) {
-      w.document.write(html);
-      w.document.close();
-      setTimeout(() => w.print(), 400);
+  const generateInvoice = async (order: OrderRow) => {
+    try {
+      await orderApi.downloadInvoice(order.id);
+    } catch {
+      toast({ title: "Erreur", description: "Impossible de télécharger la facture." });
     }
   };
 

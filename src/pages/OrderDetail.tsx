@@ -6,7 +6,6 @@ import { useAuth } from "@/context/AuthContext";
 import { useAdmin } from "@/context/AdminContext";
 import { orderApi } from "@/services/orderApi";
 import { formatEUR } from "@/types/product";
-import { renderInvoiceHTML } from "@/utils/invoice";
 import { toast } from "@/hooks/use-toast";
 import { ArrowLeft, Download, FileText, Package, Truck, XCircle, Clock, CheckCircle, ExternalLink } from "lucide-react";
 
@@ -38,7 +37,7 @@ const STATUS_CONFIG: Record<string, { label: string; icon: React.ReactNode; colo
 const OrderDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { user, profile } = useAuth();
+  const { user } = useAuth();
   const { settings } = useAdmin();
   const [order, setOrder] = useState<OrderDetail | null>(null);
   const [loading, setLoading] = useState(true);
@@ -95,20 +94,11 @@ const OrderDetail = () => {
 
   const statusConfig = STATUS_CONFIG[order.status] || { label: order.status, icon: null, color: "text-bordeaux" };
 
-  const generateInvoice = () => {
-    const html = renderInvoiceHTML(
-      {
-        ...order,
-        items: order.items.map((i) => ({ ...i, line_total_ht: i.unit_price_ht * i.quantity })),
-      },
-      settings,
-      profile
-    );
-    const w = window.open("", "_blank");
-    if (w) {
-      w.document.write(html);
-      w.document.close();
-      setTimeout(() => w.print(), 400);
+  const generateInvoice = async () => {
+    try {
+      await orderApi.downloadInvoice(order.id);
+    } catch {
+      toast({ title: "Erreur", description: "Impossible de télécharger la facture." });
     }
   };
 

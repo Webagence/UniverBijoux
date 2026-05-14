@@ -8,7 +8,6 @@ import { useAuth } from "@/context/AuthContext";
 import { useAdmin } from "@/context/AdminContext";
 import { orderApi } from "@/services/orderApi";
 import { formatEUR } from "@/types/product";
-import { renderInvoiceHTML } from "@/utils/invoice";
 import { toast } from "@/hooks/use-toast";
 import {
   Download,
@@ -45,7 +44,7 @@ const STATUS_LABEL: Record<string, string> = {
 };
 
 const Orders = () => {
-  const { user, profile, loading } = useAuth();
+  const { user, loading } = useAuth();
   const { settings } = useAdmin();
   const [searchParams] = useSearchParams();
   const [orders, setOrders] = useState<OrderRow[]>([]);
@@ -86,19 +85,10 @@ const Orders = () => {
   if (!user) return <Navigate to="/connexion" replace />;
 
   const generateInvoice = async (order: OrderRow) => {
-    const html = renderInvoiceHTML(
-      {
-        ...order,
-        items: order.items.map((i) => ({ ...i, line_total_ht: i.unit_price_ht * i.quantity })),
-      },
-      settings,
-      profile
-    );
-    const w = window.open("", "_blank");
-    if (w) {
-      w.document.write(html);
-      w.document.close();
-      setTimeout(() => w.print(), 400);
+    try {
+      await orderApi.downloadInvoice(order.id);
+    } catch {
+      toast({ title: "Erreur", description: "Impossible de télécharger la facture." });
     }
   };
 
