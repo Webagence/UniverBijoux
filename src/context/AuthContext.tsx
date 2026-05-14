@@ -84,6 +84,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     loadUser();
   }, [loadUser]);
 
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'auth_token' && !e.newValue) {
+        setUser(null);
+        setProfile(null);
+        setIsAdmin(false);
+        localStorage.removeItem(CART_KEY);
+        window.location.href = '/connexion';
+      }
+    };
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
+
   const refreshProfile = useCallback(async () => {
     await loadUser();
   }, [loadUser]);
