@@ -23,11 +23,12 @@ api.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       localStorage.removeItem('auth_token');
+      // Only redirect if not already on auth pages and user was previously logged in
       const currentPath = window.location.pathname;
-      if (currentPath && currentPath !== '/' && currentPath !== '/connexion' && currentPath !== '/inscription') {
-        window.location.href = `/connexion?redirect=${encodeURIComponent(currentPath)}`;
-      } else {
-        window.location.href = '/connexion';
+      const authPaths = ['/connexion', '/inscription', '/'];
+      if (!authPaths.includes(currentPath)) {
+        const redirect = encodeURIComponent(currentPath);
+        window.location.href = `/connexion?redirect=${redirect}`;
       }
     }
     return Promise.reject(error);

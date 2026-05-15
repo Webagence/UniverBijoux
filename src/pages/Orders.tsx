@@ -60,11 +60,18 @@ const Orders = () => {
       setBusy(true);
       try {
         const data = await orderApi.getAll();
-        console.log('Orders API Response:', data);
-        console.log('Orders data.data:', data.data);
         setOrders(data.data || []);
-      } catch (err) {
+      } catch (err: any) {
         console.error("Failed to load orders:", err);
+        if (err.response?.status === 401) {
+          // Token expired or invalid, let auth context handle redirect
+          return;
+        }
+        toast({
+          title: "Erreur",
+          description: "Impossible de charger vos commandes.",
+          variant: "destructive",
+        });
         setOrders([]);
       } finally {
         setBusy(false);
