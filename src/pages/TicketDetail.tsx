@@ -71,7 +71,13 @@ const TicketDetail = () => {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [msgs.length]);
 
-  if (authLoading) return null;
+  if (authLoading) {
+    return (
+      <Layout>
+        <section className="container py-20 text-center text-bordeaux/60">Chargement…</section>
+      </Layout>
+    );
+  }
   if (!user) return <Navigate to="/connexion?redirect=/support" replace />;
 
   const send = async () => {

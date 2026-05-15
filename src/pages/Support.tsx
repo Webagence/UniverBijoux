@@ -63,7 +63,13 @@ const Support = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
-  if (authLoading) return null;
+  if (authLoading) {
+    return (
+      <Layout>
+        <section className="container py-20 text-center text-bordeaux/60">Chargement…</section>
+      </Layout>
+    );
+  }
   if (!user) return <Navigate to="/connexion?redirect=/support" replace />;
 
   const submit = async () => {
