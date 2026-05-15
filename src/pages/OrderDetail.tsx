@@ -74,7 +74,7 @@ const OrderDetail = () => {
   }
 
   if (!user) {
-    navigate("/connexion");
+    navigate(`/connexion?redirect=/commandes/${id}`);
     return null;
   }
 

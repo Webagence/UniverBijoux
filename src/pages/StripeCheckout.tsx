@@ -195,7 +195,7 @@ const StripeCheckout = () => {
   }, [user, profile, lines, checkoutData]);
 
   if (authLoading) return <Layout><div className="container py-32 text-center text-bordeaux/60">Chargement…</div></Layout>;
-  if (!user) return <Navigate to="/connexion" replace />;
+  if (!user) return <Navigate to="/connexion?redirect=/paiement" replace />;
   if (!profile?.approved) {
     return (
       <Layout>

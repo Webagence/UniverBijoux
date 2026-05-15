@@ -115,7 +115,7 @@ const Account = () => {
   }, [user]);
 
   if (authLoading) return <Layout><div className="container py-32 text-center text-bordeaux/60">Chargement…</div></Layout>;
-  if (!user) return <Navigate to="/connexion" replace />;
+  if (!user) return <Navigate to="/connexion?redirect=/compte" replace />;
 
   const contactName = profile?.contact_name || user.name || user.email?.split("@")[0] || "";
   const companyName = profile?.company_name || "—";

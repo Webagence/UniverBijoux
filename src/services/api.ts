@@ -23,7 +23,12 @@ api.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       localStorage.removeItem('auth_token');
-      window.location.href = '/connexion';
+      const currentPath = window.location.pathname;
+      if (currentPath && currentPath !== '/' && currentPath !== '/connexion' && currentPath !== '/inscription') {
+        window.location.href = `/connexion?redirect=${encodeURIComponent(currentPath)}`;
+      } else {
+        window.location.href = '/connexion';
+      }
     }
     return Promise.reject(error);
   }

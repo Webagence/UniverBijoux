@@ -20,7 +20,7 @@ const Cart = () => {
   const checkout = async () => {
     if (!user) {
       toast({ title: "Connexion requise", description: "Connectez-vous pour valider votre commande." });
-      navigate("/connexion");
+      navigate("/connexion?redirect=/checkout");
       return;
     }
     if (!profile?.approved) {

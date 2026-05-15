@@ -82,7 +82,7 @@ const Orders = () => {
   }, [user, searchParams.get('refresh')]);
 
   if (authLoading) return null;
-  if (!user) return <Navigate to="/connexion" replace />;
+  if (!user) return <Navigate to="/connexion?redirect=/commandes" replace />;
 
   const generateInvoice = async (order: OrderRow) => {
     try {

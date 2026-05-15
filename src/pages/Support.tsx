@@ -64,7 +64,7 @@ const Support = () => {
   }, [user]);
 
   if (authLoading) return null;
-  if (!user) return <Navigate to="/connexion" replace />;
+  if (!user) return <Navigate to="/connexion?redirect=/support" replace />;
 
   const submit = async () => {
     if (!subject.trim() || !body.trim()) {

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import Layout from "@/components/Layout";
 import PageHeader from "@/components/PageHeader";
 import { useAuth } from "@/context/AuthContext";
@@ -8,6 +8,7 @@ import { toast } from "@/hooks/use-toast";
 const Login = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -22,7 +23,8 @@ const Login = () => {
       return;
     }
     toast({ title: "Bon retour !", description: "Vous êtes connecté." });
-    navigate("/compte");
+    const redirect = searchParams.get("redirect");
+    navigate(redirect || "/compte");
   };
 
   return (

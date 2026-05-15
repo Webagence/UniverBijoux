@@ -72,7 +72,7 @@ const TicketDetail = () => {
   }, [msgs.length]);
 
   if (authLoading) return null;
-  if (!user) return <Navigate to="/connexion" replace />;
+  if (!user) return <Navigate to="/connexion?redirect=/support" replace />;
 
   const send = async () => {
     if (!input.trim() || !ticket || !user) return;

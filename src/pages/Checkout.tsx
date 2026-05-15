@@ -34,7 +34,7 @@ const Checkout = () => {
   const [acceptTerms, setAcceptTerms] = useState(false);
 
   if (!user) {
-    navigate("/connexion");
+    navigate("/connexion?redirect=/checkout");
     return null;
   }
 
