@@ -16,7 +16,7 @@ const CARRIER_OPTIONS = [
 ];
 
 const Checkout = () => {
-  const { lines } = useCart();
+  const { lines, subtotalHT } = useCart();
   const { user, profile } = useAuth();
   const navigate = useNavigate();
 
@@ -154,38 +154,38 @@ const Checkout = () => {
 
                 <div className="bg-ivory border border-border p-6 space-y-4">
                   <h2 className="font-serif text-xl text-bordeaux">Transporteur</h2>
-                  <div className="space-y-3">
-                    {CARRIER_OPTIONS.map((option) => {
-                      const freeShippingThreshold = 300;
-                      const isFree = option.id === "colissimo" && false;
-                      return (
-                        <label
-                          key={option.id}
-                          className={`flex items-center gap-4 p-4 border rounded-lg cursor-pointer transition-smooth ${
-                            carrier === option.id
-                              ? "border-bordeaux bg-cream"
-                              : "border-border hover:border-bordeaux/50"
-                          }`}
-                        >
-                          <input
-                            type="radio"
-                            name="carrier"
-                            value={option.id}
-                            checked={carrier === option.id}
-                            onChange={(e) => setCarrier(e.target.value)}
-                            className="accent-bordeaux"
-                          />
-                          <div className="flex-1">
-                            <p className="font-medium text-bordeaux">{option.name}</p>
-                            <p className="text-xs text-bordeaux/50">{option.delay}</p>
-                          </div>
-                          <span className="text-sm text-bordeaux">
-                            {isFree ? "Offert" : `${option.price} €`}
-                          </span>
-                        </label>
-                      );
-                    })}
-                  </div>
+                <div className="space-y-3">
+                  {CARRIER_OPTIONS.map((option) => {
+                    const freeShippingThreshold = 300;
+                    const isFree = subtotalHT >= freeShippingThreshold;
+                    return (
+                      <label
+                        key={option.id}
+                        className={`flex items-center gap-4 p-4 border rounded-lg cursor-pointer transition-smooth ${
+                          carrier === option.id
+                            ? "border-bordeaux bg-cream"
+                            : "border-border hover:border-bordeaux/50"
+                        }`}
+                      >
+                        <input
+                          type="radio"
+                          name="carrier"
+                          value={option.id}
+                          checked={carrier === option.id}
+                          onChange={(e) => setCarrier(e.target.value)}
+                          className="accent-bordeaux"
+                        />
+                        <div className="flex-1">
+                          <p className="font-medium text-bordeaux">{option.name}</p>
+                          <p className="text-xs text-bordeaux/50">{option.delay}</p>
+                        </div>
+                        <span className="text-sm text-bordeaux">
+                          {isFree ? "Offert" : `${option.price} €`}
+                        </span>
+                      </label>
+                    );
+                  })}
+                </div>
                 </div>
 
                 <div className="bg-ivory border border-border p-6 space-y-4">

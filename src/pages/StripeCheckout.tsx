@@ -176,6 +176,7 @@ const StripeCheckout = () => {
         const result = await stripeApi.createPaymentIntent({
           items,
           shipping_address: shippingAddress,
+          carrier: checkoutData?.carrier || "colissimo",
           notes: checkoutData?.notes || "",
         });
 
@@ -328,7 +329,7 @@ const StripeCheckout = () => {
                 </div>
                 <div className="flex justify-between font-serif text-lg text-bordeaux pt-3 border-t border-border">
                   <span>Total TTC</span>
-                  <span className="text-gold">{formatEUR(totalTTC + shippingHT)}</span>
+                  <span className="text-gold">{formatEUR(totalTTC)}</span>
                 </div>
               </div>
             </div>

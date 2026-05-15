@@ -4,6 +4,7 @@ export const stripeApi = {
   createPaymentIntent: async (payload: {
     items: { product_id: string; quantity: number }[];
     shipping_address: Record<string, string>;
+    carrier?: string;
     notes?: string;
   }) => {
     const { data } = await api.post('/stripe/create-payment-intent', payload);
