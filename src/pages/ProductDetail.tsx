@@ -1,5 +1,5 @@
 import { useParams, Link, Navigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Layout from "@/components/Layout";
 import ProductGallery from "@/components/ProductGallery";
 import ProductCard from "@/components/ProductCard";
@@ -8,7 +8,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useCart } from "@/context/CartContext";
 import { useAdmin } from "@/context/AdminContext";
 import { toast } from "@/hooks/use-toast";
-import { Minus, Plus, ShieldCheck, Truck, Factory } from "lucide-react";
+import { Minus, Plus, ShieldCheck, Truck, Factory, ArrowRight } from "lucide-react";
 
 const ProductDetail = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -18,6 +18,12 @@ const ProductDetail = () => {
   const { addItem } = useCart();
   const [qty, setQty] = useState(product?.moq ?? 1);
   const [selectedVariations, setSelectedVariations] = useState<Record<number, string>>({});
+  const [justAdded, setJustAdded] = useState(false);
+
+  useEffect(() => {
+    setQty(product?.moq ?? 1);
+    setJustAdded(false);
+  }, [product?.moq, product?.id]);
 
   if (!product) return <Navigate to="/boutique" replace />;
 
@@ -43,6 +49,7 @@ const ProductDetail = () => {
       return;
     }
     addItem(product.id, qty);
+    setJustAdded(true);
     const variationDesc = Object.values(selectedVariations).join(" / ");
     toast({ title: "Ajouté au panier", description: `${product.name}${variationDesc ? ` (${variationDesc})` : ""} × ${qty}` });
   };
@@ -167,35 +174,46 @@ const ProductDetail = () => {
               </div>
             )}
 
-            <div className="flex items-center gap-4">
-              <div className="flex items-center border border-border">
+            <div className="space-y-3">
+              <div className="flex items-center gap-4">
+                <div className="flex items-center border border-border">
+                  <button
+                    onClick={() => { setJustAdded(false); setQty((q) => Math.max(product.moq, q - product.packSize)); }}
+                    aria-label="Diminuer"
+                    className="h-12 w-12 flex items-center justify-center text-bordeaux hover:bg-cream transition-smooth"
+                  >
+                    <Minus className="h-4 w-4" />
+                  </button>
+                  <input
+                    type="number"
+                    value={qty}
+                    onChange={(e) => { setJustAdded(false); setQty(Math.max(product.moq, parseInt(e.target.value) || product.moq)); }}
+                    className="w-16 h-12 text-center bg-transparent focus:outline-none text-bordeaux"
+                  />
+                  <button
+                    onClick={() => { setJustAdded(false); setQty((q) => q + product.packSize); }}
+                    aria-label="Augmenter"
+                    className="h-12 w-12 flex items-center justify-center text-bordeaux hover:bg-cream transition-smooth"
+                  >
+                    <Plus className="h-4 w-4" />
+                  </button>
+                </div>
                 <button
-                  onClick={() => setQty((q) => Math.max(product.moq, q - product.packSize))}
-                  aria-label="Diminuer"
-                  className="h-12 w-12 flex items-center justify-center text-bordeaux hover:bg-cream transition-smooth"
+                  onClick={handleAdd}
+                  className="flex-1 bg-bordeaux text-ivory px-8 py-4 text-xs tracking-luxe uppercase hover:bg-gold transition-smooth"
                 >
-                  <Minus className="h-4 w-4" />
-                </button>
-                <input
-                  type="number"
-                  value={qty}
-                  onChange={(e) => setQty(Math.max(product.moq, parseInt(e.target.value) || product.moq))}
-                  className="w-16 h-12 text-center bg-transparent focus:outline-none text-bordeaux"
-                />
-                <button
-                  onClick={() => setQty((q) => q + product.packSize)}
-                  aria-label="Augmenter"
-                  className="h-12 w-12 flex items-center justify-center text-bordeaux hover:bg-cream transition-smooth"
-                >
-                  <Plus className="h-4 w-4" />
+                  Ajouter au panier · {formatEUR(product.priceHT * qty)} HT
                 </button>
               </div>
-              <button
-                onClick={handleAdd}
-                className="flex-1 bg-bordeaux text-ivory px-8 py-4 text-xs tracking-luxe uppercase hover:bg-gold transition-smooth"
-              >
-                Ajouter au panier · {formatEUR(product.priceHT * qty)} HT
-              </button>
+
+              {justAdded && (
+                <Link
+                  to="/panier"
+                  className="flex items-center justify-center gap-2 w-full bg-gold text-bordeaux px-8 py-4 text-xs tracking-luxe uppercase hover:bg-bordeaux hover:text-ivory transition-smooth animate-fade-up"
+                >
+                  Procéder au paiement <ArrowRight className="h-4 w-4" />
+                </Link>
+              )}
             </div>
 
             {!user && (
