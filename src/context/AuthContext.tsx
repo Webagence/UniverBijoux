@@ -86,17 +86,38 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === 'auth_token' && !e.newValue) {
+      if (e.key === 'auth_token') {
+        if (e.newValue) {
+          loadUser();
+        } else {
+          setUser(null);
+          setProfile(null);
+          setIsAdmin(false);
+          localStorage.removeItem(CART_KEY);
+          window.location.href = '/connexion';
+        }
+      }
+    };
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, [loadUser]);
+
+  useEffect(() => {
+    const onFocus = () => {
+      const token = localStorage.getItem('auth_token');
+      if (!token && user) {
         setUser(null);
         setProfile(null);
         setIsAdmin(false);
         localStorage.removeItem(CART_KEY);
         window.location.href = '/connexion';
+      } else if (token && !user && !loading) {
+        loadUser();
       }
     };
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
-  }, []);
+    window.addEventListener('focus', onFocus);
+    return () => window.removeEventListener('focus', onFocus);
+  }, [user, loading, loadUser]);
 
   const refreshProfile = useCallback(async () => {
     await loadUser();
@@ -146,7 +167,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const logout = async () => {
-    await authApi.logout();
+    localStorage.removeItem('auth_token');
+    try {
+      await authApi.logout();
+    } catch {
+      // ignore — token already removed
+    }
     setUser(null);
     setProfile(null);
     setIsAdmin(false);
