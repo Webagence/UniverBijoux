@@ -28,8 +28,8 @@ const Categories = () => {
             <Link
               key={u.id}
               to={`/boutique/${u.slug}`}
-              className="group relative block aspect-[3/4] overflow-hidden bg-bordeaux"
-              style={{ marginTop: i % 2 ? "2rem" : "0" }}
+              className="group relative block aspect-[3/4] overflow-hidden bg-bordeaux md:mt-[calc(2rem*var(--offset,0))]"
+              style={{ "--offset": i % 2 === 0 ? "0" : "1" } as React.CSSProperties}
             >
               <img
                 src={u.image_url || FALLBACK_IMG}

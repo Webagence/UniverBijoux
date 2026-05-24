@@ -140,7 +140,7 @@ const OrderDetail = () => {
           Retour aux commandes
         </button>
 
-        <div className="grid lg:grid-cols-[1fr_320px] gap-8">
+        <div className="grid md:grid-cols-[1fr_280px] lg:grid-cols-[1fr_320px] gap-6 lg:gap-8">
           <div className="space-y-6">
             <div className="bg-ivory border border-border p-6">
               <h2 className="font-serif text-xl text-bordeaux mb-4">Articles</h2>

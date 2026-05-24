@@ -165,7 +165,7 @@ const Orders = () => {
         crumbs={[{ label: "Tableau de bord", to: "/compte" }, { label: "Commandes" }]}
       />
       <div className="container py-12 md:py-16">
-        <div className="flex gap-8">
+        <div className="flex flex-col md:flex-row gap-8">
           <ProSidebar />
 
           <div className="flex-1 space-y-6">

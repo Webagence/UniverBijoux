@@ -20,7 +20,7 @@ const Atelier = () => {
             loading="lazy"
             width={1200}
             height={900}
-            className="w-full h-[500px] object-cover shadow-elegant"
+            className="w-full h-[300px] sm:h-[400px] md:h-[500px] object-cover shadow-elegant"
           />
           <div className="absolute -bottom-8 -right-4 md:-right-8 bg-ivory p-6 shadow-elegant max-w-[200px] hidden sm:block">
             <div className="font-serif text-4xl text-gold mb-1">{a.badgeNumber}</div>

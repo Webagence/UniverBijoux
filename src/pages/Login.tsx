@@ -36,7 +36,7 @@ const Login = () => {
         crumbs={[{ label: "Connexion" }]}
       />
       <section className="container py-16 max-w-md">
-        <form onSubmit={submit} className="space-y-5 bg-ivory border border-border p-8">
+        <form onSubmit={submit} className="space-y-5 bg-ivory border border-border p-4 sm:p-6 md:p-8">
           <div>
             <label className="text-[11px] tracking-luxe uppercase text-bordeaux/60 block mb-2">Email professionnel</label>
             <input

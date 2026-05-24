@@ -229,7 +229,7 @@ const StripeCheckout = () => {
         crumbs={[{ label: "Panier", to: "/panier" }, { label: "Checkout", to: "/checkout" }, { label: "Paiement" }]}
       />
       <section className="container py-12 md:py-16">
-        <div className="grid lg:grid-cols-[1fr_360px] gap-12 max-w-5xl mx-auto">
+        <div className="grid md:grid-cols-[1fr_300px] lg:grid-cols-[1fr_360px] gap-8 lg:gap-12 max-w-5xl mx-auto">
           <div>
             {checkoutData && (
               <div className="bg-ivory border border-border p-6 mb-6 space-y-4">
@@ -293,7 +293,7 @@ const StripeCheckout = () => {
             )}
           </div>
 
-          <div className="lg:sticky lg:top-28 h-fit">
+          <div className="md:sticky md:top-28 lg:sticky lg:top-28 h-fit">
             <div className="bg-cream p-6 space-y-4">
               <h3 className="font-serif text-xl text-bordeaux">Votre commande</h3>
               <ul className="space-y-3">

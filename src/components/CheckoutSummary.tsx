@@ -16,7 +16,7 @@ const CheckoutSummary = ({ showShipping = true, showTotal = true }: CheckoutSumm
   const shippingHT = subtotalHT >= freeShippingThreshold ? 0 : 15;
 
   return (
-    <div className="bg-cream p-6 space-y-4">
+    <div className="bg-cream p-4 sm:p-6 space-y-4">
       <h3 className="font-serif text-xl text-bordeaux">Récapitulatif</h3>
 
       <ul className="space-y-3">

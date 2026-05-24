@@ -19,7 +19,7 @@ const PaymentFailed = () => {
           <p className="text-bordeaux/70 max-w-md mx-auto">{error}</p>
         </div>
 
-        <div className="bg-ivory border border-border p-8 space-y-6">
+        <div className="bg-ivory border border-border p-4 sm:p-6 md:p-8 space-y-6">
           <div className="space-y-3">
             <h3 className="font-serif text-lg text-bordeaux">Que s'est-il passé ?</h3>
             <ul className="text-sm text-bordeaux/70 space-y-2">

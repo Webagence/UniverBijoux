@@ -87,7 +87,7 @@ const PaymentSuccess = () => {
         {loading ? (
           <div className="text-center py-12 text-bordeaux/60">Chargement des détails de la commande…</div>
         ) : order ? (
-          <div className="bg-ivory border border-border p-8 space-y-6">
+          <div className="bg-ivory border border-border p-4 sm:p-6 md:p-8 space-y-6">
             <div className="flex items-center justify-between pb-4 border-b border-border">
               <div>
                 <p className="text-[11px] tracking-luxe uppercase text-bordeaux/50">Référence</p>

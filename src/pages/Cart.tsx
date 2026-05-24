@@ -48,15 +48,15 @@ const Cart = () => {
             </Link>
           </div>
         ) : (
-          <div className="grid lg:grid-cols-[1fr_360px] gap-12">
+          <div className="grid md:grid-cols-[1fr_300px] lg:grid-cols-[1fr_360px] gap-8 lg:gap-12">
             <div className="space-y-4">
               {lines.map((l) => {
                 const p = getProduct(l.productId);
                 if (!p) return null;
                 return (
-                  <div key={l.productId} className="flex gap-4 bg-ivory border border-border p-4">
+                  <div key={l.productId} className="flex gap-3 sm:gap-4 bg-ivory border border-border p-3 sm:p-4">
                     <Link to={`/produit/${p.slug}`} className="shrink-0">
-                      <img src={p.images[0]} alt={p.name} className="w-24 h-24 object-cover bg-cream" />
+                      <img src={p.images[0]} alt={p.name} className="w-20 h-20 sm:w-24 sm:h-24 object-cover bg-cream" />
                     </Link>
                     <div className="flex-1 min-w-0">
                       <div className="flex justify-between gap-3">

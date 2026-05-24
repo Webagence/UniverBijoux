@@ -81,7 +81,7 @@ const Hero = () => {
             alt="Collection de bijoux Maison Lune"
             width={1600}
             height={1024}
-            className="relative w-full h-[500px] md:h-[640px] object-cover shadow-elegant"
+            className="relative w-full h-[300px] sm:h-[400px] md:h-[500px] lg:h-[640px] object-cover shadow-elegant"
           />
           <div className="absolute bottom-6 left-6 bg-ivory/90 backdrop-blur-sm px-5 py-3 shadow-soft">
             <p className="font-serif italic text-sm text-bordeaux">"{hero.quote}"</p>

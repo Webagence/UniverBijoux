@@ -46,7 +46,7 @@ const Register = () => {
         crumbs={[{ label: "Inscription" }]}
       />
       <section className="container py-16 max-w-xl">
-        <form onSubmit={submit} className="space-y-5 bg-ivory border border-border p-8">
+        <form onSubmit={submit} className="space-y-5 bg-ivory border border-border p-4 sm:p-6 md:p-8">
           {[
             { k: "companyName", label: "Raison sociale", type: "text" },
             { k: "siret", label: "Numéro SIRET (14 chiffres)", type: "text" },

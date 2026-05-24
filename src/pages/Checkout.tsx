@@ -102,7 +102,7 @@ const Checkout = () => {
       />
 
       <section className="container py-12 md:py-16">
-        <div className="grid lg:grid-cols-[1fr_360px] gap-12">
+        <div className="grid md:grid-cols-[1fr_300px] lg:grid-cols-[1fr_360px] gap-8 lg:gap-12">
           <div className="space-y-8">
             <nav className="flex items-center gap-2 text-sm text-bordeaux/60 mb-6">
               <button
@@ -226,7 +226,7 @@ const Checkout = () => {
             )}
           </div>
 
-          <div className="lg:sticky lg:top-28 h-fit">
+          <div className="md:sticky md:top-28 lg:sticky lg:top-28 h-fit">
             <CheckoutSummary />
           </div>
         </div>
