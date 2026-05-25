@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { useCart } from "@/context/CartContext";
 import { useAdmin } from "@/context/AdminContext";
+import { useLang } from "@/context/LanguageContext";
 import { formatEUR } from "@/types/product";
 
 interface CheckoutSummaryProps {
@@ -11,13 +12,14 @@ interface CheckoutSummaryProps {
 const CheckoutSummary = ({ showShipping = true, showTotal = true }: CheckoutSummaryProps) => {
   const { lines, getProduct, subtotalHT, vat, totalTTC } = useCart();
   const { settings } = useAdmin();
+  const { t } = useLang();
 
   const freeShippingThreshold = Number(settings.freeShippingFrom) || 300;
   const shippingHT = subtotalHT >= freeShippingThreshold ? 0 : 15;
 
   return (
     <div className="bg-cream p-4 sm:p-6 space-y-4">
-      <h3 className="font-serif text-xl text-bordeaux">Récapitulatif</h3>
+      <h3 className="font-serif text-xl text-bordeaux">{t("cart.summary")}</h3>
 
       <ul className="space-y-3">
         {lines.map((l) => {
@@ -29,7 +31,7 @@ const CheckoutSummary = ({ showShipping = true, showTotal = true }: CheckoutSumm
               <div className="flex-1 min-w-0">
                 <p className="text-bordeaux font-medium truncate">{p.name}</p>
                 <p className="text-bordeaux/50 text-xs">
-                  Réf. {p.reference} · {l.quantity} pcs
+                  {t("common.ref")} {p.reference} · {l.quantity} {t("common.pcs")}
                 </p>
               </div>
               <span className="text-bordeaux font-medium whitespace-nowrap">
@@ -43,29 +45,29 @@ const CheckoutSummary = ({ showShipping = true, showTotal = true }: CheckoutSumm
       {showShipping && (
         <dl className="space-y-2 text-sm pt-4 border-t border-border">
           <div className="flex justify-between">
-            <dt className="text-bordeaux/70">Sous-total HT</dt>
+            <dt className="text-bordeaux/70">{t("cart.subtotal_ht")}</dt>
             <dd>{formatEUR(subtotalHT)}</dd>
           </div>
           <div className="flex justify-between">
-            <dt className="text-bordeaux/70">TVA (20%)</dt>
+            <dt className="text-bordeaux/70">{t("cart.vat")}</dt>
             <dd>{formatEUR(vat)}</dd>
           </div>
           <div className="flex justify-between">
-            <dt className="text-bordeaux/70">Livraison</dt>
-            <dd>{subtotalHT >= freeShippingThreshold ? "Offerte" : formatEUR(shippingHT)}</dd>
+            <dt className="text-bordeaux/70">{t("cart.shipping")}</dt>
+            <dd>{subtotalHT >= freeShippingThreshold ? t("cart.free") : formatEUR(shippingHT)}</dd>
           </div>
         </dl>
       )}
 
       {showTotal && (
         <div className="flex justify-between font-serif text-lg text-bordeaux pt-3 border-t border-border">
-          <span>Total TTC</span>
+          <span>{t("cart.total_ttc")}</span>
           <span className="text-gold">{formatEUR(totalTTC + shippingHT)}</span>
         </div>
       )}
 
       <p className="text-[11px] text-bordeaux/50 text-center">
-        Livraison offerte dès {formatEUR(freeShippingThreshold)} HT.
+        {t("cart.free_shipping_from")} {formatEUR(freeShippingThreshold)} HT.
       </p>
     </div>
   );
