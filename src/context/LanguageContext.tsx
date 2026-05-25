@@ -1,6 +1,16 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, ReactNode, useCallback } from "react";
+import api from "@/services/api";
 
 export type Lang = "fr" | "en";
+
+export interface LocaleInfo {
+  code: string;
+  name: string;
+  native_name: string;
+  flag_emoji: string;
+  is_default: boolean;
+  direction: string;
+}
 
 const dict = {
   fr: {
@@ -81,6 +91,8 @@ interface Ctx {
   lang: Lang;
   setLang: (l: Lang) => void;
   t: (k: Key) => string;
+  locales: LocaleInfo[];
+  isLoading: boolean;
 }
 
 const LanguageCtx = createContext<Ctx | null>(null);
@@ -90,13 +102,50 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
     const saved = typeof window !== "undefined" ? (localStorage.getItem("lang") as Lang | null) : null;
     return saved === "en" || saved === "fr" ? saved : "fr";
   });
+  const [locales, setLocales] = useState<LocaleInfo[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
   useEffect(() => {
     localStorage.setItem("lang", lang);
+    localStorage.setItem("locale", lang);
     document.documentElement.lang = lang;
   }, [lang]);
-  const setLang = (l: Lang) => setLangState(l);
-  const t = (k: Key) => (dict[lang] as any)[k] ?? (dict.fr as any)[k] ?? k;
-  return <LanguageCtx.Provider value={{ lang, setLang, t }}>{children}</LanguageCtx.Provider>;
+
+  useEffect(() => {
+    const fetchLocales = async () => {
+      try {
+        const { data } = await api.get("/translations/locales");
+        setLocales(data.locales || []);
+      } catch {
+        setLocales([
+          { code: "fr", name: "French", native_name: "Français", flag_emoji: "🇫🇷", is_default: true, direction: "ltr" },
+          { code: "en", name: "English", native_name: "English", flag_emoji: "🇬🇧", is_default: false, direction: "ltr" },
+        ]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchLocales();
+  }, []);
+
+  const setLang = useCallback((l: Lang) => {
+    setLangState(l);
+
+    api.post("/translations/set-locale", { locale: l }).catch(() => {
+      console.warn("Failed to set locale on server");
+    });
+
+    window.location.reload();
+  }, []);
+
+  const t = useCallback((k: Key) => (dict[lang] as any)[k] ?? (dict.fr as any)[k] ?? k, [lang]);
+
+  return (
+    <LanguageCtx.Provider value={{ lang, setLang, t, locales, isLoading }}>
+      {children}
+    </LanguageCtx.Provider>
+  );
 };
 
 export const useLang = () => {
