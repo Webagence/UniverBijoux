@@ -1,10 +1,12 @@
 import { Link } from "react-router-dom";
 import { useAdmin } from "@/context/AdminContext";
+import { useLang } from "@/context/LanguageContext";
 
 const FALLBACK_IMG = "/placeholder.svg";
 
 const Categories = () => {
   const { universesList, categoriesSection } = useAdmin();
+  const { t } = useLang();
 
   if (!universesList || universesList.length === 0) return null;
 
@@ -13,13 +15,13 @@ const Categories = () => {
       <div className="container">
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
           <div className="space-y-3">
-            <div className="text-gold text-xs tracking-luxe uppercase">{categoriesSection.eyebrow || "Univers"}</div>
+            <div className="text-gold text-xs tracking-luxe uppercase">{categoriesSection.eyebrow || t("categories.eyebrow") || "Univers"}</div>
             <h2 className="font-serif text-4xl md:text-5xl text-bordeaux max-w-xl">
-              {categoriesSection.heading || "Explorez nos"} <em>{categoriesSection.headingEm || "collections"}</em>
+              {categoriesSection.heading || t("categories.heading") || "Explorez nos"} <em>{categoriesSection.headingEm || t("categories.headingEm") || "collections"}</em>
             </h2>
           </div>
           <p className="text-bordeaux/60 max-w-sm">
-            {categoriesSection.description || ""}
+            {categoriesSection.description || t("categories.description") || ""}
           </p>
         </div>
 
@@ -40,7 +42,7 @@ const Categories = () => {
               <div className="absolute inset-0 bg-gradient-to-t from-bordeaux/80 via-bordeaux/10 to-transparent" />
               <div className="absolute inset-x-0 bottom-0 p-5 text-ivory">
                 <h3 className="font-serif text-2xl mb-1">{u.name}</h3>
-                <p className="text-xs tracking-luxe uppercase opacity-80">{u.products_count || 0} pièces</p>
+                <p className="text-xs tracking-luxe uppercase opacity-80">{u.products_count || 0} {t("common.pieces") || "pièces"}</p>
               </div>
             </Link>
           ))}

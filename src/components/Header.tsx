@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useCart } from "@/context/CartContext";
 import { useAdmin } from "@/context/AdminContext";
-import { useLang } from "@/context/LanguageContext";
+import { useLang, announcementTranslations } from "@/context/LanguageContext";
 
 const Header = () => {
   const { lang, setLang, t } = useLang();
@@ -25,6 +25,13 @@ const Header = () => {
   const { settings } = useAdmin();
   const navigate = useNavigate();
 
+  const translateAnnouncement = (text: string): string => {
+    if (lang === "en" && announcementTranslations[text]) {
+      return announcementTranslations[text];
+    }
+    return text;
+  };
+
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", onScroll);
@@ -43,7 +50,7 @@ const Header = () => {
           {[...Array(2)].map((_, i) => (
             <div key={i} className="flex shrink-0 items-center gap-12 px-6 tracking-luxe uppercase">
               {settings.announcements.map((a, j) => (
-                <span key={j}>✦ {a}</span>
+                <span key={j}>✦ {translateAnnouncement(a)}</span>
               ))}
             </div>
           ))}

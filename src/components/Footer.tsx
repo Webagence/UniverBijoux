@@ -115,11 +115,11 @@ const Footer = () => {
 
       <div className="border-t border-ivory/10">
         <div className="container py-6 flex flex-col sm:flex-row justify-between items-center gap-3 text-xs text-ivory/50">
-          <p>© {new Date().getFullYear()} {settings.footerBrand || settings.siteName} · Grossiste B2B{settings.siret ? ` · SIRET ${settings.siret}` : ""}</p>
+          <p>{t("footer.copyright") || `© ${new Date().getFullYear()} ${settings.footerBrand || settings.siteName} · Grossiste B2B`}{settings.siret ? ` · SIRET ${settings.siret}` : ""}</p>
           <div className="flex gap-6">
-            <Link to="/mentions-legales" className="hover:text-ivory transition-smooth">Mentions légales</Link>
-            <Link to="/cgv" className="hover:text-ivory transition-smooth">CGV</Link>
-            <Link to="/confidentialite" className="hover:text-ivory transition-smooth">Confidentialité</Link>
+            <Link to="/mentions-legales" className="hover:text-ivory transition-smooth">{t("footer.legal")}</Link>
+            <Link to="/cgv" className="hover:text-ivory transition-smooth">{t("footer.cgv")}</Link>
+            <Link to="/confidentialite" className="hover:text-ivory transition-smooth">{t("footer.privacy")}</Link>
           </div>
         </div>
       </div>
