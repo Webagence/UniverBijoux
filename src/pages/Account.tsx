@@ -7,6 +7,7 @@ import StatCard from "@/components/StatCard";
 import OrderStatusBadge from "@/components/OrderStatusBadge";
 import { useAuth } from "@/context/AuthContext";
 import { useAdmin } from "@/context/AdminContext";
+import { useLang } from "@/context/LanguageContext";
 import { orderApi } from "@/services/orderApi";
 import { ticketApi } from "@/services/ticketApi";
 import { authApi } from "@/services/authApi";
@@ -52,6 +53,7 @@ interface TicketRow {
 
 const Account = () => {
   const { user, profile, logout, loading: authLoading, refreshProfile } = useAuth();
+  const { t } = useLang();
   const { settings } = useAdmin();
   const [params] = useSearchParams();
   const navigate = useNavigate();
@@ -114,7 +116,7 @@ const Account = () => {
     })();
   }, [user]);
 
-  if (authLoading) return <Layout><div className="container py-32 text-center text-bordeaux/60">Chargement…</div></Layout>;
+  if (authLoading) return <Layout><div className="container py-32 text-center text-bordeaux/60">{t("common.loading")}</div></Layout>;
   if (!user) return <Navigate to="/connexion?redirect=/compte" replace />;
 
   const contactName = profile?.contact_name || user.name || user.email?.split("@")[0] || "";
@@ -155,9 +157,9 @@ const Account = () => {
       await authApi.updateProfile(form);
       await refreshProfile();
       closeEdit();
-      toast({ title: "Profil mis à jour", description: "Vos informations ont été enregistrées." });
+      toast({ title: t("account.profile_updated"), description: t("account.profile_updated_desc") });
     } catch {
-      toast({ title: "Erreur", description: "Impossible de sauvegarder les modifications.", variant: "destructive" });
+      toast({ title: t("common.error"), description: t("account.save_error"), variant: "destructive" });
     } finally {
       setSaving(false);
     }
@@ -170,7 +172,7 @@ const Account = () => {
     try {
       await orderApi.downloadInvoice(order.id);
     } catch {
-      toast({ title: "Erreur", description: "Impossible de télécharger la facture." });
+      toast({ title: t("common.error"), description: t("account.invoice_error") });
     }
   };
 
@@ -178,41 +180,41 @@ const Account = () => {
     return (
       <Layout>
         <PageHeader
-          eyebrow="Espace pro"
-          title="Modifier mon profil"
+          eyebrow={t("account.pro_space")}
+          title={t("account.edit_profile")}
           subtitle={companyName}
-          crumbs={[{ label: "Tableau de bord", to: "/compte" }, { label: "Profil" }]}
+          crumbs={[{ label: t("pro.dashboard"), to: "/compte" }, { label: t("pro.profile") }]}
         />
         <div className="container py-12 md:py-16">
           <div className="flex flex-col md:flex-row gap-8">
             <ProSidebar />
             <div className="flex-1 max-w-2xl">
               <div className="bg-ivory border border-border p-8">
-                <h2 className="font-serif text-xl text-bordeaux mb-6">Informations du compte</h2>
+                <h2 className="font-serif text-xl text-bordeaux mb-6">{t("account.account_info")}</h2>
                 <form onSubmit={save} className="space-y-5">
                   <div>
-                    <h3 className="text-[11px] tracking-luxe uppercase text-bordeaux/50 mb-3">Informations personnelles</h3>
+                    <h3 className="text-[11px] tracking-luxe uppercase text-bordeaux/50 mb-3">{t("account.personal_info")}</h3>
                     <div className="grid sm:grid-cols-2 gap-4">
                       <div>
-                        <label className="text-[11px] tracking-luxe uppercase text-bordeaux/60 block mb-2">Nom</label>
+                        <label className="text-[11px] tracking-luxe uppercase text-bordeaux/60 block mb-2">{t("account.name")}</label>
                         <input value={form.name} onChange={updateField("name")} className="w-full bg-transparent border border-border px-4 py-3 text-sm focus:outline-none focus:border-gold" />
                       </div>
                       <div>
-                        <label className="text-[11px] tracking-luxe uppercase text-bordeaux/60 block mb-2">Nom du contact</label>
+                        <label className="text-[11px] tracking-luxe uppercase text-bordeaux/60 block mb-2">{t("account.contact_name")}</label>
                         <input value={form.contact_name} onChange={updateField("contact_name")} className="w-full bg-transparent border border-border px-4 py-3 text-sm focus:outline-none focus:border-gold" />
                       </div>
                     </div>
                     <div className="mt-4">
-                      <label className="text-[11px] tracking-luxe uppercase text-bordeaux/60 block mb-2">Téléphone</label>
+                      <label className="text-[11px] tracking-luxe uppercase text-bordeaux/60 block mb-2">{t("account.phone")}</label>
                       <input value={form.phone} onChange={updateField("phone")} type="tel" className="w-full bg-transparent border border-border px-4 py-3 text-sm focus:outline-none focus:border-gold" />
                     </div>
                   </div>
 
                   <div className="pt-4 border-t border-border">
-                    <h3 className="text-[11px] tracking-luxe uppercase text-bordeaux/50 mb-3">Entreprise</h3>
+                    <h3 className="text-[11px] tracking-luxe uppercase text-bordeaux/50 mb-3">{t("account.company")}</h3>
                     <div className="grid sm:grid-cols-2 gap-4">
                       <div>
-                        <label className="text-[11px] tracking-luxe uppercase text-bordeaux/60 block mb-2">Raison sociale</label>
+                        <label className="text-[11px] tracking-luxe uppercase text-bordeaux/60 block mb-2">{t("account.company_name")}</label>
                         <input value={form.company_name} onChange={updateField("company_name")} className="w-full bg-transparent border border-border px-4 py-3 text-sm focus:outline-none focus:border-gold" />
                       </div>
                       <div>
@@ -221,28 +223,28 @@ const Account = () => {
                       </div>
                     </div>
                     <div className="mt-4">
-                      <label className="text-[11px] tracking-luxe uppercase text-bordeaux/60 block mb-2">N° TVA intracommunautaire</label>
+                      <label className="text-[11px] tracking-luxe uppercase text-bordeaux/60 block mb-2">{t("account.vat_number")}</label>
                       <input value={form.vat_number} onChange={updateField("vat_number")} className="w-full bg-transparent border border-border px-4 py-3 text-sm focus:outline-none focus:border-gold" />
                     </div>
                   </div>
 
                   <div className="pt-4 border-t border-border">
-                    <h3 className="text-[11px] tracking-luxe uppercase text-bordeaux/50 mb-3">Adresse</h3>
+                    <h3 className="text-[11px] tracking-luxe uppercase text-bordeaux/50 mb-3">{t("account.address")}</h3>
                     <div>
-                      <label className="text-[11px] tracking-luxe uppercase text-bordeaux/60 block mb-2">Adresse</label>
+                      <label className="text-[11px] tracking-luxe uppercase text-bordeaux/60 block mb-2">{t("account.address")}</label>
                       <input value={form.address} onChange={updateField("address")} className="w-full bg-transparent border border-border px-4 py-3 text-sm focus:outline-none focus:border-gold" />
                     </div>
                     <div className="grid sm:grid-cols-3 gap-4 mt-4">
                       <div>
-                        <label className="text-[11px] tracking-luxe uppercase text-bordeaux/60 block mb-2">Ville</label>
+                        <label className="text-[11px] tracking-luxe uppercase text-bordeaux/60 block mb-2">{t("account.city")}</label>
                         <input value={form.city} onChange={updateField("city")} className="w-full bg-transparent border border-border px-4 py-3 text-sm focus:outline-none focus:border-gold" />
                       </div>
                       <div>
-                        <label className="text-[11px] tracking-luxe uppercase text-bordeaux/60 block mb-2">Code postal</label>
+                        <label className="text-[11px] tracking-luxe uppercase text-bordeaux/60 block mb-2">{t("account.postal_code")}</label>
                         <input value={form.postal_code} onChange={updateField("postal_code")} className="w-full bg-transparent border border-border px-4 py-3 text-sm focus:outline-none focus:border-gold" />
                       </div>
                       <div>
-                        <label className="text-[11px] tracking-luxe uppercase text-bordeaux/60 block mb-2">Pays</label>
+                        <label className="text-[11px] tracking-luxe uppercase text-bordeaux/60 block mb-2">{t("account.country")}</label>
                         <input value={form.country} onChange={updateField("country")} className="w-full bg-transparent border border-border px-4 py-3 text-sm focus:outline-none focus:border-gold" />
                       </div>
                     </div>
@@ -250,10 +252,10 @@ const Account = () => {
 
                   <div className="flex gap-4 pt-4">
                     <button type="submit" disabled={saving} className="bg-bordeaux text-ivory px-8 py-3 text-xs tracking-luxe uppercase hover:bg-gold transition-smooth disabled:opacity-50">
-                      {saving ? "Enregistrement..." : "Enregistrer"}
+                      {saving ? t("account.saving") : t("account.save")}
                     </button>
                     <button type="button" onClick={closeEdit} className="border border-border px-8 py-3 text-xs tracking-luxe uppercase hover:bg-bordeaux hover:text-ivory transition-smooth">
-                      Annuler
+                      {t("account.cancel")}
                     </button>
                   </div>
                 </form>
@@ -268,10 +270,10 @@ const Account = () => {
   return (
     <Layout>
       <PageHeader
-        eyebrow="Espace professionnel"
-        title={`Bonjour, ${contactName}`}
+        eyebrow={t("account.pro_space")}
+        title={`${t("account.hello")}, ${contactName}`}
         subtitle={companyName}
-        crumbs={[{ label: "Tableau de bord" }]}
+        crumbs={[{ label: t("pro.dashboard") }]}
       />
       <div className="container py-12 md:py-16">
         <div className="flex flex-col md:flex-row gap-8">
@@ -288,12 +290,12 @@ const Account = () => {
                 )}
                 <div>
                   <p className={`font-medium ${profile?.approved ? "text-green-800" : "text-amber-800"}`}>
-                    {profile?.approved ? "Compte validé" : "Compte en attente de validation"}
+                    {profile?.approved ? t("account.account_approved") : t("account.account_pending")}
                   </p>
                   <p className={`text-sm ${profile?.approved ? "text-green-700" : "text-amber-700"}`}>
                     {profile?.approved
-                      ? "Votre compte est actif. Vous pouvez passer des commandes."
-                      : "Votre compte sera validé par un administrateur sous 24-48h."}
+                      ? t("account.account_approved_desc")
+                      : t("account.account_pending_desc")}
                   </p>
                 </div>
               </div>
@@ -303,36 +305,36 @@ const Account = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <StatCard
                 icon={Package}
-                label="Total commandes"
+                label={t("account.total_orders")}
                 value={totalOrders}
-                subValue="Depuis l'inscription"
+                subValue={t("account.since_registration")}
               />
               <StatCard
                 icon={Clock}
-                label="En cours"
+                label={t("account.in_progress")}
                 value={pendingOrders}
-                subValue="En attente ou confirmée"
+                subValue={t("account.pending_or_confirmed")}
                 color="gold"
               />
               <StatCard
                 icon={Truck}
-                label="Expédiées"
+                label={t("account.shipped")}
                 value={shippedOrders}
-                subValue="En livraison"
+                subValue={t("account.in_delivery")}
                 color="blue"
               />
               <StatCard
                 icon={TrendingUp}
-                label="Total dépensé"
+                label={t("account.total_spent")}
                 value={formatEUR(totalSpent)}
-                subValue="Toutes taxes comprises"
+                subValue={t("account.all_taxes_included")}
                 color="green"
               />
             </div>
 
             {/* Quick Actions */}
             <div className="bg-ivory border border-border p-6">
-              <h2 className="font-serif text-lg text-bordeaux mb-4">Actions rapides</h2>
+              <h2 className="font-serif text-lg text-bordeaux mb-4">{t("account.quick_actions")}</h2>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 <Link
                   to="/boutique"
@@ -340,8 +342,8 @@ const Account = () => {
                 >
                   <ShoppingCart className="h-5 w-5 text-bordeaux" />
                   <div>
-                    <p className="text-sm font-medium text-bordeaux">Commander</p>
-                    <p className="text-[10px] text-bordeaux/50">Accéder au catalogue</p>
+                    <p className="text-sm font-medium text-bordeaux">{t("account.order")}</p>
+                    <p className="text-[10px] text-bordeaux/50">{t("account.access_catalog")}</p>
                   </div>
                 </Link>
                 <Link
@@ -350,8 +352,8 @@ const Account = () => {
                 >
                   <Package className="h-5 w-5 text-bordeaux" />
                   <div>
-                    <p className="text-sm font-medium text-bordeaux">Commandes</p>
-                    <p className="text-[10px] text-bordeaux/50">Voir l'historique</p>
+                    <p className="text-sm font-medium text-bordeaux">{t("pro.orders")}</p>
+                    <p className="text-[10px] text-bordeaux/50">{t("account.view_history")}</p>
                   </div>
                 </Link>
                 <Link
@@ -360,8 +362,8 @@ const Account = () => {
                 >
                   <Ticket className="h-5 w-5 text-bordeaux" />
                   <div>
-                    <p className="text-sm font-medium text-bordeaux">Support</p>
-                    <p className="text-[10px] text-bordeaux/50">{openTickets > 0 ? `${openTickets} ticket(s) ouvert(s)` : "Aucun ticket"}</p>
+                    <p className="text-sm font-medium text-bordeaux">{t("pro.support")}</p>
+                    <p className="text-[10px] text-bordeaux/50">{openTickets > 0 ? `${openTickets} ${t("account.ticket_open")}` : t("account.no_ticket")}</p>
                   </div>
                 </Link>
                 <button
@@ -370,8 +372,8 @@ const Account = () => {
                 >
                   <Edit3 className="h-5 w-5 text-bordeaux" />
                   <div>
-                    <p className="text-sm font-medium text-bordeaux">Profil</p>
-                    <p className="text-[10px] text-bordeaux/50">Modifier les infos</p>
+                    <p className="text-sm font-medium text-bordeaux">{t("pro.profile")}</p>
+                    <p className="text-[10px] text-bordeaux/50">{t("account.edit_info")}</p>
                   </div>
                 </button>
               </div>
@@ -380,18 +382,18 @@ const Account = () => {
             {/* Recent Orders */}
             <div className="bg-ivory border border-border">
               <div className="flex items-center justify-between p-6 border-b border-border">
-                <h2 className="font-serif text-lg text-bordeaux">Commandes récentes</h2>
+                <h2 className="font-serif text-lg text-bordeaux">{t("account.recent_orders")}</h2>
                 <Link to="/commandes" className="text-xs text-gold hover:underline flex items-center gap-1">
-                  Voir tout <ChevronRight className="h-3 w-3" />
+                  {t("account.view_all")} <ChevronRight className="h-3 w-3" />
                 </Link>
               </div>
               {busy ? (
-                <div className="p-12 text-center text-bordeaux/60">Chargement…</div>
+                <div className="p-12 text-center text-bordeaux/60">{t("common.loading")}</div>
               ) : recentOrders.length === 0 ? (
                 <div className="p-12 text-center space-y-4">
-                  <p className="text-bordeaux/60">Vous n'avez pas encore passé de commande.</p>
+                  <p className="text-bordeaux/60">{t("account.no_orders_yet")}</p>
                   <Link to="/boutique" className="inline-block bg-bordeaux text-ivory px-6 py-2 text-xs tracking-luxe uppercase hover:bg-gold transition-smooth">
-                    Voir le catalogue
+                    {t("account.view_catalog")}
                   </Link>
                 </div>
               ) : (
@@ -429,9 +431,9 @@ const Account = () => {
             {openTickets > 0 && (
               <div className="bg-ivory border border-border">
                 <div className="flex items-center justify-between p-6 border-b border-border">
-                  <h2 className="font-serif text-lg text-bordeaux">Tickets ouverts</h2>
+                  <h2 className="font-serif text-lg text-bordeaux">{t("account.open_tickets")}</h2>
                   <Link to="/support" className="text-xs text-gold hover:underline flex items-center gap-1">
-                    Voir tout <ChevronRight className="h-3 w-3" />
+                    {t("account.view_all")} <ChevronRight className="h-3 w-3" />
                   </Link>
                 </div>
                 <div className="divide-y divide-border">
@@ -449,7 +451,7 @@ const Account = () => {
                         <span className={`text-[10px] tracking-luxe uppercase px-2 py-1 ${
                           t.status === "open" ? "bg-gold/20 text-gold" : "bg-bordeaux/10 text-bordeaux"
                         }`}>
-                          {t.status === "open" ? "Ouvert" : "En attente"}
+                          {t.status === "open" ? t("ticket.open") : t("ticket.pending")}
                         </span>
                       </Link>
                     ))}
@@ -460,9 +462,9 @@ const Account = () => {
             {/* Company Info Summary */}
             <div className="bg-ivory border border-border p-6">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="font-serif text-lg text-bordeaux">Informations entreprise</h2>
+                <h2 className="font-serif text-lg text-bordeaux">{t("account.company_info")}</h2>
                 <button onClick={openEdit} className="text-xs text-gold hover:underline flex items-center gap-1">
-                  <Edit3 className="h-3 w-3" /> Modifier
+                  <Edit3 className="h-3 w-3" /> {t("account.edit")}
                 </button>
               </div>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
@@ -497,12 +499,12 @@ const Account = () => {
 
             {/* Logout */}
             <div className="flex justify-between items-center pt-4 border-t border-border">
-              <p className="text-xs text-bordeaux/50">Connecté en tant que <span className="text-bordeaux">{user.email}</span></p>
+              <p className="text-xs text-bordeaux/50">{t("account.logged_in_as")} <span className="text-bordeaux">{user.email}</span></p>
               <button
                 onClick={logout}
                 className="text-xs tracking-luxe uppercase text-bordeaux/70 border border-border px-6 py-3 hover:bg-bordeaux hover:text-ivory transition-smooth"
               >
-                Se déconnecter
+                {t("account.logout")}
               </button>
             </div>
           </div>

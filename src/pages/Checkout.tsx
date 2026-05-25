@@ -4,6 +4,7 @@ import Layout from "@/components/Layout";
 import PageHeader from "@/components/PageHeader";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
+import { useLang } from "@/context/LanguageContext";
 import { toast } from "@/hooks/use-toast";
 import AddressForm, { type AddressFormData } from "@/components/AddressForm";
 import CheckoutSummary from "@/components/CheckoutSummary";
@@ -18,6 +19,7 @@ const CARRIER_OPTIONS = [
 const Checkout = () => {
   const { lines, subtotalHT } = useCart();
   const { user, profile } = useAuth();
+  const { t } = useLang();
   const navigate = useNavigate();
 
   const [step, setStep] = useState<"address" | "review">("address");
@@ -41,11 +43,11 @@ const Checkout = () => {
   if (!profile?.approved) {
     return (
       <Layout>
-        <PageHeader title="Checkout" crumbs={[{ label: "Panier", to: "/panier" }, { label: "Checkout" }]} />
+        <PageHeader title={t("checkout.title")} crumbs={[{ label: t("common.cart"), to: "/panier" }, { label: t("checkout.checkout") }]} />
         <section className="container py-20 text-center space-y-4">
-          <p className="text-bordeaux/60 text-lg">Votre compte pro doit être validé avant de pouvoir commander.</p>
+          <p className="text-bordeaux/60 text-lg">{t("checkout.account_must_be_approved")}</p>
           <Link to="/compte" className="inline-block bg-bordeaux text-ivory px-8 py-3 text-xs tracking-luxe uppercase hover:bg-gold transition-smooth">
-            Retour à mon compte
+            {t("checkout.back_to_account")}
           </Link>
         </section>
       </Layout>
@@ -55,11 +57,11 @@ const Checkout = () => {
   if (lines.length === 0) {
     return (
       <Layout>
-        <PageHeader title="Checkout" crumbs={[{ label: "Panier", to: "/panier" }, { label: "Checkout" }]} />
+        <PageHeader title={t("checkout.title")} crumbs={[{ label: t("common.cart"), to: "/panier" }, { label: t("checkout.checkout") }]} />
         <section className="container py-20 text-center space-y-4">
-          <p className="text-bordeaux/60 text-lg">Votre panier est vide.</p>
+          <p className="text-bordeaux/60 text-lg">{t("cart.empty")}</p>
           <Link to="/boutique" className="inline-block bg-bordeaux text-ivory px-8 py-3 text-xs tracking-luxe uppercase hover:bg-gold transition-smooth">
-            Voir le catalogue
+            {t("checkout.view_catalog")}
           </Link>
         </section>
       </Layout>
@@ -74,8 +76,8 @@ const Checkout = () => {
   const handleProceedToPayment = () => {
     if (!acceptTerms) {
       toast({
-        title: "Conditions générales",
-        description: "Vous devez accepter les CGV pour continuer.",
+        title: t("checkout.terms_required"),
+        description: t("checkout.terms_required_desc"),
         variant: "destructive",
       });
       return;
@@ -96,9 +98,9 @@ const Checkout = () => {
   return (
     <Layout>
       <PageHeader
-        title="Finaliser la commande"
-        subtitle="Vérifiez vos informations avant le paiement"
-        crumbs={[{ label: "Panier", to: "/panier" }, { label: "Checkout" }]}
+        title={t("checkout.finalize")}
+        subtitle={t("checkout.finalize_subtitle")}
+        crumbs={[{ label: t("common.cart"), to: "/panier" }, { label: t("checkout.checkout") }]}
       />
 
       <section className="container py-12 md:py-16">
@@ -110,7 +112,7 @@ const Checkout = () => {
                 className={`flex items-center gap-1 ${step === "address" ? "text-bordeaux font-medium" : "hover:text-bordeaux"}`}
               >
                 <MapPin className="w-4 h-4" />
-                Adresse
+                {t("checkout.address_step")}
               </button>
               <ChevronRight className="w-4 h-4" />
               <button
@@ -118,18 +120,18 @@ const Checkout = () => {
                 className={`flex items-center gap-1 ${step === "review" ? "text-bordeaux font-medium" : "hover:text-bordeaux"}`}
               >
                 <FileText className="w-4 h-4" />
-                Récapitulatif
+                {t("checkout.review_step")}
               </button>
             </nav>
 
             {step === "address" && (
               <div className="space-y-6">
                 <div className="bg-ivory border border-border p-6">
-                  <h2 className="font-serif text-xl text-bordeaux mb-4">Adresse de livraison</h2>
+                  <h2 className="font-serif text-xl text-bordeaux mb-4">{t("checkout.shipping_address")}</h2>
                   <AddressForm
                     defaultValues={address}
                     onSubmit={handleAddressSubmit}
-                    submitLabel="Continuer"
+                    submitLabel={t("checkout.continue")}
                   />
                 </div>
               </div>
@@ -139,9 +141,9 @@ const Checkout = () => {
               <div className="space-y-6">
                 <div className="bg-ivory border border-border p-6 space-y-4">
                   <div className="flex items-center justify-between">
-                    <h2 className="font-serif text-xl text-bordeaux">Adresse de livraison</h2>
+                    <h2 className="font-serif text-xl text-bordeaux">{t("checkout.shipping_address")}</h2>
                     <button onClick={() => setStep("address")} className="text-xs text-bordeaux/60 hover:text-bordeaux underline">
-                      Modifier
+                      {t("checkout.edit")}
                     </button>
                   </div>
                   <div className="text-sm text-bordeaux/70 space-y-1">
@@ -153,7 +155,7 @@ const Checkout = () => {
                 </div>
 
                 <div className="bg-ivory border border-border p-6 space-y-4">
-                  <h2 className="font-serif text-xl text-bordeaux">Transporteur</h2>
+                  <h2 className="font-serif text-xl text-bordeaux">{t("checkout.carrier")}</h2>
                 <div className="space-y-3">
                   {CARRIER_OPTIONS.map((option) => {
                     const freeShippingThreshold = 300;
@@ -180,7 +182,7 @@ const Checkout = () => {
                           <p className="text-xs text-bordeaux/50">{option.delay}</p>
                         </div>
                         <span className="text-sm text-bordeaux">
-                          {isFree ? "Offert" : `${option.price} €`}
+                          {isFree ? t("cart.free") : `${option.price} €`}
                         </span>
                       </label>
                     );
@@ -189,11 +191,11 @@ const Checkout = () => {
                 </div>
 
                 <div className="bg-ivory border border-border p-6 space-y-4">
-                  <h2 className="font-serif text-xl text-bordeaux">Notes / Instructions</h2>
+                  <h2 className="font-serif text-xl text-bordeaux">{t("checkout.notes")}</h2>
                   <textarea
                     value={notes}
                     onChange={(e) => setNotes(e.target.value)}
-                    placeholder="Instructions de livraison, code d'accès, etc. (optionnel)"
+                    placeholder={t("checkout.notes_placeholder")}
                     className="w-full min-h-[80px] p-3 border border-border bg-cream text-sm resize-none focus:outline-none focus:ring-1 focus:ring-bordeaux"
                   />
                 </div>
@@ -207,11 +209,11 @@ const Checkout = () => {
                       className="mt-1 accent-bordeaux"
                     />
                     <span className="text-sm text-bordeaux/70">
-                      J'accepte les{" "}
+                      {t("checkout.accept_terms_prefix")}{" "}
                       <Link to="/cgv" className="text-bordeaux underline hover:text-gold" target="_blank">
-                        conditions générales de vente
+                        {t("checkout.terms_link")}
                       </Link>{" "}
-                      et je reconnais avoir pris connaissance des modalités de paiement et de livraison.
+                      {t("checkout.accept_terms_suffix")}
                     </span>
                   </label>
                 </div>
@@ -220,7 +222,7 @@ const Checkout = () => {
                   onClick={handleProceedToPayment}
                   className="w-full bg-bordeaux text-ivory py-4 text-xs tracking-luxe uppercase hover:bg-gold transition-smooth"
                 >
-                  Procéder au paiement
+                  {t("checkout.proceed_payment")}
                 </button>
               </div>
             )}

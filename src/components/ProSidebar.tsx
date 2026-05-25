@@ -1,4 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
+import { useLang } from "@/context/LanguageContext";
 import {
   LayoutDashboard,
   Package,
@@ -8,16 +9,17 @@ import {
   ChevronRight,
 } from "lucide-react";
 
-const navItems = [
-  { icon: LayoutDashboard, label: "Tableau de bord", shortLabel: "Accueil", to: "/compte" },
-  { icon: Package, label: "Commandes", shortLabel: "Commandes", to: "/commandes" },
-  { icon: Ticket, label: "Support", shortLabel: "Support", to: "/support" },
-  { icon: ShoppingCart, label: "Catalogue", shortLabel: "Catalogue", to: "/boutique" },
-  { icon: Settings, label: "Profil", shortLabel: "Profil", to: "/compte?edit=profile" },
-];
-
 const ProSidebar = () => {
+  const { t } = useLang();
   const location = useLocation();
+
+  const navItems = [
+    { icon: LayoutDashboard, label: t("pro.dashboard"), shortLabel: t("pro.home"), to: "/compte" },
+    { icon: Package, label: t("pro.orders"), shortLabel: t("pro.orders"), to: "/commandes" },
+    { icon: Ticket, label: t("pro.support"), shortLabel: t("pro.support"), to: "/support" },
+    { icon: ShoppingCart, label: t("pro.catalog"), shortLabel: t("pro.catalog"), to: "/boutique" },
+    { icon: Settings, label: t("pro.profile"), shortLabel: t("pro.profile"), to: "/compte?edit=profile" },
+  ];
 
   const isActive = (to: string) => {
     if (to === "/compte") {
@@ -55,7 +57,7 @@ const ProSidebar = () => {
       {/* Desktop: Vertical sidebar */}
       <aside className="hidden md:block w-64 bg-ivory border-r border-border min-h-[calc(100vh-200px)] p-6">
         <div className="mb-8">
-          <p className="text-[10px] tracking-luxe uppercase text-bordeaux/40 mb-4">Navigation</p>
+          <p className="text-[10px] tracking-luxe uppercase text-bordeaux/40 mb-4">{t("pro.navigation")}</p>
           <nav className="space-y-1">
             {navItems.map((item) => {
               const active = isActive(item.to);
@@ -79,13 +81,13 @@ const ProSidebar = () => {
         </div>
 
         <div className="p-4 bg-gradient-gold rounded-lg">
-          <p className="text-[10px] tracking-luxe uppercase text-bordeaux/60 mb-2">Besoin d'aide ?</p>
-          <p className="text-xs text-bordeaux/70 mb-3">Notre équipe est disponible du lundi au vendredi.</p>
+          <p className="text-[10px] tracking-luxe uppercase text-bordeaux/60 mb-2">{t("pro.need_help")}</p>
+          <p className="text-xs text-bordeaux/70 mb-3">{t("pro.team_available")}</p>
           <Link
             to="/support"
             className="block text-center bg-bordeaux text-ivory px-4 py-2 text-[10px] tracking-luxe uppercase rounded hover:bg-bordeaux/90 transition-smooth"
           >
-            Contacter le support
+            {t("pro.contact_support")}
           </Link>
         </div>
       </aside>

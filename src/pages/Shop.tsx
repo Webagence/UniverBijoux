@@ -3,10 +3,12 @@ import PageHeader from "@/components/PageHeader";
 import ProductCard from "@/components/ProductCard";
 import ProductFilterBar from "@/components/ProductFilterBar";
 import { useAdmin } from "@/context/AdminContext";
+import { useLang } from "@/context/LanguageContext";
 import { useProductFilter } from "@/hooks/useProductFilter";
 
 const Shop = () => {
   const { products, universesList } = useAdmin();
+  const { t } = useLang();
   const {
     filters,
     setters,
@@ -21,10 +23,10 @@ const Shop = () => {
   return (
     <Layout>
       <PageHeader
-        eyebrow="Catalogue B2B"
-        title="Le catalogue complet"
-        subtitle="Toutes les références Maison Lune disponibles pour les revendeurs professionnels."
-        crumbs={[{ label: "Boutique" }]}
+        eyebrow={t("shop.catalog_b2b")}
+        title={t("shop.full_catalog")}
+        subtitle={t("shop.catalog_subtitle")}
+        crumbs={[{ label: t("shop.shop") }]}
       />
       <section className="container py-12 md:py-16">
         <ProductFilterBar
@@ -54,7 +56,7 @@ const Shop = () => {
           onReset={resetFilters}
         />
         {filtered.length === 0 ? (
-          <p className="text-bordeaux/60 text-center py-20">Aucun résultat pour votre recherche.</p>
+          <p className="text-bordeaux/60 text-center py-20">{t("shop.no_results")}</p>
         ) : (
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-5 md:gap-8">
             {filtered.map((p) => (

@@ -6,6 +6,7 @@ import ProSidebar from "@/components/ProSidebar";
 import OrderStatusBadge from "@/components/OrderStatusBadge";
 import { useAuth } from "@/context/AuthContext";
 import { useAdmin } from "@/context/AdminContext";
+import { useLang } from "@/context/LanguageContext";
 import { orderApi } from "@/services/orderApi";
 import { formatEUR } from "@/types/product";
 import { toast } from "@/hooks/use-toast";
@@ -34,17 +35,9 @@ interface OrderRow {
   items: { id: string; product_name: string; quantity: number; unit_price_ht: number; line_total_ht: number }[];
 }
 
-const STATUS_LABEL: Record<string, string> = {
-  pending: "En attente",
-  confirmed: "Confirmée",
-  preparing: "En préparation",
-  shipped: "Expédiée",
-  delivered: "Livrée",
-  cancelled: "Annulée",
-};
-
 const Orders = () => {
   const { user, loading: authLoading } = useAuth();
+  const { t } = useLang();
   const { settings } = useAdmin();
   const [searchParams] = useSearchParams();
   const [orders, setOrders] = useState<OrderRow[]>([]);
@@ -68,8 +61,8 @@ const Orders = () => {
           return;
         }
         toast({
-          title: "Erreur",
-          description: "Impossible de charger vos commandes.",
+          title: t("common.error"),
+          description: t("orders.load_error"),
           variant: "destructive",
         });
         setOrders([]);
@@ -91,7 +84,7 @@ const Orders = () => {
   if (authLoading) {
     return (
       <Layout>
-        <section className="container py-20 text-center text-bordeaux/60">Chargement…</section>
+        <section className="container py-20 text-center text-bordeaux/60">{t("common.loading")}</section>
       </Layout>
     );
   }
@@ -101,18 +94,18 @@ const Orders = () => {
     try {
       await orderApi.downloadInvoice(order.id);
     } catch {
-      toast({ title: "Erreur", description: "Impossible de télécharger la facture." });
+      toast({ title: t("common.error"), description: t("account.invoice_error") });
     }
   };
 
   const cancelOrder = async (order: OrderRow) => {
-    if (!confirm(`Annuler la commande ${order.reference} ?`)) return;
+    if (!confirm(t("orders.cancel_confirm").replace("{ref}", order.reference))) return;
     try {
       await orderApi.cancel(order.id);
       setOrders((prev) => prev.map((o) => o.id === order.id ? { ...o, status: "cancelled" } : o));
-      toast({ title: "Commande annulée", description: `La référence ${order.reference} a été annulée.` });
+      toast({ title: t("orders.order_cancelled"), description: t("orders.order_cancelled_desc").replace("{ref}", order.reference) });
     } catch {
-      toast({ title: "Erreur", description: "Impossible d'annuler cette commande.", variant: "destructive" });
+      toast({ title: t("common.error"), description: t("orders.cancel_error"), variant: "destructive" });
     }
   };
 
@@ -159,10 +152,10 @@ const Orders = () => {
   return (
     <Layout>
       <PageHeader
-        eyebrow="Espace pro"
-        title="Mes commandes"
-        subtitle="Historique complet de vos commandes et suivi en temps réel"
-        crumbs={[{ label: "Tableau de bord", to: "/compte" }, { label: "Commandes" }]}
+        eyebrow={t("account.pro_space")}
+        title={t("orders.my_orders")}
+        subtitle={t("orders.orders_subtitle")}
+        crumbs={[{ label: t("pro.dashboard"), to: "/compte" }, { label: t("pro.orders") }]}
       />
       <div className="container py-12 md:py-16">
         <div className="flex flex-col md:flex-row gap-8">
@@ -172,10 +165,10 @@ const Orders = () => {
             {/* Summary Cards */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               {[
-                { key: "all", label: "Total", color: "bordeaux" },
-                { key: "pending", label: "En attente", color: "gold" },
-                { key: "preparing", label: "En cours", color: "blue" },
-                { key: "shipped", label: "Expédiées", color: "bordeaux" },
+                { key: "all", label: t("orders.total"), color: "bordeaux" },
+                { key: "pending", label: t("order.pending"), color: "gold" },
+                { key: "preparing", label: t("orders.in_progress"), color: "blue" },
+                { key: "shipped", label: t("account.shipped"), color: "bordeaux" },
               ].map(({ key, label, color }) => (
                 <button
                   key={key}
@@ -199,7 +192,7 @@ const Orders = () => {
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-bordeaux/40" />
                   <input
                     type="search"
-                    placeholder="Rechercher par référence ou produit..."
+                    placeholder={t("orders.search_placeholder")}
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                     className="w-full bg-transparent border border-border pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:border-gold"
@@ -211,8 +204,15 @@ const Orders = () => {
                     onChange={(e) => setStatusFilter(e.target.value)}
                     className="bg-transparent border border-border px-4 py-2.5 text-sm focus:outline-none focus:border-gold"
                   >
-                    <option value="all">Tous les statuts</option>
-                    {Object.entries(STATUS_LABEL).map(([key, label]) => (
+                    <option value="all">{t("orders.all_statuses")}</option>
+                    {Object.entries({
+                      pending: t("order.pending"),
+                      confirmed: t("order.confirmed"),
+                      preparing: t("order.preparing"),
+                      shipped: t("order.shipped"),
+                      delivered: t("order.delivered"),
+                      cancelled: t("order.cancelled"),
+                    }).map(([key, label]) => (
                       <option key={key} value={key}>{label}</option>
                     ))}
                   </select>
@@ -221,42 +221,42 @@ const Orders = () => {
                     onChange={(e) => setDateFilter(e.target.value)}
                     className="bg-transparent border border-border px-4 py-2.5 text-sm focus:outline-none focus:border-gold"
                   >
-                    <option value="all">Toutes les dates</option>
-                    <option value="7d">7 derniers jours</option>
-                    <option value="30d">30 derniers jours</option>
-                    <option value="90d">90 derniers jours</option>
+                    <option value="all">{t("orders.all_dates")}</option>
+                    <option value="7d">{t("orders.last_7_days")}</option>
+                    <option value="30d">{t("orders.last_30_days")}</option>
+                    <option value="90d">{t("orders.last_90_days")}</option>
                   </select>
                 </div>
               </div>
               <p className="text-[10px] tracking-luxe uppercase text-bordeaux/40 mt-3">
-                {filteredOrders.length} commande{filteredOrders.length > 1 ? "s" : ""} trouvée{filteredOrders.length > 1 ? "s" : ""}
+                {filteredOrders.length} {filteredOrders.length > 1 ? t("orders.orders_found_plural") : t("orders.orders_found_singular")}
               </p>
             </div>
 
             {/* Orders Table */}
             {busy ? (
-              <div className="text-center py-20 text-bordeaux/60">Chargement…</div>
+              <div className="text-center py-20 text-bordeaux/60">{t("common.loading")}</div>
             ) : filteredOrders.length === 0 ? (
               <div className="text-center py-20 space-y-4 bg-ivory border border-border">
                 <Package className="h-12 w-12 text-bordeaux/20 mx-auto" />
-                <p className="text-bordeaux/60">Aucune commande trouvée.</p>
+                <p className="text-bordeaux/60">{t("orders.no_orders_found")}</p>
                 <Link
                   to="/boutique"
                   className="inline-block bg-bordeaux text-ivory px-8 py-3 text-xs tracking-luxe uppercase hover:bg-gold transition-smooth"
                 >
-                  Voir le catalogue
+                  {t("account.view_catalog")}
                 </Link>
               </div>
             ) : (
               <div className="bg-ivory border border-border">
                 {/* Table Header */}
                 <div className="hidden md:grid grid-cols-12 gap-4 p-4 border-b border-border text-[10px] tracking-luxe uppercase text-bordeaux/50">
-                  <div className="col-span-2">Référence</div>
-                  <div className="col-span-2">Date</div>
-                  <div className="col-span-2">Statut</div>
-                  <div className="col-span-2">Articles</div>
-                  <div className="col-span-2">Total TTC</div>
-                  <div className="col-span-2 text-right">Actions</div>
+                  <div className="col-span-2">{t("order.reference")}</div>
+                  <div className="col-span-2">{t("orders.date")}</div>
+                  <div className="col-span-2">{t("order.status")}</div>
+                  <div className="col-span-2">{t("orders.items")}</div>
+                  <div className="col-span-2">{t("cart.total_ttc")}</div>
+                  <div className="col-span-2 text-right">{t("orders.actions")}</div>
                 </div>
 
                 {/* Order Rows */}
@@ -277,7 +277,7 @@ const Orders = () => {
                           <OrderStatusBadge status={o.status} />
                         </div>
                         <div className="col-span-2 text-sm text-bordeaux/70">
-                          {(o.items || []).length} article{(o.items || []).length > 1 ? "s" : ""}
+                          {(o.items || []).length} {t("orders.article" + ((o.items || []).length > 1 ? "s" : ""))}
                         </div>
                         <div className="col-span-2 font-serif text-bordeaux">
                           {formatEUR(Number(o.total_ttc))}
@@ -286,21 +286,21 @@ const Orders = () => {
                           <Link
                             to={`/commandes/${o.id}`}
                             className="p-2 text-bordeaux/60 hover:text-bordeaux hover:bg-cream"
-                            title="Voir les détails"
+                            title={t("orders.view_details")}
                           >
                             <Eye className="h-4 w-4" />
                           </Link>
                           <button
                             onClick={() => generateInvoice(o)}
                             className="p-2 text-bordeaux/60 hover:text-bordeaux hover:bg-cream"
-                            title="Facture PDF"
+                            title={t("order.pdf_invoice")}
                           >
                             <Download className="h-4 w-4" />
                           </button>
                           <Link
                             to={`/support?order=${o.id}`}
                             className="p-2 text-bordeaux/60 hover:text-bordeaux hover:bg-cream"
-                            title="Ouvrir un ticket"
+                            title={t("orders.open_ticket")}
                           >
                             <FileText className="h-4 w-4" />
                           </Link>
@@ -308,7 +308,7 @@ const Orders = () => {
                             <button
                               onClick={() => cancelOrder(o)}
                               className="p-2 text-destructive/60 hover:text-destructive hover:bg-red-50"
-                              title="Annuler"
+                              title={t("orders.cancel")}
                             >
                               <XCircle className="h-4 w-4" />
                             </button>
@@ -337,20 +337,20 @@ const Orders = () => {
                             to={`/commandes/${o.id}`}
                             className="flex-1 text-center bg-bordeaux text-ivory px-3 py-2 text-[10px] tracking-luxe uppercase hover:bg-gold transition-smooth"
                           >
-                            Détails
+                            {t("orders.details")}
                           </Link>
                           <button
                             onClick={() => generateInvoice(o)}
                             className="flex-1 text-center border border-bordeaux text-bordeaux px-3 py-2 text-[10px] tracking-luxe uppercase hover:bg-bordeaux hover:text-ivory transition-smooth"
                           >
-                            Facture
+                            {t("orders.invoice")}
                           </button>
                           {canCancel(o.status) && (
                             <button
                               onClick={() => cancelOrder(o)}
                               className="flex-1 text-center border border-destructive/30 text-destructive px-3 py-2 text-[10px] tracking-luxe uppercase hover:bg-destructive hover:text-ivory transition-smooth"
                             >
-                              Annuler
+                              {t("orders.cancel")}
                             </button>
                           )}
                         </div>

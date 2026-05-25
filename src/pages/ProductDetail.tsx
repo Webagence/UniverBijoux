@@ -7,6 +7,7 @@ import { formatEUR } from "@/types/product";
 import { useAuth } from "@/context/AuthContext";
 import { useCart } from "@/context/CartContext";
 import { useAdmin } from "@/context/AdminContext";
+import { useLang } from "@/context/LanguageContext";
 import { toast } from "@/hooks/use-toast";
 import { Minus, Plus, ShieldCheck, Truck, Factory, ArrowRight } from "lucide-react";
 
@@ -16,6 +17,7 @@ const ProductDetail = () => {
   const product = slug ? products.find((p) => p.slug === slug) : undefined;
   const { user } = useAuth();
   const { addItem } = useCart();
+  const { t } = useLang();
   const [qty, setQty] = useState(product?.moq ?? 1);
   const [selectedVariations, setSelectedVariations] = useState<Record<number, string>>({});
   const [justAdded, setJustAdded] = useState(false);
@@ -57,10 +59,6 @@ const ProductDetail = () => {
   const selectVariation = (variationIndex: number, option: string) => {
     setSelectedVariations((prev) => ({ ...prev, [variationIndex]: option }));
   };
-
-import { useLang } from "@/context/LanguageContext";
-
-  const { t } = useLang();
 
   return (
     <Layout>

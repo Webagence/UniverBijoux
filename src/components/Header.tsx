@@ -63,11 +63,10 @@ const Header = () => {
         }`}
       >
         <div className="container flex items-center justify-between py-5 gap-4">
-          <button
-            className="lg:hidden text-bordeaux"
-            aria-label="Menu"
-            onClick={() => setMobileOpen(true)}
-          >
+            <button
+              aria-label={t("common.menu")}
+              onClick={() => setMobileOpen(true)}
+            >
             <Menu className="h-5 w-5" />
           </button>
 
@@ -99,7 +98,7 @@ const Header = () => {
 
           <div className="flex items-center gap-5 md:ml-6 text-bordeaux">
             <button
-              aria-label="Recherche"
+              aria-label={t("common.search")}
               onClick={() => navigate("/boutique")}
               className="hover:text-gold transition-smooth"
             >
@@ -129,14 +128,14 @@ const Header = () => {
               <>
                 <Link
                   to="/compte"
-                  aria-label="Mon compte"
+                  aria-label={t("nav.account")}
                   className="hover:text-gold transition-smooth hidden sm:block"
                 >
                   <User className="h-[18px] w-[18px]" />
                 </Link>
                 <button
                   onClick={logout}
-                  aria-label="Déconnexion"
+                  aria-label={t("nav.logout")}
                   className="hover:text-gold transition-smooth hidden sm:block"
                 >
                   <LogOut className="h-[18px] w-[18px]" />
@@ -145,14 +144,14 @@ const Header = () => {
             ) : (
               <Link
                 to="/connexion"
-                aria-label="Connexion pro"
+                aria-label={t("nav.login")}
                 className="hover:text-gold transition-smooth text-[11px] tracking-luxe uppercase hidden sm:inline-block"
               >
                 {t("nav.proSpace")}
               </Link>
             )}
 
-            <Link to="/panier" aria-label="Panier" className="hover:text-gold transition-smooth relative">
+            <Link to="/panier" aria-label={t("common.cart")} className="hover:text-gold transition-smooth relative">
               <ShoppingBag className="h-[18px] w-[18px]" />
               {itemCount > 0 && (
                 <span className="absolute -top-2 -right-2 bg-gold text-ivory text-[10px] rounded-full h-4 w-4 flex items-center justify-center font-medium">
