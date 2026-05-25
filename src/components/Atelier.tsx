@@ -1,14 +1,16 @@
 import atelier from "@/assets/atelier.jpg";
 import { useAdmin } from "@/context/AdminContext";
+import { useLang } from "@/context/LanguageContext";
 
 const defaultStats = [
-  ["Or recyclé", "100%"],
-  ["Garantie", "À vie"],
-  ["Made in", "France"],
+  ["recycled_gold", "100%"],
+  ["lifetime_warranty", "À vie"],
+  ["made_in", "France"],
 ];
 
 const Atelier = () => {
   const { atelier: a } = useAdmin();
+  const { t } = useLang();
   const stats = a.stats && Array.isArray(a.stats) ? a.stats : defaultStats;
   return (
     <section id="atelier" className="container py-20 md:py-28">
@@ -39,7 +41,7 @@ const Atelier = () => {
             {stats.map(([label, val], i) => (
               <div key={i}>
                 <div className="font-serif text-2xl text-bordeaux">{val}</div>
-                <div className="text-xs tracking-luxe uppercase text-bordeaux/50 mt-1">{label}</div>
+                <div className="text-xs tracking-luxe uppercase text-bordeaux/50 mt-1">{t(label as any)}</div>
               </div>
             ))}
           </div>

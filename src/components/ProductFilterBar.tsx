@@ -1,5 +1,6 @@
 import { UniverseRow } from "@/context/AdminContext";
 import { SortOption } from "@/hooks/useProductFilter";
+import { useLang } from "@/context/LanguageContext";
 
 interface ProductFilterBarProps {
   query: string;
@@ -54,12 +55,14 @@ const ProductFilterBar = ({
   count,
   onReset,
 }: ProductFilterBarProps) => {
+  const { t } = useLang();
+
   return (
     <div className="space-y-4 mb-10">
       <div className="flex flex-col md:flex-row gap-4">
         <input
           type="search"
-          placeholder="Rechercher un nom, une référence, une description..."
+          placeholder={t("search_placeholder")}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           className="flex-1 bg-ivory border border-border px-4 py-3 text-sm focus:outline-none focus:border-gold transition-smooth"
@@ -70,7 +73,7 @@ const ProductFilterBar = ({
             onChange={(e) => setUniv(e.target.value)}
             className="bg-ivory border border-border px-4 py-3 text-sm focus:outline-none focus:border-gold transition-smooth"
           >
-            <option value="all">Tous les univers</option>
+            <option value="all">{t("all_universes")}</option>
             {universesList.map((u) => (
               <option key={u.slug} value={u.slug}>
                 {u.name}
@@ -83,11 +86,11 @@ const ProductFilterBar = ({
           onChange={(e) => setSort(e.target.value as SortOption)}
           className="bg-ivory border border-border px-4 py-3 text-sm focus:outline-none focus:border-gold transition-smooth"
         >
-          <option value="default">Trier par : pertinence</option>
-          <option value="price-asc">Prix croissant</option>
-          <option value="price-desc">Prix décroissant</option>
-          <option value="alpha-asc">Alphabétique A-Z</option>
-          <option value="alpha-desc">Alphabétique Z-A</option>
+          <option value="default">{t("sort_by_relevance")}</option>
+          <option value="price-asc">{t("price_ascending")}</option>
+          <option value="price-desc">{t("price_descending")}</option>
+          <option value="alpha-asc">{t("alpha_az")}</option>
+          <option value="alpha-desc">{t("alpha_za")}</option>
         </select>
         <label className="flex items-center gap-2 bg-ivory border border-border px-4 py-3 text-sm cursor-pointer">
           <input
@@ -96,7 +99,7 @@ const ProductFilterBar = ({
             onChange={(e) => setInStockOnly(e.target.checked)}
             className="accent-bordeaux"
           />
-          En stock
+          {t("in_stock")}
         </label>
       </div>
 
@@ -107,7 +110,7 @@ const ProductFilterBar = ({
             onChange={(e) => setTag(e.target.value)}
             className="bg-ivory border border-border px-4 py-3 text-sm focus:outline-none focus:border-gold transition-smooth"
           >
-            <option value="all">Tous les tags</option>
+            <option value="all">{t("all_tags")}</option>
             {tags.filter((t) => t !== "all").map((t) => (
               <option key={t} value={t}>
                 {t}
@@ -121,7 +124,7 @@ const ProductFilterBar = ({
             onChange={(e) => setMaterial(e.target.value)}
             className="bg-ivory border border-border px-4 py-3 text-sm focus:outline-none focus:border-gold transition-smooth"
           >
-            <option value="all">Tous les matériaux</option>
+            <option value="all">{t("all_materials")}</option>
             {uniqueMaterials.map((m) => (
               <option key={m} value={m}>
                 {m}
@@ -135,7 +138,7 @@ const ProductFilterBar = ({
             onChange={(e) => setFinish(e.target.value)}
             className="bg-ivory border border-border px-4 py-3 text-sm focus:outline-none focus:border-gold transition-smooth"
           >
-            <option value="all">Toutes les finitions</option>
+            <option value="all">{t("all_finishes")}</option>
             {uniqueFinishes.map((f) => (
               <option key={f} value={f}>
                 {f}
@@ -148,14 +151,14 @@ const ProductFilterBar = ({
             onClick={onReset}
             className="bg-bordeaux text-white px-4 py-3 text-sm hover:bg-bordeaux/90 transition-smooth"
           >
-            Réinitialiser les filtres
+            {t("reset_filters")}
           </button>
         )}
       </div>
 
       {availableLetters.length > 0 && (
         <div>
-          <p className="text-xs uppercase tracking-luxe text-bordeaux/50 mb-2">Filtrer par lettre</p>
+          <p className="text-xs uppercase tracking-luxe text-bordeaux/50 mb-2">{t("filter_by_letter")}</p>
           <div className="flex flex-wrap gap-1">
             <button
               onClick={() => setLetter("")}
@@ -185,7 +188,7 @@ const ProductFilterBar = ({
       )}
 
       <p className="text-xs uppercase tracking-luxe text-bordeaux/50">
-        {count} référence{count > 1 ? "s" : ""}
+        {count} {count > 1 ? t("references_plural") : t("references_singular")}
       </p>
     </div>
   );

@@ -4,6 +4,7 @@ import PageHeader from "@/components/PageHeader";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { useAdmin } from "@/context/AdminContext";
+import { useLang } from "@/context/LanguageContext";
 import { formatEUR } from "@/types/product";
 import { Trash2, Minus, Plus } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
@@ -12,6 +13,7 @@ const Cart = () => {
   const { lines, getProduct, updateQty, removeItem, subtotalHT, vat, totalTTC, clear } = useCart();
   const { user, profile } = useAuth();
   const { settings } = useAdmin();
+  const { t } = useLang();
   const navigate = useNavigate();
 
   const freeShippingThreshold = Number(settings.freeShippingFrom) || 300;
@@ -19,14 +21,14 @@ const Cart = () => {
 
   const checkout = async () => {
     if (!user) {
-      toast({ title: "Connexion requise", description: "Connectez-vous pour valider votre commande." });
+      toast({ title: t("cart.login_required"), description: t("cart.login_required_desc") });
       navigate("/connexion?redirect=/checkout");
       return;
     }
     if (!profile?.approved) {
       toast({
-        title: "Compte en attente de validation",
-        description: "Votre compte pro doit être validé par notre équipe avant toute commande.",
+        title: t("cart.account_pending"),
+        description: t("cart.account_pending_desc"),
       });
       return;
     }
@@ -35,16 +37,16 @@ const Cart = () => {
 
   return (
     <Layout>
-      <PageHeader title="Votre panier" crumbs={[{ label: "Panier" }]} />
+      <PageHeader title={t("cart.your_cart")} crumbs={[{ label: t("common.cart") }]} />
       <section className="container py-12 md:py-16">
         {lines.length === 0 ? (
           <div className="text-center py-20 space-y-4">
-            <p className="text-bordeaux/60">Votre panier est vide.</p>
+            <p className="text-bordeaux/60">{t("cart.empty")}</p>
             <Link
               to="/boutique"
               className="inline-block bg-bordeaux text-ivory px-8 py-3 text-xs tracking-luxe uppercase hover:bg-gold transition-smooth"
             >
-              Découvrir le catalogue
+              {t("cart.discover_catalog")}
             </Link>
           </div>
         ) : (
@@ -62,13 +64,13 @@ const Cart = () => {
                       <div className="flex justify-between gap-3">
                         <div>
                           <p className="text-[11px] tracking-luxe uppercase text-bordeaux/50">
-                            Réf. {p.reference}
+                            {t("common.ref")} {p.reference}
                           </p>
                           <Link to={`/produit/${p.slug}`} className="font-serif text-lg text-bordeaux hover:text-gold transition-smooth">
                             {p.name}
                           </Link>
                         </div>
-                        <button onClick={() => removeItem(l.productId)} aria-label="Retirer" className="text-bordeaux/40 hover:text-destructive transition-smooth">
+                        <button onClick={() => removeItem(l.productId)} aria-label={t("cart.remove")} className="text-bordeaux/40 hover:text-destructive transition-smooth">
                           <Trash2 className="h-4 w-4" />
                         </button>
                       </div>
@@ -95,28 +97,28 @@ const Cart = () => {
                 );
               })}
               <button onClick={clear} className="text-xs tracking-luxe uppercase text-bordeaux/50 hover:text-destructive">
-                Vider le panier
+                {t("cart.clear_cart")}
               </button>
             </div>
 
             <aside className="bg-cream p-6 h-fit space-y-4 sticky top-28">
-              <h2 className="font-serif text-xl text-bordeaux">Récapitulatif</h2>
+              <h2 className="font-serif text-xl text-bordeaux">{t("cart.summary")}</h2>
               <dl className="space-y-2 text-sm">
-                <div className="flex justify-between"><dt>Sous-total HT</dt><dd>{formatEUR(subtotalHT)}</dd></div>
-                <div className="flex justify-between"><dt>TVA (20%)</dt><dd>{formatEUR(vat)}</dd></div>
-                <div className="flex justify-between"><dt>Livraison</dt><dd>{subtotalHT >= freeShippingThreshold ? "Offerte" : `${formatEUR(shippingHT)}`}</dd></div>
+                <div className="flex justify-between"><dt>{t("cart.subtotal_ht")}</dt><dd>{formatEUR(subtotalHT)}</dd></div>
+                <div className="flex justify-between"><dt>{t("cart.vat")}</dt><dd>{formatEUR(vat)}</dd></div>
+                <div className="flex justify-between"><dt>{t("cart.shipping")}</dt><dd>{subtotalHT >= freeShippingThreshold ? t("cart.free") : `${formatEUR(shippingHT)}`}</dd></div>
                 <div className="flex justify-between border-t border-border pt-3 font-serif text-lg text-bordeaux">
-                  <dt>Total TTC</dt><dd>{formatEUR(totalTTC + shippingHT)}</dd>
+                  <dt>{t("cart.total_ttc")}</dt><dd>{formatEUR(totalTTC + shippingHT)}</dd>
                 </div>
               </dl>
               <button
                 onClick={checkout}
                 className="w-full bg-bordeaux text-ivory py-4 text-xs tracking-luxe uppercase hover:bg-gold transition-smooth"
               >
-                Procéder à la commande
+                {t("cart.proceed_order")}
               </button>
               <p className="text-[11px] text-bordeaux/50 text-center">
-                Livraison offerte dès {formatEUR(freeShippingThreshold)} HT. Paiement à 30 jours après validation.
+                {t("cart.free_shipping_from")} {formatEUR(freeShippingThreshold)} HT. {t("cart.payment_terms")}
               </p>
             </aside>
           </div>
