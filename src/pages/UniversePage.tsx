@@ -4,11 +4,13 @@ import PageHeader from "@/components/PageHeader";
 import ProductCard from "@/components/ProductCard";
 import ProductFilterBar from "@/components/ProductFilterBar";
 import { useAdmin } from "@/context/AdminContext";
+import { useLang } from "@/context/LanguageContext";
 import { useProductFilter } from "@/hooks/useProductFilter";
 
 const UniversePage = () => {
   const { universe } = useParams<{ universe: string }>();
   const { products, universesList } = useAdmin();
+  const { t } = useLang();
 
   const universeProducts = products.filter((p) => p.universe === universe);
 
@@ -34,10 +36,10 @@ const UniversePage = () => {
   return (
     <Layout>
       <PageHeader
-        eyebrow="Univers"
+        eyebrow={t("universe.universe")}
         title={meta.name}
-        subtitle={`${filtered.length} pièces disponibles. Tous les prix sont HT, réservés aux professionnels.`}
-        crumbs={[{ label: "Boutique", to: "/boutique" }, { label: meta.name }]}
+        subtitle={t("universe.subtitle").replace("{count}", String(filtered.length))}
+        crumbs={[{ label: t("shop.shop"), to: "/boutique" }, { label: meta.name }]}
       />
       <section className="container py-12 md:py-16">
         <ProductFilterBar
@@ -67,7 +69,7 @@ const UniversePage = () => {
           onReset={resetFilters}
         />
         {filtered.length === 0 ? (
-          <p className="text-bordeaux/60 text-center py-20">Aucun résultat pour votre recherche.</p>
+          <p className="text-bordeaux/60 text-center py-20">{t("shop.no_results")}</p>
         ) : (
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-5 md:gap-8">
             {filtered.map((p) => (

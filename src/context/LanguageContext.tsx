@@ -368,6 +368,8 @@ const dict = {
     "address.city_error": "La ville est requise",
     "address.postal_code_error": "Code postal invalide (5 chiffres)",
     "address.country_error": "Le pays est requis",
+    "universe.universe": "Univers",
+    "universe.subtitle": "{count} pièces disponibles. Tous les prix sont HT, réservés aux professionnels.",
   },
   en: {
     "nav.home": "Home",
@@ -715,6 +717,8 @@ const dict = {
     "address.city_error": "City is required",
     "address.postal_code_error": "Invalid postal code (5 digits)",
     "address.country_error": "Country is required",
+    "universe.universe": "Universe",
+    "universe.subtitle": "{count} pieces available. All prices are excl. VAT, reserved for professionals.",
   },
 } as const;
 
