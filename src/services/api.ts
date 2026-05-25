@@ -15,6 +15,12 @@ api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   if (token && config.headers) {
     config.headers.Authorization = `Bearer ${token}`;
   }
+
+  const locale = localStorage.getItem('locale') || 'fr';
+  if (config.headers) {
+    config.headers['X-Locale'] = locale;
+  }
+
   return config;
 });
 
