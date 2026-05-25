@@ -78,9 +78,9 @@ const Header = () => {
             ))}
           </nav>
 
-          <Link to="/" className="flex items-center">
+          <Link to="/" className="flex items-center justify-center">
             {settings.logo ? (
-              <img src={settings.logo} alt={settings.siteName} className="h-16 md:h-24 w-auto object-contain" />
+              <img src={settings.logo} alt={settings.siteName} className="h-20 md:h-28 lg:h-32 w-auto object-contain -my-4 md:-my-6" />
             ) : (
               <span className="font-serif text-2xl md:text-3xl text-bordeaux tracking-luxe whitespace-nowrap">
                 {settings.siteName}

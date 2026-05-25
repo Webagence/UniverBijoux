@@ -80,24 +80,25 @@ const Footer = () => {
         </div>
       </div>
 
-      <div className="container py-14 grid md:grid-cols-4 gap-10">
-        <div className="space-y-4">
-          <Link to="/" className="flex items-center">
-            {settings.logo ? (
-              <img src={settings.logo} alt={settings.siteName} className="h-16 w-auto object-contain brightness-0 invert" />
-            ) : (
-              <span className="font-serif text-2xl tracking-luxe">{settings.siteName}</span>
-            )}
-          </Link>
-          <p className="text-ivory/60 text-sm leading-relaxed">
-            {t("footer.tagline")}
-          </p>
-          <div className="flex gap-4 pt-2 text-ivory/60">
-            <a href={settings.socialInstagram || "https://instagram.com"} target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="hover:text-gold transition-smooth"><Instagram className="h-4 w-4" /></a>
-            <a href={settings.socialFacebook || "https://facebook.com"} target="_blank" rel="noopener noreferrer" aria-label="Facebook" className="hover:text-gold transition-smooth"><Facebook className="h-4 w-4" /></a>
-            <a href={settings.socialLinkedin || "https://linkedin.com"} target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" className="hover:text-gold transition-smooth"><Linkedin className="h-4 w-4" /></a>
+      <div className="container py-14">
+        <div className="grid md:grid-cols-[1.5fr_1fr_1fr_1fr] gap-10 lg:gap-14">
+          <div className="space-y-5">
+            <Link to="/" className="inline-block bg-white/10 rounded-lg p-4 w-fit">
+              {settings.logo ? (
+                <img src={settings.logo} alt={settings.siteName} className="h-16 md:h-20 w-auto object-contain" />
+              ) : (
+                <span className="font-serif text-2xl tracking-luxe">{settings.siteName}</span>
+              )}
+            </Link>
+            <p className="text-ivory/60 text-sm leading-relaxed">
+              {t("footer.tagline")}
+            </p>
+            <div className="flex gap-4 pt-1 text-ivory/60">
+              <a href={settings.socialInstagram || "https://instagram.com"} target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="hover:text-gold transition-smooth"><Instagram className="h-4 w-4" /></a>
+              <a href={settings.socialFacebook || "https://facebook.com"} target="_blank" rel="noopener noreferrer" aria-label="Facebook" className="hover:text-gold transition-smooth"><Facebook className="h-4 w-4" /></a>
+              <a href={settings.socialLinkedin || "https://linkedin.com"} target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" className="hover:text-gold transition-smooth"><Linkedin className="h-4 w-4" /></a>
+            </div>
           </div>
-        </div>
 
         {columns.map((col) => (
           <div key={col.title}>
@@ -111,6 +112,7 @@ const Footer = () => {
             </ul>
           </div>
         ))}
+        </div>
       </div>
 
       <div className="border-t border-ivory/10">
