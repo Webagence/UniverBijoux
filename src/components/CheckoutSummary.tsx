@@ -70,12 +70,12 @@ const CheckoutSummary = ({ showShipping = true, showTotal = true, showDiscountIn
                 placeholder="Code promo"
                 value={discountCode}
                 onChange={(e) => setDiscountCode(e.target.value.toUpperCase())}
-                className="flex-1 bg-ivory border border-border px-3 py-2 text-sm focus:outline-none focus:border-gold"
+                className="flex-1 min-w-0 bg-ivory border border-border px-3 py-2 text-sm focus:outline-none focus:border-gold"
               />
               <button
                 onClick={validateDiscount}
                 disabled={validatingDiscount || !discountCode.trim()}
-                className="bg-bordeaux text-ivory px-4 py-2 text-xs tracking-luxe uppercase hover:bg-gold transition-smooth disabled:opacity-50"
+                className="shrink-0 whitespace-nowrap bg-bordeaux text-ivory px-3 py-2 text-xs tracking-luxe uppercase hover:bg-gold transition-smooth disabled:opacity-50"
               >
                 {validatingDiscount ? "..." : t("discount.apply")}
               </button>
