@@ -36,7 +36,7 @@ interface OrderRow {
 }
 
 const Orders = () => {
-  const { user, loading: authLoading } = useAuth();
+  const { user, profile, loading: authLoading } = useAuth();
   const { t } = useLang();
   const { settings } = useAdmin();
   const [searchParams] = useSearchParams();
@@ -57,14 +57,21 @@ const Orders = () => {
       } catch (err: any) {
         console.error("Failed to load orders:", err);
         if (err.response?.status === 401) {
-          // Token expired or invalid, let auth context handle redirect
           return;
         }
-        toast({
-          title: t("common.error"),
-          description: t("orders.load_error"),
-          variant: "destructive",
-        });
+        if (!profile?.approved) {
+          toast({
+            title: t("account.account_pending"),
+            description: t("orders.pending_account_load_error"),
+            variant: "destructive",
+          });
+        } else {
+          toast({
+            title: t("common.error"),
+            description: t("orders.load_error"),
+            variant: "destructive",
+          });
+        }
         setOrders([]);
       } finally {
         setBusy(false);
@@ -79,16 +86,7 @@ const Orders = () => {
     return () => {
       window.removeEventListener('focus', handleFocus);
     };
-  }, [user, searchParams.get('refresh')]);
-
-  if (authLoading) {
-    return (
-      <Layout>
-        <section className="container py-20 text-center text-bordeaux/60">{t("common.loading")}</section>
-      </Layout>
-    );
-  }
-  if (!user) return <Navigate to="/connexion?redirect=/commandes" replace />;
+  }, [user, profile, t, searchParams.get('refresh')]);
 
   const generateInvoice = async (order: OrderRow) => {
     try {
@@ -148,6 +146,15 @@ const Orders = () => {
     });
     return counts;
   }, [orders]);
+
+  if (authLoading) {
+    return (
+      <Layout>
+        <section className="container py-20 text-center text-bordeaux/60">{t("common.loading")}</section>
+      </Layout>
+    );
+  }
+  if (!user) return <Navigate to="/connexion?redirect=/commandes" replace />;
 
   return (
     <Layout>
