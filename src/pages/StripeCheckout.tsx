@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 import { loadStripe, Stripe } from "@stripe/stripe-js";
 import { Elements, PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
@@ -24,6 +24,7 @@ interface CheckoutData {
   };
   carrier: string;
   notes: string;
+  discountCode: string | null;
 }
 
 const CheckoutForm = ({ clientSecret, orderId, orderReference, amount, onSuccess }: {
@@ -103,7 +104,7 @@ const CheckoutForm = ({ clientSecret, orderId, orderReference, amount, onSuccess
 };
 
 const StripeCheckout = () => {
-  const { lines, getProduct, subtotalHT, clear } = useCart();
+  const { lines, getProduct, subtotalHT, appliedDiscount, discountHt, clear } = useCart();
   const { user, profile, loading: authLoading } = useAuth();
   const { settings } = useAdmin();
   const { t } = useLang();
@@ -115,8 +116,16 @@ const StripeCheckout = () => {
   const [amount, setAmount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [checkoutData, setCheckoutData] = useState<CheckoutData | null>(null);
+  const [checkoutData] = useState<CheckoutData | null>(() => {
+    try {
+      const raw = sessionStorage.getItem("checkout_data");
+      return raw ? JSON.parse(raw) : null;
+    } catch {
+      return null;
+    }
+  });
   const [stripeInstance, setStripeInstance] = useState<Stripe | null>(null);
+  const intentCreatedRef = useRef(false);
 
   const stripeKey = settings.stripePublishableKey || import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || "";
 
@@ -134,20 +143,9 @@ const StripeCheckout = () => {
   }, [stripeKey]);
 
   const freeShippingThreshold = Number(settings.freeShippingFrom) || 300;
-  const shippingHT = subtotalHT >= freeShippingThreshold ? 0 : 15;
-  const vat = +(subtotalHT * 0.2).toFixed(2);
-  const totalTTC = +(subtotalHT + vat + shippingHT).toFixed(2);
-
-  useEffect(() => {
-    const raw = sessionStorage.getItem("checkout_data");
-    if (raw) {
-      try {
-        setCheckoutData(JSON.parse(raw));
-      } catch {
-        setCheckoutData(null);
-      }
-    }
-  }, []);
+  const shippingHT = subtotalHT >= freeShippingThreshold || appliedDiscount?.type === 'free_shipping' ? 0 : 15;
+  const vat = +(((subtotalHT - discountHt) * 0.2)).toFixed(2);
+  const totalTTC = +(subtotalHT - discountHt + vat + shippingHT).toFixed(2);
 
   useEffect(() => {
     if (!user || !profile?.approved) return;
@@ -155,8 +153,10 @@ const StripeCheckout = () => {
       navigate("/panier");
       return;
     }
+    if (intentCreatedRef.current || clientSecret) return;
 
     const createIntent = async () => {
+      intentCreatedRef.current = true;
       setLoading(true);
       try {
         const items = lines
@@ -181,6 +181,7 @@ const StripeCheckout = () => {
           shipping_address: shippingAddress,
           carrier: checkoutData?.carrier || "colissimo",
           notes: checkoutData?.notes || "",
+          discount_code: checkoutData?.discountCode || undefined,
         });
 
         setClientSecret(result.clientSecret);
@@ -189,13 +190,14 @@ const StripeCheckout = () => {
         setAmount(result.amount);
       } catch (err: any) {
         setError(err.response?.data?.message || t("payment.init_error"));
+        intentCreatedRef.current = false;
       } finally {
         setLoading(false);
       }
     };
 
     createIntent();
-  }, [user, profile, lines, checkoutData]);
+  }, [user, profile, lines]);
 
   if (authLoading) return <Layout><div className="container py-32 text-center text-bordeaux/60">{t("common.loading")}</div></Layout>;
   if (!user) return <Navigate to="/connexion?redirect=/paiement" replace />;
@@ -311,7 +313,7 @@ const StripeCheckout = () => {
                         <p className="text-bordeaux/50 text-xs">{l.quantity} {t("common.pcs")}</p>
                       </div>
                       <span className="text-bordeaux font-medium whitespace-nowrap">
-                        {formatEUR(p.priceHT * l.quantity)} HT
+                        {formatEUR((p.salePriceHT ?? p.priceHT) * l.quantity)} HT
                       </span>
                     </li>
                   );
@@ -322,13 +324,19 @@ const StripeCheckout = () => {
                   <span className="text-bordeaux/70">{t("cart.subtotal_ht")}</span>
                   <span>{formatEUR(subtotalHT)}</span>
                 </div>
+                {appliedDiscount && (
+                  <div className="flex justify-between text-green-700">
+                    <span>{t("discount.discount")} {appliedDiscount.code}</span>
+                    <span>-{formatEUR(discountHt)}</span>
+                  </div>
+                )}
                 <div className="flex justify-between">
                   <span className="text-bordeaux/70">{t("cart.vat")}</span>
                   <span>{formatEUR(vat)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-bordeaux/70">{t("cart.shipping")}</span>
-                  <span>{subtotalHT >= freeShippingThreshold ? t("cart.free") : formatEUR(shippingHT)}</span>
+                  <span>{subtotalHT >= freeShippingThreshold || appliedDiscount?.type === 'free_shipping' ? t("cart.free") : formatEUR(shippingHT)}</span>
                 </div>
                 <div className="flex justify-between font-serif text-lg text-bordeaux pt-3 border-t border-border">
                   <span>{t("cart.total_ttc")}</span>

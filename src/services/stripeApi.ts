@@ -6,6 +6,7 @@ export const stripeApi = {
     shipping_address: Record<string, string>;
     carrier?: string;
     notes?: string;
+    discount_code?: string;
   }) => {
     const { data } = await api.post('/stripe/create-payment-intent', payload);
     return data;

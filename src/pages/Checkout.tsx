@@ -17,7 +17,7 @@ const CARRIER_OPTIONS = [
 ];
 
 const Checkout = () => {
-  const { lines, subtotalHT } = useCart();
+  const { lines, subtotalHT, appliedDiscount, discountHt } = useCart();
   const { user, profile } = useAuth();
   const { t } = useLang();
   const navigate = useNavigate();
@@ -87,6 +87,7 @@ const Checkout = () => {
       address,
       carrier,
       notes,
+      discountCode: appliedDiscount?.code || null,
     };
 
     sessionStorage.setItem("checkout_data", JSON.stringify(checkoutData));
@@ -159,7 +160,7 @@ const Checkout = () => {
                 <div className="space-y-3">
                   {CARRIER_OPTIONS.map((option) => {
                     const freeShippingThreshold = 300;
-                    const isFree = subtotalHT >= freeShippingThreshold;
+                    const isFree = subtotalHT >= freeShippingThreshold || appliedDiscount?.type === 'free_shipping';
                     return (
                       <label
                         key={option.id}
@@ -229,7 +230,7 @@ const Checkout = () => {
           </div>
 
           <div className="md:sticky md:top-28 lg:sticky lg:top-28 h-fit">
-            <CheckoutSummary />
+            <CheckoutSummary showDiscountInput />
           </div>
         </div>
       </section>

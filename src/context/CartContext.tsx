@@ -1,6 +1,8 @@
-import { createContext, useContext, useEffect, useState, ReactNode, useMemo } from "react";
+import { createContext, useContext, useEffect, useState, ReactNode, useMemo, useCallback } from "react";
 import { Product } from "@/types/product";
 import { useAdmin } from "@/context/AdminContext";
+import { discountApi, type Discount } from "@/services/discountApi";
+import { toast } from "@/hooks/use-toast";
 
 export interface CartLine {
   productId: string;
@@ -18,14 +20,25 @@ interface CartCtx {
   vat: number;
   totalTTC: number;
   getProduct: (id: string) => Product | undefined;
+  discountCode: string;
+  setDiscountCode: (code: string) => void;
+  appliedDiscount: Discount | null;
+  discountHt: number;
+  validateDiscount: () => Promise<void>;
+  clearDiscount: () => void;
+  validatingDiscount: boolean;
 }
 
 const Ctx = createContext<CartCtx | null>(null);
 const KEY = "ml_cart";
+const DISCOUNT_KEY = "ml_discount";
 
 export const CartProvider = ({ children }: { children: ReactNode }) => {
   const { products } = useAdmin();
   const [lines, setLines] = useState<CartLine[]>([]);
+  const [discountCode, setDiscountCode] = useState("");
+  const [appliedDiscount, setAppliedDiscount] = useState<Discount | null>(null);
+  const [validatingDiscount, setValidatingDiscount] = useState(false);
 
   useEffect(() => {
     try {
@@ -39,6 +52,19 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     localStorage.setItem(KEY, JSON.stringify(lines));
   }, [lines]);
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(DISCOUNT_KEY);
+      if (raw) {
+        const saved = JSON.parse(raw);
+        setDiscountCode(saved.code || "");
+        setAppliedDiscount(saved.discount || null);
+      }
+    } catch {
+      /* ignore */
+    }
+  }, []);
 
   const getProduct = (id: string) => products.find((p) => p.id === id);
 
@@ -68,26 +94,110 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
   const clear = () => {
     localStorage.removeItem(KEY);
+    localStorage.removeItem(DISCOUNT_KEY);
     setLines([]);
+    setDiscountCode("");
+    setAppliedDiscount(null);
   };
 
-  const { itemCount, subtotalHT, vat, totalTTC } = useMemo(() => {
+  const { itemCount, subtotalHT, discountHt, vat, totalTTC } = useMemo(() => {
     let count = 0;
     let sub = 0;
     lines.forEach((l) => {
       const p = getProduct(l.productId);
       if (!p) return;
       count += l.quantity;
-      sub += p.priceHT * l.quantity;
+      const price = p.salePriceHT ?? p.priceHT;
+      sub += price * l.quantity;
     });
-    const v = +(sub * 0.2).toFixed(2);
-    return { itemCount: count, subtotalHT: +sub.toFixed(2), vat: v, totalTTC: +(sub + v).toFixed(2) };
+
+    const dh = appliedDiscount?.amount_ht ?? 0;
+    const v = +(((sub - dh) * 0.2)).toFixed(2);
+    return {
+      itemCount: count,
+      subtotalHT: +sub.toFixed(2),
+      discountHt: dh,
+      vat: v,
+      totalTTC: +(sub - dh + v).toFixed(2),
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [lines, products]);
+  }, [lines, products, appliedDiscount]);
+
+  const validateDiscount = useCallback(async () => {
+    if (!discountCode.trim()) return;
+
+    setValidatingDiscount(true);
+    try {
+      const items = lines
+        .map((l) => {
+          const p = getProduct(l.productId);
+          if (!p) return null;
+          return { product_id: p.id, quantity: l.quantity };
+        })
+        .filter((x): x is NonNullable<typeof x> => x !== null);
+
+      const result = await discountApi.validate({
+        code: discountCode,
+        items,
+        subtotal_ht: subtotalHT,
+      });
+
+      if (result.valid && result.discount) {
+        setAppliedDiscount(result.discount);
+        localStorage.setItem(DISCOUNT_KEY, JSON.stringify({ code: discountCode, discount: result.discount }));
+        toast({
+          title: "Code promo appliqué",
+          description: `-${result.discount.amount_ht} € HT de réduction`,
+        });
+      } else {
+        setAppliedDiscount(null);
+        localStorage.removeItem(DISCOUNT_KEY);
+        toast({
+          title: "Code promo invalide",
+          description: result.message || "Ce code promo n'est pas valide.",
+          variant: "destructive",
+        });
+      }
+    } catch (err: any) {
+      setAppliedDiscount(null);
+      localStorage.removeItem(DISCOUNT_KEY);
+      toast({
+        title: "Erreur",
+        description: err.response?.data?.message || "Impossible de valider ce code promo.",
+        variant: "destructive",
+      });
+    } finally {
+      setValidatingDiscount(false);
+    }
+  }, [discountCode, lines, subtotalHT, getProduct]);
+
+  const clearDiscount = () => {
+    setDiscountCode("");
+    setAppliedDiscount(null);
+    localStorage.removeItem(DISCOUNT_KEY);
+  };
 
   return (
     <Ctx.Provider
-      value={{ lines, itemCount, addItem, updateQty, removeItem, clear, subtotalHT, vat, totalTTC, getProduct }}
+      value={{
+        lines,
+        itemCount,
+        addItem,
+        updateQty,
+        removeItem,
+        clear,
+        subtotalHT,
+        vat,
+        totalTTC,
+        getProduct,
+        discountCode,
+        setDiscountCode,
+        appliedDiscount,
+        discountHt,
+        validateDiscount,
+        clearDiscount,
+        validatingDiscount,
+      }}
     >
       {children}
     </Ctx.Provider>
