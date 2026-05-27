@@ -20,6 +20,7 @@ const UniversePage = () => {
     filtered,
     uniqueMaterials,
     uniqueFinishes,
+    uniqueQualities,
     availableLetters,
     tags,
     resetFilters,
@@ -57,11 +58,14 @@ const UniversePage = () => {
           setMaterial={setters.setMaterial}
           finish={filters.finish}
           setFinish={setters.setFinish}
+          quality={filters.quality}
+          setQuality={setters.setQuality}
           letter={filters.letter}
           setLetter={setters.setLetter}
           universesList={universesList}
           uniqueMaterials={uniqueMaterials}
           uniqueFinishes={uniqueFinishes}
+          uniqueQualities={uniqueQualities}
           availableLetters={availableLetters}
           tags={tags}
           showUniverseFilter={false}

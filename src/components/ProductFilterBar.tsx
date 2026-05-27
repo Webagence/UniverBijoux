@@ -17,11 +17,14 @@ interface ProductFilterBarProps {
   setMaterial: (v: string) => void;
   finish: string;
   setFinish: (v: string) => void;
+  quality: string;
+  setQuality: (v: string) => void;
   letter: string;
   setLetter: (v: string) => void;
   universesList?: UniverseRow[];
   uniqueMaterials?: string[];
   uniqueFinishes?: string[];
+  uniqueQualities?: string[];
   availableLetters?: string[];
   tags?: string[];
   showUniverseFilter?: boolean;
@@ -44,11 +47,14 @@ const ProductFilterBar = ({
   setMaterial,
   finish,
   setFinish,
+  quality,
+  setQuality,
   letter,
   setLetter,
   universesList,
   uniqueMaterials = [],
   uniqueFinishes = [],
+  uniqueQualities = [],
   availableLetters = [],
   tags = ["all"],
   showUniverseFilter = true,
@@ -142,6 +148,20 @@ const ProductFilterBar = ({
             {uniqueFinishes.map((f) => (
               <option key={f} value={f}>
                 {f}
+              </option>
+            ))}
+          </select>
+        )}
+        {uniqueQualities.length > 0 && (
+          <select
+            value={quality}
+            onChange={(e) => setQuality(e.target.value)}
+            className="bg-ivory border border-border px-4 py-3 text-sm focus:outline-none focus:border-gold transition-smooth"
+          >
+            <option value="all">{t("all_qualities")}</option>
+            {uniqueQualities.map((q) => (
+              <option key={q} value={q}>
+                {q}
               </option>
             ))}
           </select>

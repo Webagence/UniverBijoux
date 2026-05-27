@@ -12,6 +12,7 @@ export interface FilterState {
   material: string;
   finish: string;
   letter: string;
+  quality: string;
 }
 
 export interface UseProductFilterOptions {
@@ -29,6 +30,7 @@ export const useProductFilter = ({ products, initialUniverse = "all", initialFil
   const [material, setMaterial] = useState(initialFilters.material ?? "all");
   const [finish, setFinish] = useState(initialFilters.finish ?? "all");
   const [letter, setLetter] = useState(initialFilters.letter ?? "");
+  const [quality, setQuality] = useState(initialFilters.quality ?? "all");
 
   useEffect(() => {
     setUniv(initialUniverse);
@@ -39,6 +41,7 @@ export const useProductFilter = ({ products, initialUniverse = "all", initialFil
     setMaterial("all");
     setFinish("all");
     setLetter("");
+    setQuality("all");
   }, [initialUniverse]);
 
   const uniqueMaterials = useMemo(() => {
@@ -49,6 +52,11 @@ export const useProductFilter = ({ products, initialUniverse = "all", initialFil
   const uniqueFinishes = useMemo(() => {
     const finishes = new Set(products.map((p) => p.finish).filter(Boolean));
     return Array.from(finishes).sort();
+  }, [products]);
+
+  const uniqueQualities = useMemo(() => {
+    const qualities = new Set(products.map((p) => p.qualityGrade).filter(Boolean));
+    return Array.from(qualities).sort();
   }, [products]);
 
   const availableLetters = useMemo(() => {
@@ -71,6 +79,7 @@ export const useProductFilter = ({ products, initialUniverse = "all", initialFil
     if (tag !== "all") list = list.filter((p) => p.tag === tag);
     if (material !== "all") list = list.filter((p) => p.material === material);
     if (finish !== "all") list = list.filter((p) => p.finish === finish);
+    if (quality !== "all") list = list.filter((p) => p.qualityGrade === quality);
     if (letter) list = list.filter((p) => p.name.charAt(0).toUpperCase() === letter);
     if (inStockOnly) list = list.filter((p) => p.stock > 0);
     if (query.trim()) {
@@ -99,7 +108,7 @@ export const useProductFilter = ({ products, initialUniverse = "all", initialFil
     }
 
     return list;
-  }, [query, univ, sort, inStockOnly, tag, material, finish, letter, products]);
+  }, [query, univ, sort, inStockOnly, tag, material, finish, quality, letter, products]);
 
   const resetFilters = () => {
     setQuery("");
@@ -110,16 +119,18 @@ export const useProductFilter = ({ products, initialUniverse = "all", initialFil
     setMaterial("all");
     setFinish("all");
     setLetter("");
+    setQuality("all");
   };
 
-  const hasActiveFilters = query !== "" || univ !== "all" || sort !== "default" || inStockOnly || tag !== "all" || material !== "all" || finish !== "all" || letter !== "";
+  const hasActiveFilters = query !== "" || univ !== "all" || sort !== "default" || inStockOnly || tag !== "all" || material !== "all" || finish !== "all" || quality !== "all" || letter !== "";
 
   return {
-    filters: { query, univ, sort, inStockOnly, tag, material, finish, letter },
-    setters: { setQuery, setUniv, setSort, setInStockOnly, setTag, setMaterial, setFinish, setLetter },
+    filters: { query, univ, sort, inStockOnly, tag, material, finish, letter, quality },
+    setters: { setQuery, setUniv, setSort, setInStockOnly, setTag, setMaterial, setFinish, setLetter, setQuality },
     filtered,
     uniqueMaterials,
     uniqueFinishes,
+    uniqueQualities,
     availableLetters,
     tags,
     resetFilters,
