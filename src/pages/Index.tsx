@@ -13,15 +13,17 @@ const Index = () => {
   const { settings, hero } = useAdmin();
 
   useEffect(() => {
-    document.title = `${settings.siteName} · ${settings.tagline}`;
-    const desc = hero.paragraph || settings.tagline;
+    if (settings) {
+      document.title = `${settings.siteName} · ${settings.tagline}`;
+    }
+    const desc = hero?.paragraph || settings?.tagline || "";
     let meta = document.querySelector('meta[name="description"]');
     if (!meta) {
       meta = document.createElement("meta");
       meta.setAttribute("name", "description");
       document.head.appendChild(meta);
     }
-    meta.setAttribute("content", desc);
+    if (desc) meta.setAttribute("content", desc);
   }, [settings, hero]);
 
   return (

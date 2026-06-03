@@ -16,8 +16,9 @@ const Cart = () => {
   const { t } = useLang();
   const navigate = useNavigate();
 
-  const freeShippingThreshold = Number(settings.freeShippingFrom) || 300;
-  const shippingHT = subtotalHT >= freeShippingThreshold ? 0 : 15;
+  if (!settings) return <Layout><div className="container py-32 text-center"><div className="animate-pulse space-y-4"><div className="h-6 w-48 bg-bordeaux/10 rounded mx-auto" /><div className="h-4 w-64 bg-bordeaux/10 rounded mx-auto" /></div></div></Layout>;
+
+  const freeShippingThreshold = Number(settings.freeShippingFrom);
 
   const checkout = async () => {
     if (!user) {

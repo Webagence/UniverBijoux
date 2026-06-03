@@ -43,6 +43,19 @@ const Footer = () => {
     },
   ];
 
+  if (!settings) {
+    return (
+      <footer className="bg-bordeaux text-ivory">
+        <div className="container py-14">
+          <div className="animate-pulse space-y-4">
+            <div className="h-8 w-48 bg-ivory/10 rounded" />
+            <div className="h-4 w-64 bg-ivory/10 rounded" />
+          </div>
+        </div>
+      </footer>
+    );
+  }
+
   return (
     <footer className="bg-bordeaux text-ivory">
       <div className="container py-16 md:py-20 border-b border-ivory/10">
@@ -94,9 +107,9 @@ const Footer = () => {
               {t("footer.tagline")}
             </p>
             <div className="flex gap-4 pt-1 text-ivory/60">
-              <a href={settings.socialInstagram || "https://instagram.com"} target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="hover:text-gold transition-smooth"><Instagram className="h-4 w-4" /></a>
-              <a href={settings.socialFacebook || "https://facebook.com"} target="_blank" rel="noopener noreferrer" aria-label="Facebook" className="hover:text-gold transition-smooth"><Facebook className="h-4 w-4" /></a>
-              <a href={settings.socialLinkedin || "https://linkedin.com"} target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" className="hover:text-gold transition-smooth"><Linkedin className="h-4 w-4" /></a>
+              {settings.socialInstagram && <a href={settings.socialInstagram} target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="hover:text-gold transition-smooth"><Instagram className="h-4 w-4" /></a>}
+              {settings.socialFacebook && <a href={settings.socialFacebook} target="_blank" rel="noopener noreferrer" aria-label="Facebook" className="hover:text-gold transition-smooth"><Facebook className="h-4 w-4" /></a>}
+              {settings.socialLinkedin && <a href={settings.socialLinkedin} target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" className="hover:text-gold transition-smooth"><Linkedin className="h-4 w-4" /></a>}
             </div>
           </div>
 
@@ -117,7 +130,7 @@ const Footer = () => {
 
       <div className="border-t border-ivory/10">
         <div className="container py-6 flex flex-col sm:flex-row justify-between items-center gap-3 text-xs text-ivory/50">
-          <p>{t("footer.copyright") || `© ${new Date().getFullYear()} ${settings.footerBrand || settings.siteName} · Grossiste B2B`}{settings.siret ? ` · SIRET ${settings.siret}` : ""}</p>
+          <p>{t("footer.copyright")}{settings.siret ? ` · SIRET ${settings.siret}` : ""}</p>
           <div className="flex gap-6">
             <Link to="/mentions-legales" className="hover:text-ivory transition-smooth">{t("footer.legal")}</Link>
             <Link to="/cgv" className="hover:text-ivory transition-smooth">{t("footer.cgv")}</Link>

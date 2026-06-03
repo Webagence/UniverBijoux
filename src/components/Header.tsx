@@ -22,7 +22,7 @@ const Header = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const { user, logout } = useAuth();
   const { itemCount } = useCart();
-  const { settings } = useAdmin();
+  const { settings, loading } = useAdmin();
   const navigate = useNavigate();
 
   const translateAnnouncement = (text: string): string => {
@@ -45,17 +45,19 @@ const Header = () => {
 
   return (
     <>
-      <div className="bg-bordeaux text-ivory overflow-hidden text-xs">
-        <div className="flex animate-marquee whitespace-nowrap py-2.5">
-          {[...Array(2)].map((_, i) => (
-            <div key={i} className="flex shrink-0 items-center gap-12 px-6 tracking-luxe uppercase">
-              {settings.announcements.map((a, j) => (
-                <span key={j}>✦ {translateAnnouncement(a)}</span>
-              ))}
-            </div>
-          ))}
+      {settings && (
+        <div className="bg-bordeaux text-ivory overflow-hidden text-xs">
+          <div className="flex animate-marquee whitespace-nowrap py-2.5">
+            {[...Array(2)].map((_, i) => (
+              <div key={i} className="flex shrink-0 items-center gap-12 px-6 tracking-luxe uppercase">
+                {(settings.announcements || []).map((a, j) => (
+                  <span key={j}>✦ {translateAnnouncement(a)}</span>
+                ))}
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       <header
         className={`sticky top-0 z-50 w-full transition-smooth ${
@@ -79,11 +81,11 @@ const Header = () => {
           </nav>
 
           <Link to="/" className="flex items-center justify-center">
-            {settings.logo ? (
-              <img src={settings.logo} alt={settings.siteName} className="h-20 md:h-28 lg:h-32 w-auto object-contain -my-4 md:-my-6" />
+            {settings?.logo ? (
+              <img src={settings.logo} alt={settings?.siteName || ""} className="h-20 md:h-28 lg:h-32 w-auto object-contain -my-4 md:-my-6" />
             ) : (
               <span className="font-serif text-2xl md:text-3xl text-bordeaux tracking-luxe whitespace-nowrap">
-                {settings.siteName}
+                {settings?.siteName || ""}
               </span>
             )}
           </Link>
@@ -172,10 +174,10 @@ const Header = () => {
           >
             <div className="flex items-center justify-between">
               <span className="font-serif text-xl text-bordeaux tracking-luxe flex items-center">
-                {settings.logo ? (
-                  <img src={settings.logo} alt={settings.siteName} className="h-16 md:h-20 w-auto object-contain" />
+                {settings?.logo ? (
+                  <img src={settings.logo} alt={settings?.siteName || ""} className="h-16 md:h-20 w-auto object-contain" />
                 ) : (
-                  settings.siteName
+                  settings?.siteName || ""
                 )}
               </span>
               <button onClick={() => setMobileOpen(false)} aria-label="Fermer">

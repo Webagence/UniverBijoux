@@ -1,15 +1,17 @@
 import LegalPage from "@/components/LegalPage";
 import { useAdmin } from "@/context/AdminContext";
+import { PageSkeleton } from "@/components/Skeletons";
 
 const Privacy = () => {
-  const { legalContent, settings } = useAdmin();
-  const content = legalContent.privacy;
+  const { legalContent } = useAdmin();
+  const content = legalContent?.privacy;
+  if (!content) return <PageSkeleton />;
   return (
     <LegalPage
-      title={content.title || "Politique de confidentialité"}
-      subtitle={content.subtitle || `Nous traitons vos données personnelles conformément au RGPD. ${settings.siteName}.`}
+      title={content.title}
+      subtitle={content.subtitle}
       crumb="Confidentialité"
-      sections={(content.sections || []).map((s) => ({
+      sections={content.sections.map((s) => ({
         heading: s.heading,
         body: <p>{s.body}</p>,
       }))}

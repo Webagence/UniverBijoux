@@ -127,6 +127,8 @@ const StripeCheckout = () => {
   const [stripeInstance, setStripeInstance] = useState<Stripe | null>(null);
   const intentCreatedRef = useRef(false);
 
+  if (!settings) return <Layout><div className="container py-32 text-center"><div className="animate-pulse space-y-4"><div className="h-6 w-48 bg-bordeaux/10 rounded mx-auto" /><div className="h-4 w-64 bg-bordeaux/10 rounded mx-auto" /></div></div></Layout>;
+
   const stripeKey = settings.stripePublishableKey || import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || "";
 
   useEffect(() => {

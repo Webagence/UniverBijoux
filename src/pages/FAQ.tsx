@@ -2,15 +2,19 @@ import Layout from "@/components/Layout";
 import PageHeader from "@/components/PageHeader";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { useAdmin } from "@/context/AdminContext";
+import { PageSkeleton } from "@/components/Skeletons";
 
 const FAQ = () => {
-  const { faq, settings, faqPageHeader } = useAdmin();
+  const { faq, faqPageHeader } = useAdmin();
+
+  if (!faq || !faqPageHeader) return <Layout><PageSkeleton /></Layout>;
+
   return (
     <Layout>
       <PageHeader
-        eyebrow={faqPageHeader.eyebrow || "Aide"}
-        title={faqPageHeader.title || "Questions fréquentes"}
-        subtitle={faqPageHeader.subtitle || `Tout ce que les revendeurs nous demandent le plus souvent. ${settings.siteName}`}
+        eyebrow={faqPageHeader.eyebrow}
+        title={faqPageHeader.title}
+        subtitle={faqPageHeader.subtitle}
         crumbs={[{ label: "FAQ" }]}
       />
       <section className="container py-12 md:py-16 max-w-3xl">

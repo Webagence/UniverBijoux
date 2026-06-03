@@ -1,10 +1,13 @@
-import heroImg from "@/assets/hero-jewelry.jpg";
 import { Link } from "react-router-dom";
 import { MapPin, Truck, Clock, Phone } from "lucide-react";
 import { useAdmin } from "@/context/AdminContext";
+import { HeroSkeleton } from "./Skeletons";
 
 const Hero = () => {
   const { hero } = useAdmin();
+
+  if (!hero) return <HeroSkeleton />;
+
   return (
     <section className="relative bg-gradient-hero overflow-hidden">
       <div className="container grid md:grid-cols-2 gap-12 items-center py-16 md:py-24">
@@ -74,18 +77,28 @@ const Hero = () => {
         </div>
 
         <div className="relative order-1 md:order-2 animate-fade-up">
-          <div className="absolute -top-6 -left-6 w-24 h-24 border border-gold/40 rounded-full" />
-          <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-blush/60 rounded-full -z-10" />
-          <img
-            src={hero.image || heroImg}
-            alt="Collection de bijoux Maison Lune"
-            width={1600}
-            height={1024}
-            className="relative w-full h-[300px] sm:h-[400px] md:h-[500px] lg:h-[640px] object-cover shadow-elegant"
-          />
-          <div className="absolute bottom-6 left-6 bg-ivory/90 backdrop-blur-sm px-5 py-3 shadow-soft">
-            <p className="font-serif italic text-sm text-bordeaux">"{hero.quote}"</p>
-          </div>
+          {hero.image && (
+            <>
+              <div className="absolute -top-6 -left-6 w-24 h-24 border border-gold/40 rounded-full" />
+              <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-blush/60 rounded-full -z-10" />
+            </>
+          )}
+          {hero.image ? (
+            <img
+              src={hero.image}
+              alt="Collection de bijoux Maison Lune"
+              width={1600}
+              height={1024}
+              className="relative w-full h-[300px] sm:h-[400px] md:h-[500px] lg:h-[640px] object-cover shadow-elegant"
+            />
+          ) : (
+            <div className="w-full h-[300px] sm:h-[400px] md:h-[500px] lg:h-[640px] bg-bordeaux/5" />
+          )}
+          {hero.quote && (
+            <div className="absolute bottom-6 left-6 bg-ivory/90 backdrop-blur-sm px-5 py-3 shadow-soft">
+              <p className="font-serif italic text-sm text-bordeaux">"{hero.quote}"</p>
+            </div>
+          )}
         </div>
       </div>
     </section>

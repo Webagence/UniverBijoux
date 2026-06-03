@@ -12,19 +12,6 @@ import {
   LegalPageContent,
   ContactPageContent,
   FAQPageHeader,
-  defaultHero,
-  defaultAtelier,
-  defaultTestimonials,
-  defaultFaq,
-  defaultSettings,
-  defaultPromises,
-  defaultCategoriesSection,
-  defaultProductGridSection,
-  defaultNewByUniverseSection,
-  defaultTestimonialsSection,
-  defaultLegalContent,
-  defaultContactPage,
-  defaultFAQPageHeader,
 } from "@/data/content";
 import { Product, Universe } from "@/types/product";
 import { productApi } from "@/services/productApi";
@@ -57,16 +44,25 @@ interface AdminCtx {
 
   loading: boolean;
 
-  hero: HeroContent;
+  hero: HeroContent | null;
   setHero: (v: HeroContent) => Promise<void>;
-  atelier: AtelierContent;
+  atelier: AtelierContent | null;
   setAtelier: (v: AtelierContent) => Promise<void>;
-  testimonials: Testimonial[];
+  testimonials: Testimonial[] | null;
   setTestimonials: (v: Testimonial[]) => Promise<void>;
-  faq: FaqItem[];
+  faq: FaqItem[] | null;
   setFaq: (v: FaqItem[]) => Promise<void>;
-  settings: SiteSettings;
+  settings: SiteSettings | null;
   setSettings: (v: SiteSettings) => Promise<void>;
+
+  promises: PromiseItem[] | null;
+  categoriesSection: SectionHeader | null;
+  productGridSection: SectionHeader | null;
+  newByUniverseSection: SectionHeader | null;
+  testimonialsSection: TestimonialsSection | null;
+  legalContent: Record<string, LegalPageContent> | null;
+  contactPage: ContactPageContent | null;
+  faqPageHeader: FAQPageHeader | null;
 
   products: Product[];
   upsertProduct: (p: Product) => Promise<void>;
@@ -142,19 +138,19 @@ const dbToProduct = (row: any): Product => {
 
 export const AdminProvider = ({ children }: { children: ReactNode }) => {
   const { isAdmin, logout } = useAuth();
-  const [hero, setHeroState] = useState<HeroContent>(defaultHero);
-  const [atelier, setAtelierState] = useState<AtelierContent>(defaultAtelier);
-  const [testimonials, setTestimonialsState] = useState<Testimonial[]>(defaultTestimonials);
-  const [faq, setFaqState] = useState<FaqItem[]>(defaultFaq);
-  const [settings, setSettingsState] = useState<SiteSettings>(defaultSettings);
-  const [promises, setPromisesState] = useState<PromiseItem[]>(defaultPromises);
-  const [categoriesSection, setCategoriesSectionState] = useState<SectionHeader>(defaultCategoriesSection);
-  const [productGridSection, setProductGridSectionState] = useState<SectionHeader>(defaultProductGridSection);
-  const [newByUniverseSection, setNewByUniverseSectionState] = useState<SectionHeader>(defaultNewByUniverseSection);
-  const [testimonialsSection, setTestimonialsSectionState] = useState<TestimonialsSection>(defaultTestimonialsSection);
-  const [legalContent, setLegalContentState] = useState<Record<string, LegalPageContent>>(defaultLegalContent);
-  const [contactPage, setContactPageState] = useState<ContactPageContent>(defaultContactPage);
-  const [faqPageHeader, setFAQPageHeaderState] = useState<FAQPageHeader>(defaultFAQPageHeader);
+  const [hero, setHeroState] = useState<HeroContent | null>(null);
+  const [atelier, setAtelierState] = useState<AtelierContent | null>(null);
+  const [testimonials, setTestimonialsState] = useState<Testimonial[] | null>(null);
+  const [faq, setFaqState] = useState<FaqItem[] | null>(null);
+  const [settings, setSettingsState] = useState<SiteSettings | null>(null);
+  const [promises, setPromisesState] = useState<PromiseItem[] | null>(null);
+  const [categoriesSection, setCategoriesSectionState] = useState<SectionHeader | null>(null);
+  const [productGridSection, setProductGridSectionState] = useState<SectionHeader | null>(null);
+  const [newByUniverseSection, setNewByUniverseSectionState] = useState<SectionHeader | null>(null);
+  const [testimonialsSection, setTestimonialsSectionState] = useState<TestimonialsSection | null>(null);
+  const [legalContent, setLegalContentState] = useState<Record<string, LegalPageContent> | null>(null);
+  const [contactPage, setContactPageState] = useState<ContactPageContent | null>(null);
+  const [faqPageHeader, setFAQPageHeaderState] = useState<FAQPageHeader | null>(null);
   const [products, setProductsState] = useState<Product[]>([]);
   const [accounts, setAccounts] = useState<ProAccount[]>([]);
   const [orders, setOrders] = useState<AdminOrder[]>([]);
@@ -166,23 +162,23 @@ export const AdminProvider = ({ children }: { children: ReactNode }) => {
     try {
       const [universes, heroData, atelierData, testimonialsData, faqData, settingsData, productsData, promisesData, categoriesData, productGridData, newByUniverseData, testimonialsSectionData, legalLegalData, legalCgvData, legalPrivacyData, legalShippingData, contactPageData, faqPageHeaderData] = await Promise.all([
         productApi.getUniverses(),
-        contentApi.getHero().catch(() => defaultHero),
-        contentApi.getAtelier().catch(() => defaultAtelier),
-        contentApi.getTestimonials().catch(() => []),
-        contentApi.getFaq().catch(() => []),
-        contentApi.getSettings().catch(() => ({})),
+        contentApi.getHero().catch(() => null),
+        contentApi.getAtelier().catch(() => null),
+        contentApi.getTestimonials().catch(() => null),
+        contentApi.getFaq().catch(() => null),
+        contentApi.getSettings().catch(() => null),
         productApi.getAll({ per_page: 200 }).catch(() => ({ data: [] })),
-        contentApi.getPromises().catch(() => defaultPromises),
-        contentApi.getCategoriesSection().catch(() => defaultCategoriesSection),
-        contentApi.getProductGridSection().catch(() => defaultProductGridSection),
-        contentApi.getNewByUniverseSection().catch(() => defaultNewByUniverseSection),
-        contentApi.getTestimonialsSection().catch(() => defaultTestimonialsSection),
-        contentApi.getLegalPage('legal').catch(() => ({})),
-        contentApi.getLegalPage('cgv').catch(() => ({})),
-        contentApi.getLegalPage('privacy').catch(() => ({})),
-        contentApi.getLegalPage('shipping').catch(() => ({})),
-        contentApi.getContactPage().catch(() => ({})),
-        contentApi.getFAQPageHeader().catch(() => ({})),
+        contentApi.getPromises().catch(() => null),
+        contentApi.getCategoriesSection().catch(() => null),
+        contentApi.getProductGridSection().catch(() => null),
+        contentApi.getNewByUniverseSection().catch(() => null),
+        contentApi.getTestimonialsSection().catch(() => null),
+        contentApi.getLegalPage('legal').catch(() => null),
+        contentApi.getLegalPage('cgv').catch(() => null),
+        contentApi.getLegalPage('privacy').catch(() => null),
+        contentApi.getLegalPage('shipping').catch(() => null),
+        contentApi.getContactPage().catch(() => null),
+        contentApi.getFAQPageHeader().catch(() => null),
       ]);
 
       if (universes) {
@@ -206,15 +202,13 @@ export const AdminProvider = ({ children }: { children: ReactNode }) => {
         );
       }
 
-      if (heroData) setHeroState({ ...defaultHero, ...heroData });
-      if (atelierData) setAtelierState({ ...defaultAtelier, ...atelierData });
+      if (heroData) setHeroState(heroData);
+      if (atelierData) setAtelierState(atelierData);
       if (settingsData) {
-        const mappedSettings = {
-          ...defaultSettings,
+        setSettingsState({
           ...settingsData,
           stripePublishableKey: (settingsData as any).publishable_key || (settingsData as any).stripePublishableKey || "",
-        };
-        setSettingsState(mappedSettings);
+        });
       }
 
       if (testimonialsData) {
@@ -237,22 +231,22 @@ export const AdminProvider = ({ children }: { children: ReactNode }) => {
       }
 
       if (promisesData && Array.isArray(promisesData)) {
-        setPromisesState(promisesData.length > 0 ? promisesData : defaultPromises);
+        setPromisesState(promisesData);
       }
-      if (categoriesData) setCategoriesSectionState({ ...defaultCategoriesSection, ...categoriesData });
-      if (productGridData) setProductGridSectionState({ ...defaultProductGridSection, ...productGridData });
-      if (newByUniverseData) setNewByUniverseSectionState({ ...defaultNewByUniverseSection, ...newByUniverseData });
-      if (testimonialsSectionData) setTestimonialsSectionState({ ...defaultTestimonialsSection, ...testimonialsSectionData });
+      if (categoriesData) setCategoriesSectionState(categoriesData);
+      if (productGridData) setProductGridSectionState(productGridData);
+      if (newByUniverseData) setNewByUniverseSectionState(newByUniverseData);
+      if (testimonialsSectionData) setTestimonialsSectionState(testimonialsSectionData);
 
-      const legalMap: Record<string, LegalPageContent> = { ...defaultLegalContent };
-      if (legalLegalData && Object.keys(legalLegalData).length > 0) legalMap.legal = { ...defaultLegalContent.legal, ...legalLegalData };
-      if (legalCgvData && Object.keys(legalCgvData).length > 0) legalMap.cgv = { ...defaultLegalContent.cgv, ...legalCgvData };
-      if (legalPrivacyData && Object.keys(legalPrivacyData).length > 0) legalMap.privacy = { ...defaultLegalContent.privacy, ...legalPrivacyData };
-      if (legalShippingData && Object.keys(legalShippingData).length > 0) legalMap.shipping = { ...defaultLegalContent.shipping, ...legalShippingData };
-      setLegalContentState(legalMap);
+      const legalMap: Record<string, LegalPageContent> = {};
+      if (legalLegalData) legalMap.legal = legalLegalData;
+      if (legalCgvData) legalMap.cgv = legalCgvData;
+      if (legalPrivacyData) legalMap.privacy = legalPrivacyData;
+      if (legalShippingData) legalMap.shipping = legalShippingData;
+      if (Object.keys(legalMap).length > 0) setLegalContentState(legalMap);
 
-      if (contactPageData && Object.keys(contactPageData).length > 0) setContactPageState({ ...defaultContactPage, ...contactPageData });
-      if (faqPageHeaderData && Object.keys(faqPageHeaderData).length > 0) setFAQPageHeaderState({ ...defaultFAQPageHeader, ...faqPageHeaderData });
+      if (contactPageData) setContactPageState(contactPageData);
+      if (faqPageHeaderData) setFAQPageHeaderState(faqPageHeaderData);
     } catch (err) {
       console.error("Failed to load content:", err);
     } finally {

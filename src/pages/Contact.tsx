@@ -5,6 +5,7 @@ import { useLang } from "@/context/LanguageContext";
 import { toast } from "@/hooks/use-toast";
 import { Mail, Phone, MapPin } from "lucide-react";
 import { useAdmin } from "@/context/AdminContext";
+import { PageSkeleton } from "@/components/Skeletons";
 
 const Contact = () => {
   const { settings, contactPage } = useAdmin();
@@ -17,12 +18,14 @@ const Contact = () => {
     setForm({ name: "", company: "", email: "", message: "" });
   };
 
+  if (!contactPage || !settings) return <Layout><PageSkeleton /></Layout>;
+
   return (
     <Layout>
       <PageHeader
-        eyebrow={contactPage.eyebrow || t("contact.write_to_us")}
-        title={contactPage.title || t("contact.sales_contact")}
-        subtitle={contactPage.subtitle || t("contact.contact_subtitle")}
+        eyebrow={contactPage.eyebrow}
+        title={contactPage.title}
+        subtitle={contactPage.subtitle}
         crumbs={[{ label: t("contact.contact") }]}
       />
       <section className="container py-12 md:py-16 grid md:grid-cols-2 gap-12">
@@ -78,8 +81,8 @@ const Contact = () => {
             <p className="text-bordeaux whitespace-pre-line">{settings.address}</p>
           </div></div>
           <div className="bg-cream p-6 text-sm text-bordeaux/70">
-            <p className="font-serif text-base text-bordeaux mb-1">{contactPage.showroomTitle || t("contact.showroom_title")}</p>
-            {contactPage.showroomText || t("contact.showroom_text")}
+            <p className="font-serif text-base text-bordeaux mb-1">{contactPage.showroomTitle}</p>
+            {contactPage.showroomText}
           </div>
         </aside>
       </section>

@@ -1,15 +1,19 @@
 import { Star } from "lucide-react";
 import { useAdmin } from "@/context/AdminContext";
+import { TestimonialsSkeleton } from "./Skeletons";
 
 const Testimonials = () => {
   const { testimonials, testimonialsSection } = useAdmin();
+
+  if (!testimonials || !testimonialsSection) return <TestimonialsSkeleton />;
+
   return (
     <section className="bg-gradient-blush py-20 md:py-28">
       <div className="container">
         <div className="text-center max-w-2xl mx-auto mb-14 space-y-3">
-          <div className="text-gold text-xs tracking-luxe uppercase">{testimonialsSection.eyebrow || "Nos revendeurs en parlent"}</div>
+          <div className="text-gold text-xs tracking-luxe uppercase">{testimonialsSection.eyebrow}</div>
           <h2 className="font-serif text-4xl md:text-5xl text-bordeaux">
-            <em>{testimonialsSection.heading || "850 partenaires nous"}</em> {testimonialsSection.headingEm || "font confiance"}
+            <em>{testimonialsSection.heading}</em> {testimonialsSection.headingEm}
           </h2>
         </div>
 
