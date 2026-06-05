@@ -205,7 +205,7 @@ const Orders = () => {
                     className="w-full bg-transparent border border-border pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:border-gold"
                   />
                 </div>
-                <div className="flex gap-3">
+                <div className="flex gap-3 flex-wrap">
                   <select
                     value={statusFilter}
                     onChange={(e) => setStatusFilter(e.target.value)}
@@ -257,13 +257,13 @@ const Orders = () => {
             ) : (
               <div className="bg-ivory border border-border">
                 {/* Table Header */}
-                <div className="hidden md:grid grid-cols-12 gap-4 p-4 border-b border-border text-[10px] tracking-luxe uppercase text-bordeaux/50">
-                  <div className="col-span-2">{t("order.reference")}</div>
-                  <div className="col-span-2">{t("orders.date")}</div>
-                  <div className="col-span-2">{t("order.status")}</div>
-                  <div className="col-span-2">{t("orders.items")}</div>
-                  <div className="col-span-2">{t("cart.total_ttc")}</div>
-                  <div className="col-span-2 text-right">{t("orders.actions")}</div>
+                <div className="hidden lg:grid grid-cols-12 gap-2 xl:gap-4 p-4 border-b border-border text-[10px] tracking-luxe uppercase text-bordeaux/50">
+                  <div className="col-span-2 truncate">{t("order.reference")}</div>
+                  <div className="col-span-2 truncate">{t("orders.date")}</div>
+                  <div className="col-span-2 truncate">{t("order.status")}</div>
+                  <div className="col-span-2 truncate">{t("orders.items")}</div>
+                  <div className="col-span-2 truncate">{t("cart.total_ttc")}</div>
+                  <div className="col-span-2 text-right truncate">{t("orders.actions")}</div>
                 </div>
 
                 {/* Order Rows */}
@@ -271,25 +271,25 @@ const Orders = () => {
                   {filteredOrders.map((o) => (
                     <div key={o.id} className="group">
                       {/* Desktop Row */}
-                      <div className="hidden md:grid grid-cols-12 gap-4 p-4 items-center hover:bg-cream/30 transition">
-                        <div className="col-span-2">
+                      <div className="hidden lg:grid grid-cols-12 gap-2 xl:gap-4 p-4 items-center hover:bg-cream/30 transition">
+                        <div className="col-span-2 truncate">
                           <Link to={`/commandes/${o.id}`} className="font-medium text-bordeaux hover:text-gold transition-smooth">
                             {o.reference}
                           </Link>
                         </div>
-                        <div className="col-span-2 text-sm text-bordeaux/70">
+                        <div className="col-span-2 text-sm text-bordeaux/70 truncate">
                           {new Date(o.created_at).toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" })}
                         </div>
-                        <div className="col-span-2">
+                        <div className="col-span-2 flex">
                           <OrderStatusBadge status={o.status} />
                         </div>
-                        <div className="col-span-2 text-sm text-bordeaux/70">
+                        <div className="col-span-2 text-sm text-bordeaux/70 truncate">
                           {(o.items || []).length} {t("orders.article" + ((o.items || []).length > 1 ? "s" : ""))}
                         </div>
-                        <div className="col-span-2 font-serif text-bordeaux">
+                        <div className="col-span-2 font-serif text-bordeaux truncate">
                           {formatEUR(Number(o.total_ttc))}
                         </div>
-                        <div className="col-span-2 flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition">
+                        <div className="col-span-2 flex justify-end gap-1 xl:gap-2 opacity-0 group-hover:opacity-100 transition">
                           <Link
                             to={`/commandes/${o.id}`}
                             className="p-2 text-bordeaux/60 hover:text-bordeaux hover:bg-cream"
@@ -324,15 +324,15 @@ const Orders = () => {
                       </div>
 
                       {/* Mobile Card */}
-                      <div className="md:hidden p-4 space-y-3">
+                      <div className="lg:hidden p-4 space-y-3">
                         <div className="flex justify-between items-start gap-2">
-                          <Link to={`/commandes/${o.id}`} className="font-medium text-bordeaux hover:text-gold transition-smooth">
+                          <Link to={`/commandes/${o.id}`} className="font-medium text-bordeaux hover:text-gold transition-smooth truncate min-w-0">
                             {o.reference}
                           </Link>
                           <OrderStatusBadge status={o.status} />
                         </div>
                         <div className="flex justify-between text-sm gap-2">
-                          <span className="text-bordeaux/50">
+                          <span className="text-bordeaux/50 truncate min-w-0">
                             {new Date(o.created_at).toLocaleDateString("fr-FR")}
                           </span>
                           <span className="font-serif text-bordeaux whitespace-nowrap shrink-0">

@@ -472,9 +472,9 @@ const Account = () => {
                   <p className="text-[10px] tracking-luxe uppercase text-bordeaux/50">Contact</p>
                   <p className="text-sm text-bordeaux">{profile?.contact_name || user.name || "—"}</p>
                 </div>
-                <div>
+                <div className="min-w-0">
                   <p className="text-[10px] tracking-luxe uppercase text-bordeaux/50">Email</p>
-                  <p className="text-sm text-bordeaux">{user.email}</p>
+                  <p className="text-sm text-bordeaux break-all">{user.email}</p>
                 </div>
                 <div>
                   <p className="text-[10px] tracking-luxe uppercase text-bordeaux/50">Téléphone</p>
@@ -498,11 +498,11 @@ const Account = () => {
             </div>
 
             {/* Logout */}
-            <div className="flex justify-between items-center pt-4 border-t border-border">
-              <p className="text-xs text-bordeaux/50">{t("account.logged_in_as")} <span className="text-bordeaux">{user.email}</span></p>
+            <div className="flex flex-col sm:flex-row justify-between items-center gap-4 pt-4 border-t border-border">
+              <p className="text-xs text-bordeaux/50 text-center sm:text-left">{t("account.logged_in_as")} <span className="text-bordeaux whitespace-nowrap">{user.email}</span></p>
               <button
                 onClick={logout}
-                className="text-xs tracking-luxe uppercase text-bordeaux/70 border border-border px-6 py-3 hover:bg-bordeaux hover:text-ivory transition-smooth"
+                className="w-full sm:w-auto text-xs tracking-luxe uppercase text-bordeaux/70 border border-border px-6 py-3 hover:bg-bordeaux hover:text-ivory transition-smooth"
               >
                 {t("account.logout")}
               </button>
