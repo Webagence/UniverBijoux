@@ -22,7 +22,7 @@ const StatCard = ({ icon: Icon, label, value, subValue, trend, color = "bordeaux
       <div className="flex items-start justify-between">
         <div className="flex-1">
           <p className="text-[10px] tracking-luxe uppercase text-bordeaux/50 mb-1">{label}</p>
-          <p className="font-serif text-2xl text-bordeaux">{value}</p>
+          <p className="font-serif text-2xl text-bordeaux truncate">{value}</p>
           {subValue && <p className="text-xs text-bordeaux/60 mt-1">{subValue}</p>}
           {trend && (
             <p className={`text-xs mt-2 ${trend.positive ? "text-green-600" : "text-destructive"}`}>

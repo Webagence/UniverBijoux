@@ -399,25 +399,25 @@ const Account = () => {
               ) : (
                 <div className="divide-y divide-border">
                   {recentOrders.map((o) => (
-                    <div key={o.id} className="flex items-center justify-between p-4 hover:bg-cream/50 transition">
-                      <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 bg-cream flex items-center justify-center">
+                    <div key={o.id} className="flex items-center justify-between p-4 hover:bg-cream/50 transition gap-2">
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className="w-10 h-10 bg-cream flex items-center justify-center shrink-0">
                           <Package className="h-5 w-5 text-bordeaux/60" />
                         </div>
-                        <div>
-                          <Link to={`/commandes/${o.id}`} className="font-medium text-bordeaux hover:text-gold transition-smooth">
+                        <div className="min-w-0">
+                          <Link to={`/commandes/${o.id}`} className="font-medium text-bordeaux hover:text-gold transition-smooth truncate block">
                             {o.reference}
                           </Link>
-                          <p className="text-xs text-bordeaux/50">
+                          <p className="text-xs text-bordeaux/50 truncate">
                             {new Date(o.created_at).toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" })}
                             {(o.items || []).length > 0 && ` · ${(o.items || []).length} article(s)`}
                           </p>
                         </div>
                       </div>
-                      <div className="flex items-center gap-4">
+                      <div className="flex items-center gap-2 lg:gap-4 shrink-0">
                         <OrderStatusBadge status={o.status} />
-                        <span className="font-serif text-bordeaux">{formatEUR(Number(o.total_ttc))}</span>
-                        <Link to={`/commandes/${o.id}`} className="text-bordeaux/40 hover:text-gold transition-smooth">
+                        <span className="font-serif text-bordeaux text-sm lg:text-base whitespace-nowrap">{formatEUR(Number(o.total_ttc))}</span>
+                        <Link to={`/commandes/${o.id}`} className="text-bordeaux/40 hover:text-gold transition-smooth shrink-0">
                           <ChevronRight className="h-4 w-4" />
                         </Link>
                       </div>
@@ -441,14 +441,14 @@ const Account = () => {
                     .filter((t) => ["open", "pending"].includes(t.status))
                     .slice(0, 3)
                     .map((t) => (
-                      <Link key={t.id} to={`/support/${t.id}`} className="flex items-center justify-between p-4 hover:bg-cream/50 transition">
-                        <div>
-                          <p className="font-medium text-bordeaux">{t.subject}</p>
-                          <p className="text-xs text-bordeaux/50">
+                      <Link key={t.id} to={`/support/${t.id}`} className="flex items-center justify-between p-4 hover:bg-cream/50 transition gap-3">
+                        <div className="min-w-0">
+                          <p className="font-medium text-bordeaux truncate">{t.subject}</p>
+                          <p className="text-xs text-bordeaux/50 truncate">
                             {t.reference} · {new Date(t.created_at).toLocaleDateString("fr-FR")}
                           </p>
                         </div>
-                        <span className={`text-[10px] tracking-luxe uppercase px-2 py-1 ${
+                        <span className={`text-[10px] tracking-luxe uppercase px-2 py-1 shrink-0 ${
                           t.status === "open" ? "bg-gold/20 text-gold" : "bg-bordeaux/10 text-bordeaux"
                         }`}>
                           {t.status === "open" ? t("ticket.open") : t("ticket.pending")}

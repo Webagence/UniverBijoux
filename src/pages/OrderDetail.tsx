@@ -148,15 +148,15 @@ const OrderDetail = () => {
               <h2 className="font-serif text-xl text-bordeaux mb-4">{t("orders.items")}</h2>
               <ul className="space-y-4">
                 {order.items.map((item) => (
-                  <li key={item.id} className="flex gap-4 pb-4 border-b border-border last:border-0 last:pb-0">
-                    <div className="flex-1">
-                      <p className="font-medium text-bordeaux">{item.product_name}</p>
+                  <li key={item.id} className="flex gap-3 pb-4 border-b border-border last:border-0 last:pb-0">
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-bordeaux truncate">{item.product_name}</p>
                       <p className="text-xs text-bordeaux/50">Réf. {item.product_reference}</p>
                       <p className="text-sm text-bordeaux/70 mt-1">
                         {item.quantity} pcs × {formatEUR(item.unit_price_ht)} HT
                       </p>
                     </div>
-                    <span className="font-medium text-bordeaux">{formatEUR(item.line_total_ht)} HT</span>
+                    <span className="font-medium text-bordeaux whitespace-nowrap shrink-0">{formatEUR(item.line_total_ht)} HT</span>
                   </li>
                 ))}
               </ul>
@@ -236,21 +236,21 @@ const OrderDetail = () => {
             </div>
 
             <div className="bg-ivory border border-border p-6 space-y-3">
-              <div className="flex justify-between text-sm">
+              <div className="flex justify-between text-sm gap-2">
                 <span className="text-bordeaux/70">{t("cart.subtotal_ht")}</span>
-                <span>{formatEUR(order.subtotal_ht)}</span>
+                <span className="whitespace-nowrap">{formatEUR(order.subtotal_ht)}</span>
               </div>
-              <div className="flex justify-between text-sm">
+              <div className="flex justify-between text-sm gap-2">
                 <span className="text-bordeaux/70">{t("cart.shipping")}</span>
-                <span>{formatEUR(order.shipping_ht)}</span>
+                <span className="whitespace-nowrap">{formatEUR(order.shipping_ht)}</span>
               </div>
-              <div className="flex justify-between text-sm">
+              <div className="flex justify-between text-sm gap-2">
                 <span className="text-bordeaux/70">{t("cart.vat")}</span>
-                <span>{formatEUR(order.vat_amount)}</span>
+                <span className="whitespace-nowrap">{formatEUR(order.vat_amount)}</span>
               </div>
-              <div className="flex justify-between font-serif text-lg text-bordeaux pt-3 border-t border-border">
+              <div className="flex justify-between font-serif text-lg text-bordeaux pt-3 border-t border-border gap-2">
                 <span>{t("cart.total_ttc")}</span>
-                <span className="text-gold">{formatEUR(order.total_ttc)}</span>
+                <span className="text-gold whitespace-nowrap">{formatEUR(order.total_ttc)}</span>
               </div>
             </div>
 

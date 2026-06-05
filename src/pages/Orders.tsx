@@ -325,17 +325,17 @@ const Orders = () => {
 
                       {/* Mobile Card */}
                       <div className="md:hidden p-4 space-y-3">
-                        <div className="flex justify-between items-start">
+                        <div className="flex justify-between items-start gap-2">
                           <Link to={`/commandes/${o.id}`} className="font-medium text-bordeaux hover:text-gold transition-smooth">
                             {o.reference}
                           </Link>
                           <OrderStatusBadge status={o.status} />
                         </div>
-                        <div className="flex justify-between text-sm">
+                        <div className="flex justify-between text-sm gap-2">
                           <span className="text-bordeaux/50">
                             {new Date(o.created_at).toLocaleDateString("fr-FR")}
                           </span>
-                          <span className="font-serif text-bordeaux">
+                          <span className="font-serif text-bordeaux whitespace-nowrap shrink-0">
                             {formatEUR(Number(o.total_ttc))}
                           </span>
                         </div>
