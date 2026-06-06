@@ -4,7 +4,6 @@ import { useAuth } from "@/context/AuthContext";
 import { useCart } from "@/context/CartContext";
 import { useLang } from "@/context/LanguageContext";
 import { toast } from "@/hooks/use-toast";
-import { Heart } from "lucide-react";
 
 interface Props {
   product: Product;
@@ -63,17 +62,6 @@ const ProductCard = ({ product: p }: Props) => {
               </span>
             )}
           </div>
-          <button
-            type="button"
-            aria-label={t("common.addToFavorites") || "Ajouter aux favoris"}
-            onClick={(e) => {
-              e.preventDefault();
-              toast({ title: t("common.addedToFavorites") || "Ajouté à vos favoris", description: p.name });
-            }}
-            className="absolute top-4 right-4 h-9 w-9 rounded-full bg-ivory/90 flex items-center justify-center text-bordeaux hover:text-gold hover:bg-ivory transition-smooth"
-          >
-            <Heart className="h-4 w-4" />
-          </button>
           {!isOutOfStock && (
             <div className="absolute inset-x-0 bottom-0 translate-y-full group-hover:translate-y-0 transition-smooth">
               <button
