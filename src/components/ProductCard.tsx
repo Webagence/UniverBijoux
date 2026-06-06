@@ -92,25 +92,33 @@ const ProductCard = ({ product: p }: Props) => {
             {p.qualityGrade && <span className="ml-1 text-gold">({p.qualityGrade})</span>}
           </p>
           <h3 className="font-serif text-lg text-bordeaux">{p.name}</h3>
-          <div className="flex items-baseline gap-2">
-            {p.salePriceHT ? (
-              <>
-                <span className="text-red-600 font-medium">{formatEUR(p.salePriceHT)} HT</span>
-                <span className="text-bordeaux/40 text-xs line-through">{formatEUR(p.priceHT)}</span>
-              </>
-            ) : (
-              <span className="text-bordeaux font-medium">{formatEUR(p.priceHT)} HT</span>
-            )}
-            <span className="text-bordeaux/40 text-xs">
-              {t("common.min") || "Min."} {p.moq} {t("common.pcs") || "pcs"}
-            </span>
-          </div>
-          <p className="text-[11px] text-bordeaux/50">
-            {t("common.recommendedPrice") || "PVC conseillé"} : {formatEUR(p.retailTTC)} TTC
-          </p>
-          <p className="text-[10px] text-bordeaux/40">
-            {t("common.stock") || "Stock"} : {p.stock} {t("common.pcs") || "pcs"}
-          </p>
+          {user ? (
+            <>
+              <div className="flex items-baseline gap-2">
+                {p.salePriceHT ? (
+                  <>
+                    <span className="text-red-600 font-medium">{formatEUR(p.salePriceHT)} HT</span>
+                    <span className="text-bordeaux/40 text-xs line-through">{formatEUR(p.priceHT)}</span>
+                  </>
+                ) : (
+                  <span className="text-bordeaux font-medium">{formatEUR(p.priceHT)} HT</span>
+                )}
+                <span className="text-bordeaux/40 text-xs">
+                  {t("common.min") || "Min."} {p.moq} {t("common.pcs") || "pcs"}
+                </span>
+              </div>
+              <p className="text-[11px] text-bordeaux/50">
+                {t("common.recommendedPrice") || "PVC conseillé"} : {formatEUR(p.retailTTC)} TTC
+              </p>
+              <p className="text-[10px] text-bordeaux/40">
+                {t("common.stock") || "Stock"} : {p.stock} {t("common.pcs") || "pcs"}
+              </p>
+            </>
+          ) : (
+            <p className="text-[11px] text-bordeaux/50 italic">
+              {t("product.login_to_see_price")}
+            </p>
+          )}
         </div>
       </Link>
     </article>

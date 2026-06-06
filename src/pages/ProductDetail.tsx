@@ -89,25 +89,31 @@ const ProductDetail = () => {
               <h1 className="font-serif text-4xl md:text-5xl text-bordeaux">{product.name}</h1>
             </div>
 
-            <div className="space-y-1">
-              <div className="flex items-baseline gap-3">
-                {product.salePriceHT ? (
-                  <>
-                    <span className="font-serif text-3xl text-red-600">{formatEUR(product.salePriceHT)}</span>
-                    <span className="text-lg text-bordeaux/40 line-through">{formatEUR(product.priceHT)}</span>
-                    <span className="text-xs tracking-luxe uppercase text-bordeaux/50">{t("product.ht_per_piece")}</span>
-                  </>
-                ) : (
-                  <>
-                    <span className="font-serif text-3xl text-bordeaux">{formatEUR(product.priceHT)}</span>
-                    <span className="text-xs tracking-luxe uppercase text-bordeaux/50">{t("product.ht_per_piece")}</span>
-                  </>
-                )}
+            {user ? (
+              <div className="space-y-1">
+                <div className="flex items-baseline gap-3">
+                  {product.salePriceHT ? (
+                    <>
+                      <span className="font-serif text-3xl text-red-600">{formatEUR(product.salePriceHT)}</span>
+                      <span className="text-lg text-bordeaux/40 line-through">{formatEUR(product.priceHT)}</span>
+                      <span className="text-xs tracking-luxe uppercase text-bordeaux/50">{t("product.ht_per_piece")}</span>
+                    </>
+                  ) : (
+                    <>
+                      <span className="font-serif text-3xl text-bordeaux">{formatEUR(product.priceHT)}</span>
+                      <span className="text-xs tracking-luxe uppercase text-bordeaux/50">{t("product.ht_per_piece")}</span>
+                    </>
+                  )}
+                </div>
+                <p className="text-sm text-bordeaux/60">
+                  {t("product.recommended_price")} : {formatEUR(product.retailTTC)} TTC
+                </p>
               </div>
-              <p className="text-sm text-bordeaux/60">
-                {t("product.recommended_price")} : {formatEUR(product.retailTTC)} TTC
+            ) : (
+              <p className="text-bordeaux/60 italic text-sm">
+                {t("product.login_to_see_price")}
               </p>
-            </div>
+            )}
 
             <p className="text-bordeaux/70 leading-relaxed">{product.description}</p>
 
