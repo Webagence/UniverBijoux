@@ -265,6 +265,7 @@ const dict = {
     "account.ticket_open": "ticket(s) ouvert(s)",
     "account.no_ticket": "Aucun ticket",
     "account.edit_info": "Modifier les infos",
+    "account.your_discounts": "Vos remises",
     "account.recent_orders": "Commandes récentes",
     "account.view_all": "Voir tout",
     "account.no_orders_yet": "Vous n'avez pas encore passé de commande.",
