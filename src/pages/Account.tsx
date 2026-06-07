@@ -507,8 +507,8 @@ const Account = () => {
 
             {/* Testimonial */}
             <div className="bg-ivory border border-border p-6">
-              <h2 className="font-serif text-lg text-bordeaux mb-4">{t("account.testimonial") || "Votre témoignage"}</h2>
-              <p className="text-xs text-bordeaux/60 mb-4">{t("account.testimonial_desc") || "Partagez votre expérience avec nos produits. Votre témoignage sera visible sur le site après validation."}</p>
+              <h2 className="font-serif text-lg text-bordeaux mb-4">{t("account.testimonial")}</h2>
+              <p className="text-xs text-bordeaux/60 mb-4">{t("account.testimonial_desc")}</p>
               <form onSubmit={async (e) => {
                 e.preventDefault();
                 if (!testimonialQuote.trim()) return;
@@ -545,7 +545,7 @@ const Account = () => {
               </form>
               {testimonials.length > 0 && (
                 <div className="mt-6 space-y-3 border-t border-border pt-6">
-                  <p className="text-[11px] tracking-luxe uppercase text-bordeaux/50">{t("account.my_testimonials") || "Mes témoignages"}</p>
+                  <p className="text-[11px] tracking-luxe uppercase text-bordeaux/50">{t("account.my_testimonials")}</p>
                   {testimonials.map((t) => (
                     <div key={t.id} className="flex items-start gap-3 p-3 bg-cream/50">
                       <p className="text-sm text-bordeaux flex-1 italic">"{t.quote}"</p>
