@@ -88,7 +88,7 @@ const Checkout = () => {
       carrier,
       notes,
       discountCode: appliedDiscount?.code || null,
-      autoDiscountId: cart.autoDiscountId,
+      autoDiscountId,
     };
 
     sessionStorage.setItem("checkout_data", JSON.stringify(checkoutData));
