@@ -64,6 +64,13 @@ export interface SiteSettings {
   stripePublishableKey?: string;
 }
 
+export interface SubmittedTestimonial {
+  id: string;
+  quote: string;
+  active: boolean;
+  submitted_at: string;
+}
+
 export const contentApi = {
   getHero: async () => {
     const { data } = await api.get('/content/hero');
@@ -128,5 +135,15 @@ export const contentApi = {
   getFAQPageHeader: async () => {
     const { data } = await api.get('/content/faq_page_header');
     return data.content || {};
+  },
+
+  submitTestimonial: async (quote: string) => {
+    const { data } = await api.post('/testimonials', { quote });
+    return data as { message: string; testimonial: SubmittedTestimonial };
+  },
+
+  getMyTestimonials: async () => {
+    const { data } = await api.get('/my-testimonials');
+    return data.testimonials as SubmittedTestimonial[];
   },
 };
