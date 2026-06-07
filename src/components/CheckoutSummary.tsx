@@ -52,13 +52,13 @@ const CheckoutSummary = ({ showShipping = true, showTotal = true, showDiscountIn
 
       {showDiscountInput && (
         <div className="pt-4 border-t border-border">
-          {appliedDiscount ? (
+          {appliedDiscount && (discountHt > 0 || appliedDiscount.type === "free_shipping") ? (
             <div className="flex items-center justify-between bg-green-50 border border-green-200 p-3 rounded-lg">
               <div className="flex items-center gap-2">
                 <Tag className="w-4 h-4 text-green-600" />
                 <div>
-                  <p className="text-sm font-medium text-green-800">{appliedDiscount.code}</p>
-                  <p className="text-xs text-green-600">-{formatEUR(appliedDiscount.amount_ht)} HT</p>
+                  <p className="text-sm font-medium text-green-800">{appliedDiscount.code || appliedDiscount.name}</p>
+                  <p className="text-xs text-green-600">-{formatEUR(discountHt)} HT</p>
                 </div>
               </div>
               <button onClick={clearDiscount} className="text-green-600 hover:text-green-800">
@@ -92,9 +92,9 @@ const CheckoutSummary = ({ showShipping = true, showTotal = true, showDiscountIn
             <dt className="text-bordeaux/70">{t("cart.subtotal_ht")}</dt>
             <dd>{formatEUR(subtotalHT)}</dd>
           </div>
-          {appliedDiscount && (
+          {appliedDiscount && discountHt > 0 && (
             <div className="flex justify-between text-green-700">
-              <dt>{t("discount.discount")} {appliedDiscount.code}</dt>
+              <dt>{t("discount.discount")} {appliedDiscount.code || appliedDiscount.name}</dt>
               <dd>-{formatEUR(discountHt)}</dd>
             </div>
           )}

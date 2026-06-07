@@ -1,7 +1,8 @@
 import { createContext, useContext, useEffect, useState, ReactNode, useMemo, useCallback } from "react";
 import { Product } from "@/types/product";
 import { useAdmin } from "@/context/AdminContext";
-import { discountApi, type Discount } from "@/services/discountApi";
+import { useAuth } from "@/context/AuthContext";
+import { discountApi, type Discount, type AutoDiscount } from "@/services/discountApi";
 import { toast } from "@/hooks/use-toast";
 
 export interface CartLine {
@@ -24,6 +25,7 @@ interface CartCtx {
   setDiscountCode: (code: string) => void;
   appliedDiscount: Discount | null;
   discountHt: number;
+  autoDiscountId: string | null;
   validateDiscount: () => Promise<void>;
   clearDiscount: () => void;
   validatingDiscount: boolean;
@@ -35,10 +37,12 @@ const DISCOUNT_KEY = "ml_discount";
 
 export const CartProvider = ({ children }: { children: ReactNode }) => {
   const { products } = useAdmin();
+  const { user } = useAuth();
   const [lines, setLines] = useState<CartLine[]>([]);
   const [discountCode, setDiscountCode] = useState("");
   const [appliedDiscount, setAppliedDiscount] = useState<Discount | null>(null);
   const [validatingDiscount, setValidatingDiscount] = useState(false);
+  const [autoDiscountId, setAutoDiscountId] = useState<string | null>(null);
 
   useEffect(() => {
     try {
@@ -48,6 +52,26 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       /* ignore */
     }
   }, []);
+
+  useEffect(() => {
+    if (!user || appliedDiscount) return;
+    (async () => {
+      try {
+        const auto = await discountApi.getMyDiscounts();
+        if (auto.length > 0) {
+          const best = auto.reduce((a, b) => {
+            const va = a.type === "percentage" ? a.value : a.value;
+            const vb = b.type === "percentage" ? b.value : b.value;
+            return va >= vb ? a : b;
+          });
+          setAppliedDiscount({ ...best, amount_ht: 0 });
+          setAutoDiscountId(best.id);
+        }
+      } catch {
+        /* non-critical */
+      }
+    })();
+  }, [user]);
 
   useEffect(() => {
     localStorage.setItem(KEY, JSON.stringify(lines));
@@ -98,6 +122,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     setLines([]);
     setDiscountCode("");
     setAppliedDiscount(null);
+    setAutoDiscountId(null);
   };
 
   const { itemCount, subtotalHT, discountHt, vat, totalTTC } = useMemo(() => {
@@ -111,7 +136,14 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       sub += price * l.quantity;
     });
 
-    const dh = appliedDiscount?.amount_ht ?? 0;
+    let dh = appliedDiscount?.amount_ht ?? 0;
+    if (appliedDiscount && appliedDiscount.code === null && dh === 0) {
+      if (appliedDiscount.type === "percentage") {
+        dh = +((sub * appliedDiscount.value) / 100).toFixed(2);
+      } else if (appliedDiscount.type === "fixed") {
+        dh = appliedDiscount.value;
+      }
+    }
     const v = +(((sub - dh) * 0.2)).toFixed(2);
     return {
       itemCount: count,
@@ -174,6 +206,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const clearDiscount = () => {
     setDiscountCode("");
     setAppliedDiscount(null);
+    setAutoDiscountId(null);
     localStorage.removeItem(DISCOUNT_KEY);
   };
 
@@ -194,6 +227,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         setDiscountCode,
         appliedDiscount,
         discountHt,
+        autoDiscountId,
         validateDiscount,
         clearDiscount,
         validatingDiscount,

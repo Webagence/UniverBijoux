@@ -17,7 +17,7 @@ const CARRIER_OPTIONS = [
 ];
 
 const Checkout = () => {
-  const { lines, subtotalHT, appliedDiscount, discountHt } = useCart();
+  const { lines, subtotalHT, appliedDiscount, discountHt, autoDiscountId } = useCart();
   const { user, profile } = useAuth();
   const { t } = useLang();
   const navigate = useNavigate();
@@ -88,6 +88,7 @@ const Checkout = () => {
       carrier,
       notes,
       discountCode: appliedDiscount?.code || null,
+      autoDiscountId: cart.autoDiscountId,
     };
 
     sessionStorage.setItem("checkout_data", JSON.stringify(checkoutData));

@@ -25,6 +25,7 @@ interface CheckoutData {
   carrier: string;
   notes: string;
   discountCode: string | null;
+  autoDiscountId: string | null;
 }
 
 const CheckoutForm = ({ clientSecret, orderId, orderReference, amount, onSuccess }: {
@@ -184,6 +185,7 @@ const StripeCheckout = () => {
           carrier: checkoutData?.carrier || "colissimo",
           notes: checkoutData?.notes || "",
           discount_code: checkoutData?.discountCode || undefined,
+          auto_discount_id: checkoutData?.autoDiscountId || undefined,
         });
 
         setClientSecret(result.clientSecret);
