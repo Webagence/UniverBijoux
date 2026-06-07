@@ -87,12 +87,10 @@ const Hero = () => {
             <img
               src={hero.image}
               alt="Collection de bijoux Maison Lune"
-              width={1600}
-              height={1024}
-              className="relative w-full h-[300px] sm:h-[400px] md:h-[500px] lg:h-[640px] object-cover shadow-elegant"
+              className="relative w-full h-auto shadow-elegant"
             />
           ) : (
-            <div className="w-full h-[300px] sm:h-[400px] md:h-[500px] lg:h-[640px] bg-bordeaux/5" />
+            <div className="w-full aspect-[16/9] bg-bordeaux/5" />
           )}
           {hero.quote && (
             <div className="absolute bottom-6 left-6 bg-ivory/90 backdrop-blur-sm px-5 py-3 shadow-soft">
