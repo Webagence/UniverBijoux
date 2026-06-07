@@ -11,7 +11,6 @@ import { useLang } from "@/context/LanguageContext";
 import { orderApi } from "@/services/orderApi";
 import { ticketApi } from "@/services/ticketApi";
 import { authApi } from "@/services/authApi";
-import { contentApi, SubmittedTestimonial } from "@/services/contentApi";
 import { toast } from "@/hooks/use-toast";
 import { formatEUR } from "@/types/product";
 import {
@@ -62,9 +61,6 @@ const Account = () => {
   const [tickets, setTickets] = useState<TicketRow[]>([]);
   const [busy, setBusy] = useState(true);
   const [editing, setEditing] = useState(params.get("edit") === "profile");
-  const [testimonials, setTestimonials] = useState<SubmittedTestimonial[]>([]);
-  const [testimonialQuote, setTestimonialQuote] = useState("");
-  const [submittingTestimonial, setSubmittingTestimonial] = useState(false);
 
   useEffect(() => {
     setEditing(params.get("edit") === "profile");
@@ -112,10 +108,6 @@ const Account = () => {
         ]);
         setOrders(ordersData.data || []);
         setTickets(ticketsData.data || []);
-        try {
-          const myTestimonials = await contentApi.getMyTestimonials();
-          setTestimonials(myTestimonials || []);
-        } catch {} // non-critical
       } catch (err) {
         console.error("Failed to load dashboard data:", err);
       } finally {
@@ -503,61 +495,6 @@ const Account = () => {
                   </p>
                 </div>
               </div>
-            </div>
-
-            {/* Testimonial */}
-            <div className="bg-ivory border border-border p-6">
-              <h2 className="font-serif text-lg text-bordeaux mb-4">{t("account.testimonial")}</h2>
-              <p className="text-xs text-bordeaux/60 mb-4">{t("account.testimonial_desc")}</p>
-              <form onSubmit={async (e) => {
-                e.preventDefault();
-                if (!testimonialQuote.trim()) return;
-                setSubmittingTestimonial(true);
-                try {
-                  const res = await contentApi.submitTestimonial(testimonialQuote.trim());
-                  setTestimonials((prev) => [res.testimonial, ...prev]);
-                  setTestimonialQuote("");
-                  toast({ title: "Témoignage envoyé", description: "Il sera visible après validation par l'équipe." });
-                } catch {
-                  toast({ title: "Erreur", description: "Impossible d'envoyer votre témoignage.", variant: "destructive" });
-                } finally {
-                  setSubmittingTestimonial(false);
-                }
-              }} className="space-y-4">
-                <textarea
-                  value={testimonialQuote}
-                  onChange={(e) => setTestimonialQuote(e.target.value)}
-                  maxLength={1000}
-                  rows={4}
-                  placeholder="Écrivez votre témoignage ici…"
-                  className="w-full bg-transparent border border-border px-4 py-3 text-sm focus:outline-none focus:border-gold resize-none"
-                />
-                <div className="flex items-center justify-between">
-                  <span className="text-[10px] text-bordeaux/40">{testimonialQuote.length}/1000</span>
-                  <button
-                    type="submit"
-                    disabled={submittingTestimonial || !testimonialQuote.trim()}
-                    className="bg-bordeaux text-ivory px-6 py-2.5 text-xs tracking-luxe uppercase hover:bg-gold transition-smooth disabled:opacity-50"
-                  >
-                    {submittingTestimonial ? "Envoi…" : "Envoyer"}
-                  </button>
-                </div>
-              </form>
-              {testimonials.length > 0 && (
-                <div className="mt-6 space-y-3 border-t border-border pt-6">
-                  <p className="text-[11px] tracking-luxe uppercase text-bordeaux/50">{t("account.my_testimonials")}</p>
-                  {testimonials.map((t) => (
-                    <div key={t.id} className="flex items-start gap-3 p-3 bg-cream/50">
-                      <p className="text-sm text-bordeaux flex-1 italic">"{t.quote}"</p>
-                      <span className={`text-[10px] tracking-luxe uppercase px-2 py-0.5 shrink-0 mt-0.5 ${
-                        t.active ? "bg-green-100 text-green-700" : "bg-amber-100 text-amber-700"
-                      }`}>
-                        {t.active ? "Approuvé" : "En attente"}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              )}
             </div>
 
             {/* Logout */}

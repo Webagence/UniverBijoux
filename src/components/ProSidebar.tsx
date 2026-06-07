@@ -6,6 +6,7 @@ import {
   Ticket,
   Settings,
   ShoppingCart,
+  Star,
   ChevronRight,
 } from "lucide-react";
 
@@ -18,6 +19,7 @@ const ProSidebar = () => {
     { icon: Package, label: t("pro.orders"), shortLabel: t("pro.orders"), to: "/commandes" },
     { icon: Ticket, label: t("pro.support"), shortLabel: t("pro.support"), to: "/support" },
     { icon: ShoppingCart, label: t("pro.catalog"), shortLabel: t("pro.catalog"), to: "/boutique" },
+    { icon: Star, label: t("pro.testimonial") || "Témoignage", shortLabel: t("pro.testimonial") || "Témoignage", to: "/temoignages" },
     { icon: Settings, label: t("pro.profile"), shortLabel: t("pro.profile"), to: "/compte?edit=profile" },
   ];
 

@@ -31,6 +31,7 @@ import FAQ from "./pages/FAQ.tsx";
 import Shipping from "./pages/Shipping.tsx";
 import Support from "./pages/Support.tsx";
 import TicketDetail from "./pages/TicketDetail.tsx";
+import MyTestimonials from "./pages/MyTestimonials.tsx";
 import StripeCheckout from "./pages/StripeCheckout.tsx";
 import PaymentSuccess from "./pages/PaymentSuccess.tsx";
 import PaymentFailed from "./pages/PaymentFailed.tsx";
@@ -73,6 +74,7 @@ const App = () => (
                   <Route path="/livraison" element={<Shipping />} />
                   <Route path="/support" element={<Support />} />
                   <Route path="/support/:id" element={<TicketDetail />} />
+                  <Route path="/temoignages" element={<MyTestimonials />} />
 
                   <Route path="*" element={<NotFound />} />
                 </Routes>
