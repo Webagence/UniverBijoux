@@ -11,6 +11,7 @@ import { useLang } from "@/context/LanguageContext";
 import { orderApi } from "@/services/orderApi";
 import { ticketApi } from "@/services/ticketApi";
 import { authApi } from "@/services/authApi";
+import { discountApi, type AutoDiscount } from "@/services/discountApi";
 import { toast } from "@/hooks/use-toast";
 import { formatEUR } from "@/types/product";
 import {
@@ -60,6 +61,7 @@ const Account = () => {
   const [orders, setOrders] = useState<OrderRow[]>([]);
   const [tickets, setTickets] = useState<TicketRow[]>([]);
   const [busy, setBusy] = useState(true);
+  const [discounts, setDiscounts] = useState<AutoDiscount[]>([]);
   const [editing, setEditing] = useState(params.get("edit") === "profile");
 
   useEffect(() => {
@@ -102,12 +104,14 @@ const Account = () => {
     (async () => {
       setBusy(true);
       try {
-        const [ordersData, ticketsData] = await Promise.all([
+        const [ordersData, ticketsData, discountsData] = await Promise.all([
           orderApi.getAll(),
           ticketApi.getAll(),
+          discountApi.getMyDiscounts().catch(() => null),
         ]);
         setOrders(ordersData.data || []);
         setTickets(ticketsData.data || []);
+        if (discountsData) setDiscounts(discountsData);
       } catch (err) {
         console.error("Failed to load dashboard data:", err);
       } finally {
@@ -378,6 +382,61 @@ const Account = () => {
                 </button>
               </div>
             </div>
+
+            {/* Discounts Section */}
+            {discounts.length > 0 && (
+              <div className="bg-ivory border border-border p-6">
+                <h2 className="font-serif text-lg text-bordeaux mb-4">{t("account.your_discounts") || "Vos remises"}</h2>
+                <div className="space-y-3">
+                  {discounts.map((d) => {
+                    const used = d.used_count || 0;
+                    const max = d.max_uses || 0;
+                    const remaining = max > 0 ? max - used : null;
+                    const active = d.active ?? true;
+                    return (
+                      <div
+                        key={d.id}
+                        className={`flex items-center justify-between p-4 border ${
+                          active ? "border-green-200 bg-green-50" : "border-gray-200 bg-gray-50"
+                        }`}
+                      >
+                        <div className="flex items-center gap-4">
+                          <div className={`h-10 w-10 flex items-center justify-center ${
+                            active ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-400"
+                          }`}>
+                            <span className="text-lg font-bold">%</span>
+                          </div>
+                          <div>
+                            <p className={`font-medium ${active ? "text-green-800" : "text-gray-500"}`}>
+                              {d.name} — {d.type === "percentage"
+                                ? `${d.value}%`
+                                : `${Number(d.value).toFixed(2)} €`}
+                            </p>
+                            <p className={`text-xs ${active ? "text-green-700" : "text-gray-400"}`}>
+                              {d.code ? `Code: ${d.code}` : "Remise automatique"}
+                              {d.min_cart_amount > 0 && ` · Min. ${Number(d.min_cart_amount).toFixed(2)} € HT`}
+                              {d.max_discount_amount > 0 && ` · Max. ${Number(d.max_discount_amount).toFixed(2)} €`}
+                              {remaining !== null && ` · ${remaining} utilisation(s) restante(s)`}
+                            </p>
+                            {d.valid_from && d.valid_until && (
+                              <p className={`text-[10px] ${active ? "text-green-600" : "text-gray-400"}`}>
+                                Du {new Date(d.valid_from).toLocaleDateString("fr-FR")} au{" "}
+                                {new Date(d.valid_until).toLocaleDateString("fr-FR")}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                        <div className={`text-xs font-medium px-3 py-1 rounded-full ${
+                          active ? "bg-green-200 text-green-800" : "bg-gray-200 text-gray-600"
+                        }`}>
+                          {active ? "Active" : "Inactive"}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
 
             {/* Recent Orders */}
             <div className="bg-ivory border border-border">
