@@ -130,7 +130,11 @@ const Footer = () => {
 
       <div className="border-t border-ivory/10">
         <div className="container py-6 flex flex-col sm:flex-row justify-between items-center gap-3 text-xs text-ivory/50">
-          <p>{t("footer.copyright")}{settings.siret ? ` · SIRET ${settings.siret}` : ""}</p>
+          <p>
+            © {new Date().getFullYear()} {settings.siteName}
+            {settings.footerBrand && ` · ${settings.footerBrand}`}
+            {settings.siret && ` · SIRET ${settings.siret}`}
+          </p>
           <div className="flex gap-6">
             <Link to="/mentions-legales" className="hover:text-ivory transition-smooth">{t("footer.legal")}</Link>
             <Link to="/cgv" className="hover:text-ivory transition-smooth">{t("footer.cgv")}</Link>
