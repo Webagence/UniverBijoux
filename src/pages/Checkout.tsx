@@ -249,7 +249,7 @@ const Checkout = () => {
           </div>
 
           <div className="md:sticky md:top-28 lg:sticky lg:top-28 h-fit">
-            <CheckoutSummary showDiscountInput />
+            <CheckoutSummary showDiscountInput carrierPrice={selectedCarrier?.price ?? null} />
           </div>
         </div>
       </section>

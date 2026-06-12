@@ -9,9 +9,10 @@ interface CheckoutSummaryProps {
   showShipping?: boolean;
   showTotal?: boolean;
   showDiscountInput?: boolean;
+  carrierPrice?: number | null;
 }
 
-const CheckoutSummary = ({ showShipping = true, showTotal = true, showDiscountInput = false }: CheckoutSummaryProps) => {
+const CheckoutSummary = ({ showShipping = true, showTotal = true, showDiscountInput = false, carrierPrice }: CheckoutSummaryProps) => {
   const { lines, getProduct, subtotalHT, vat, totalTTC, discountCode, setDiscountCode, appliedDiscount, discountHt, validateDiscount, clearDiscount, validatingDiscount } = useCart();
   const { settings } = useAdmin();
   const { t } = useLang();
@@ -19,8 +20,8 @@ const CheckoutSummary = ({ showShipping = true, showTotal = true, showDiscountIn
   if (!settings) return <div className="bg-cream p-4 sm:p-6 animate-pulse space-y-4"><div className="h-6 w-32 bg-bordeaux/10 rounded" /><div className="h-4 w-full bg-bordeaux/10 rounded" /><div className="h-4 w-3/4 bg-bordeaux/10 rounded" /></div>;
 
   const freeShippingThreshold = Number(settings.freeShippingFrom);
-  const defaultShippingPrice = Number(settings.defaultShippingPrice) || 15;
-  const shippingHT = subtotalHT >= freeShippingThreshold ? 0 : defaultShippingPrice;
+  const basePrice = carrierPrice ?? (Number(settings.defaultShippingPrice) || 15);
+  const shippingHT = subtotalHT >= freeShippingThreshold ? 0 : basePrice;
 
   const finalShippingHT = appliedDiscount?.type === 'free_shipping' ? 0 : shippingHT;
   const finalTotalTTC = totalTTC + finalShippingHT;
