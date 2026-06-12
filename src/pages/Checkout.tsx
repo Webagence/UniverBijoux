@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Layout from "@/components/Layout";
 import PageHeader from "@/components/PageHeader";
@@ -9,12 +9,15 @@ import { toast } from "@/hooks/use-toast";
 import AddressForm, { type AddressFormData } from "@/components/AddressForm";
 import CheckoutSummary from "@/components/CheckoutSummary";
 import { ChevronRight, MapPin, FileText } from "lucide-react";
+import api from "@/services/api";
 
-const CARRIER_OPTIONS = [
-  { id: "colissimo", name: "Colissimo", price: 15, delay: "3-5 jours ouvrés" },
-  { id: "chronopost", name: "Chronopost", price: 25, delay: "1-2 jours ouvrés" },
-  { id: "mondial_relay", name: "Mondial Relay", price: 8, delay: "4-6 jours ouvrés" },
-];
+interface CarrierOption {
+  id: string;
+  name: string;
+  carrier_name: string;
+  price: number;
+  delay: string;
+}
 
 const Checkout = () => {
   const { lines, subtotalHT, appliedDiscount, discountHt, autoDiscountId } = useCart();
@@ -31,9 +34,24 @@ const Checkout = () => {
     postal_code: profile?.postal_code || "",
     country: profile?.country || "France",
   });
-  const [carrier, setCarrier] = useState("colissimo");
+  const [carriers, setCarriers] = useState<CarrierOption[]>([]);
+  const [carrier, setCarrier] = useState("");
   const [notes, setNotes] = useState("");
   const [acceptTerms, setAcceptTerms] = useState(false);
+
+  useEffect(() => {
+    api.get("/carriers").then((res) => {
+      const data: CarrierOption[] = res.data;
+      setCarriers(data);
+      if (data.length > 0 && !carrier) {
+        setCarrier(data[0].id);
+      }
+    }).catch(() => {
+      const fallback: CarrierOption[] = [{ id: "colissimo", name: "Colissimo", carrier_name: "Colissimo", price: 15, delay: "3-5 jours ouvrés" }];
+      setCarriers(fallback);
+      setCarrier("colissimo");
+    });
+  }, []);
 
   if (!user) {
     navigate("/connexion?redirect=/checkout");
@@ -86,6 +104,7 @@ const Checkout = () => {
     const checkoutData = {
       address,
       carrier,
+      carrierName: selectedCarrier?.name || carrier,
       notes,
       discountCode: appliedDiscount?.code || null,
       autoDiscountId,
@@ -95,7 +114,7 @@ const Checkout = () => {
     navigate("/paiement");
   };
 
-  const selectedCarrier = CARRIER_OPTIONS.find((c) => c.id === carrier);
+  const selectedCarrier = carriers.find((c) => c.id === carrier);
 
   return (
     <Layout>
@@ -159,9 +178,8 @@ const Checkout = () => {
                 <div className="bg-ivory border border-border p-6 space-y-4">
                   <h2 className="font-serif text-xl text-bordeaux">{t("checkout.carrier")}</h2>
                 <div className="space-y-3">
-                  {CARRIER_OPTIONS.map((option) => {
-                    const freeShippingThreshold = 300;
-                    const isFree = subtotalHT >= freeShippingThreshold || appliedDiscount?.type === 'free_shipping';
+                  {carriers.map((option) => {
+                    const isFree = appliedDiscount?.type === 'free_shipping';
                     return (
                       <label
                         key={option.id}

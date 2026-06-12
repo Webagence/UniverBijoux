@@ -258,7 +258,7 @@ const StripeCheckout = () => {
                     <Truck className="w-4 h-4 text-bordeaux/50 mt-0.5" />
                     <div className="text-sm text-bordeaux/70">
                       <p className="font-medium text-bordeaux">{t("checkout.carrier")}</p>
-                      <p>{checkoutData.carrier === "colissimo" ? "Colissimo" : checkoutData.carrier === "chronopost" ? "Chronopost" : "Mondial Relay"}</p>
+                      <p>{checkoutData.carrierName || checkoutData.carrier}</p>
                       {checkoutData.notes && (
                         <>
                           <p className="mt-2 font-medium text-bordeaux">{t("checkout.notes")}</p>

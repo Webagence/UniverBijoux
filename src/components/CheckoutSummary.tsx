@@ -19,7 +19,8 @@ const CheckoutSummary = ({ showShipping = true, showTotal = true, showDiscountIn
   if (!settings) return <div className="bg-cream p-4 sm:p-6 animate-pulse space-y-4"><div className="h-6 w-32 bg-bordeaux/10 rounded" /><div className="h-4 w-full bg-bordeaux/10 rounded" /><div className="h-4 w-3/4 bg-bordeaux/10 rounded" /></div>;
 
   const freeShippingThreshold = Number(settings.freeShippingFrom);
-  const shippingHT = subtotalHT >= freeShippingThreshold ? 0 : 15;
+  const defaultShippingPrice = Number(settings.defaultShippingPrice) || 15;
+  const shippingHT = subtotalHT >= freeShippingThreshold ? 0 : defaultShippingPrice;
 
   const finalShippingHT = appliedDiscount?.type === 'free_shipping' ? 0 : shippingHT;
   const finalTotalTTC = totalTTC + finalShippingHT;
