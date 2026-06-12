@@ -4,6 +4,7 @@ export interface ShippingboSettings {
   client_id: string;
   client_secret: string | null;
   app_id: string;
+  webhook_secret: string | null;
   is_connected: boolean;
   token_expires_at: string;
   webhook_url: string;
