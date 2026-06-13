@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import Layout from "@/components/Layout";
 import PageHeader from "@/components/PageHeader";
@@ -7,18 +7,15 @@ import { useCart } from "@/context/CartContext";
 import { useLang } from "@/context/LanguageContext";
 import { formatEUR } from "@/types/product";
 import { productApi, type Product } from "@/services/productApi";
-import { Search, ShoppingCart, Check, Minus, Plus, Package } from "lucide-react";
+import { catalogApi, type ImportedSelection } from "@/services/catalogApi";
+import { Search, ShoppingCart, Download, Upload, X, Loader2, Check, Minus, Plus, Package } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
-
-interface Selection {
-  productId: string;
-  quantity: number;
-}
 
 const CatalogOrder = () => {
   const { lines, addItem, clear } = useCart();
   const { t } = useLang();
   const navigate = useNavigate();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -26,6 +23,9 @@ const CatalogOrder = () => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [selections, setSelections] = useState<Record<string, number>>({});
+  const [showImportModal, setShowImportModal] = useState(false);
+  const [importedSelections, setImportedSelections] = useState<ImportedSelection[]>([]);
+  const [importLoading, setImportLoading] = useState(false);
 
   useEffect(() => {
     setLoading(true);
@@ -93,6 +93,45 @@ const CatalogOrder = () => {
     navigate("/checkout");
   };
 
+  const handleDownload = async () => {
+    try {
+      await catalogApi.downloadExcel();
+      toast({ title: "Catalogue téléchargé" });
+    } catch {
+      toast({ title: "Erreur lors du téléchargement", variant: "destructive" });
+    }
+  };
+
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setImportLoading(true);
+    try {
+      const res = await catalogApi.importExcel(file);
+      setImportedSelections(res.selections);
+      setShowImportModal(true);
+    } catch {
+      toast({ title: "Erreur lors de l'import du fichier", variant: "destructive" });
+    } finally {
+      setImportLoading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
+
+  const handleApplyImport = () => {
+    const newSelections: Record<string, number> = { ...selections };
+    for (const s of importedSelections) {
+      newSelections[s.productId] = s.quantity;
+    }
+    setSelections(newSelections);
+    setShowImportModal(false);
+    setImportedSelections([]);
+    toast({ title: `${importedSelections.length} produit(s) ajouté(s) à la sélection` });
+  };
+
+  const importTotal = importedSelections.reduce((sum, s) => sum + s.price_ht * s.quantity, 0);
+
   return (
     <Layout>
       <PageHeader
@@ -105,8 +144,8 @@ const CatalogOrder = () => {
           <ProSidebar />
 
           <div className="flex-1 min-w-0 space-y-6">
-            <div className="flex items-center gap-4">
-              <div className="relative flex-1">
+            <div className="flex flex-wrap items-center gap-3">
+              <div className="relative flex-1 min-w-[200px]">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-bordeaux/40" />
                 <input
                   type="text"
@@ -116,6 +155,37 @@ const CatalogOrder = () => {
                   className="w-full pl-10 pr-4 py-2.5 border border-border bg-cream text-sm focus:outline-none focus:ring-1 focus:ring-bordeaux"
                 />
               </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={handleDownload}
+                  className="flex items-center gap-2 px-4 py-2.5 border border-border bg-ivory text-xs tracking-luxe uppercase text-bordeaux hover:bg-cream transition-smooth"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  Télécharger Excel
+                </button>
+
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".xlsx,.xls"
+                  onChange={handleFileSelect}
+                  className="hidden"
+                />
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={importLoading}
+                  className="flex items-center gap-2 px-4 py-2.5 border border-border bg-ivory text-xs tracking-luxe uppercase text-bordeaux hover:bg-cream transition-smooth disabled:opacity-50"
+                >
+                  {importLoading ? (
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  ) : (
+                    <Upload className="w-3.5 h-3.5" />
+                  )}
+                  Importer
+                </button>
+              </div>
+
               {selectedCount > 0 && (
                 <button
                   onClick={() => setSelections({})}
@@ -361,6 +431,76 @@ const CatalogOrder = () => {
               <ShoppingCart className="w-4 h-4" />
               {t("catalog_order.validate")}
             </button>
+          </div>
+        </div>
+      )}
+
+      {showImportModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="bg-ivory w-full max-w-2xl max-h-[80vh] flex flex-col">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-border">
+              <h3 className="text-sm tracking-luxe uppercase text-bordeaux">
+                Aperçu de l'import ({importedSelections.length} produit{importedSelections.length > 1 ? "s" : ""})
+              </h3>
+              <button
+                onClick={() => { setShowImportModal(false); setImportedSelections([]); }}
+                className="text-bordeaux/40 hover:text-bordeaux"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-auto px-6 py-4">
+              {importedSelections.length === 0 ? (
+                <p className="text-center text-bordeaux/60 py-10">Aucun produit avec quantité valide trouvé dans le fichier</p>
+              ) : (
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="text-xs tracking-luxe uppercase text-bordeaux/60 border-b border-border">
+                      <th className="text-left pb-2">Réf.</th>
+                      <th className="text-left pb-2">Nom</th>
+                      <th className="text-right pb-2">Qté</th>
+                      <th className="text-right pb-2">Prix HT</th>
+                      <th className="text-right pb-2">Total HT</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {importedSelections.map((s) => (
+                      <tr key={s.productId} className="border-b border-border/50">
+                        <td className="py-2 pr-4 text-bordeaux/70 text-xs">{s.reference}</td>
+                        <td className="py-2 pr-4 text-bordeaux">{s.name}</td>
+                        <td className="py-2 pr-4 text-right font-medium">{s.quantity}</td>
+                        <td className="py-2 pr-4 text-right">{formatEUR(s.price_ht)}</td>
+                        <td className="py-2 text-right font-medium">{formatEUR(s.price_ht * s.quantity)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                  <tfoot>
+                    <tr className="font-medium text-bordeaux text-sm">
+                      <td colSpan={4} className="pt-3 text-right">Total</td>
+                      <td className="pt-3 text-right">{formatEUR(importTotal)} HT</td>
+                    </tr>
+                  </tfoot>
+                </table>
+              )}
+            </div>
+
+            <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-border">
+              <button
+                onClick={() => { setShowImportModal(false); setImportedSelections([]); }}
+                className="px-4 py-2 text-xs tracking-luxe uppercase text-bordeaux/70 hover:text-bordeaux border border-border"
+              >
+                Annuler
+              </button>
+              <button
+                onClick={handleApplyImport}
+                disabled={importedSelections.length === 0}
+                className="flex items-center gap-2 px-6 py-2 bg-bordeaux text-ivory text-xs tracking-luxe uppercase hover:bg-gold transition-smooth disabled:opacity-50"
+              >
+                <Check className="w-4 h-4" />
+                Ajouter à la sélection
+              </button>
+            </div>
           </div>
         </div>
       )}
