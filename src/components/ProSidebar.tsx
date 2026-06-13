@@ -7,6 +7,7 @@ import {
   Settings,
   ShoppingCart,
   Star,
+  ClipboardList,
   ChevronRight,
 } from "lucide-react";
 
@@ -17,6 +18,7 @@ const ProSidebar = () => {
   const navItems = [
     { icon: LayoutDashboard, label: t("pro.dashboard"), shortLabel: t("pro.home"), to: "/compte" },
     { icon: Package, label: t("pro.orders"), shortLabel: t("pro.orders"), to: "/commandes" },
+    { icon: ClipboardList, label: t("pro.catalog_order"), shortLabel: t("pro.catalog_order"), to: "/commande/catalogue" },
     { icon: Ticket, label: t("pro.support"), shortLabel: t("pro.support"), to: "/support" },
     { icon: ShoppingCart, label: t("pro.catalog"), shortLabel: t("pro.catalog"), to: "/boutique" },
     { icon: Star, label: t("pro.testimonial") || "Témoignage", shortLabel: t("pro.testimonial") || "Témoignage", to: "/temoignages" },
