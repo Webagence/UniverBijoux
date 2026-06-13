@@ -6,7 +6,8 @@ import ProSidebar from "@/components/ProSidebar";
 import { useCart } from "@/context/CartContext";
 import { useLang } from "@/context/LanguageContext";
 import { formatEUR } from "@/types/product";
-import { productApi, type Product } from "@/services/productApi";
+import { productApi } from "@/services/productApi";
+import type { Product } from "@/types/product";
 import { catalogApi, type ImportedSelection } from "@/services/catalogApi";
 import { Search, ShoppingCart, Download, Upload, X, Loader2, Check, Minus, Plus, Package } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
@@ -27,11 +28,38 @@ const CatalogOrder = () => {
   const [importedSelections, setImportedSelections] = useState<ImportedSelection[]>([]);
   const [importLoading, setImportLoading] = useState(false);
 
+  const toCamelCase = (row: any): Product => {
+    const universeSlug = row.universe?.slug ?? "colliers";
+    const imgs = Array.isArray(row.images) ? row.images : [];
+    return {
+      id: row.id,
+      slug: row.slug,
+      name: row.name,
+      universe: universeSlug,
+      universeLabel: row.universe?.name ?? "",
+      priceHT: Number(row.price_ht),
+      salePriceHT: row.sale_price_ht ? Number(row.sale_price_ht) : undefined,
+      retailTTC: row.retail_ttc ? Number(row.retail_ttc) : Number(row.price_ht) * 2.8 * 1.2,
+      moq: row.moq,
+      packSize: row.pack_size,
+      reference: row.reference || "",
+      material: row.material || "",
+      finish: row.finish || "",
+      qualityGrade: row.quality_grade || undefined,
+      description: row.description || "",
+      images: imgs,
+      tag: row.tag || undefined,
+      variations: row.variations || undefined,
+      isNew: row.is_new,
+      stock: row.stock,
+    };
+  };
+
   useEffect(() => {
     setLoading(true);
     productApi.getAll({ page, per_page: 50, search: search || undefined }).then((res) => {
       const data = res.data ?? res.products ?? [];
-      setProducts(data);
+      setProducts(data.map(toCamelCase));
       setTotalPages(res.last_page ?? 1);
     }).catch(() => {
       setProducts([]);

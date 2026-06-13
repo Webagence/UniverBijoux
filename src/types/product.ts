@@ -23,5 +23,7 @@ export interface Product {
   stock: number;
 }
 
-export const formatEUR = (n: number) =>
-  n.toLocaleString("fr-FR", { style: "currency", currency: "EUR", minimumFractionDigits: 2 });
+export const formatEUR = (n: number | undefined | null) => {
+  if (n == null || isNaN(n)) return "0,00 €";
+  return n.toLocaleString("fr-FR", { style: "currency", currency: "EUR", minimumFractionDigits: 2 });
+};
