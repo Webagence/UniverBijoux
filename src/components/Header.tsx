@@ -96,6 +96,10 @@ const Header = () => {
                 {l.label}
               </NavLink>
             ))}
+            <span className="text-bordeaux/20">|</span>
+            <a href="https://francegems.com" className="transition-smooth tracking-wide text-bordeaux/80 hover:text-gold">
+              Portail
+            </a>
           </nav>
 
           <div className="flex items-center gap-5 md:ml-6 text-bordeaux">
@@ -197,6 +201,12 @@ const Header = () => {
                   {l.label}
                 </NavLink>
               ))}
+              <a
+                href="https://francegems.com"
+                className="text-base text-bordeaux hover:text-gold"
+              >
+                Portail
+              </a>
               <div className="h-px bg-border my-2" />
               <div className="flex items-center gap-2 text-[11px] tracking-luxe uppercase">
                 <Globe className="h-[14px] w-[14px] text-bordeaux/60" />

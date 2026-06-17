@@ -27,6 +27,7 @@ const Footer = () => {
       title: t("footer.maison"),
       links: [
         { to: "/atelier", label: t("footer.atelierLink") },
+        { to: "https://francegems.com", label: "Portail" },
         { to: "/inscription", label: t("footer.becomeReseller") },
         { to: "/contact", label: t("footer.contact") },
         { to: "/faq", label: t("footer.faq") },
@@ -119,7 +120,11 @@ const Footer = () => {
             <ul className="space-y-2.5 text-sm text-ivory/70">
               {col.links.map((l) => (
                 <li key={l.to}>
-                  <Link to={l.to} className="hover:text-ivory transition-smooth">{l.label}</Link>
+                  {l.to.startsWith("http") ? (
+                    <a href={l.to} target="_blank" rel="noopener noreferrer" className="hover:text-ivory transition-smooth">{l.label}</a>
+                  ) : (
+                    <Link to={l.to} className="hover:text-ivory transition-smooth">{l.label}</Link>
+                  )}
                 </li>
               ))}
             </ul>
