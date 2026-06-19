@@ -1,6 +1,7 @@
 import axios, { AxiosInstance, InternalAxiosRequestConfig } from 'axios';
+import { getToken, clearToken } from '@/lib/auth';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api';
+const API_URL = import.meta.env.VITE_API_URL || 'https://admin.francegems.com/api';
 
 function detectSite(): string {
   const host = window.location.hostname;
@@ -20,7 +21,7 @@ const api: AxiosInstance = axios.create({
 });
 
 api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
-  const token = localStorage.getItem('auth_token');
+  const token = getToken();
   if (token && config.headers) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -38,8 +39,7 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      localStorage.removeItem('auth_token');
-      // Only redirect if not already on auth pages and user was previously logged in
+      clearToken();
       const currentPath = window.location.pathname;
       const authPaths = ['/connexion', '/inscription', '/'];
       if (!authPaths.includes(currentPath)) {

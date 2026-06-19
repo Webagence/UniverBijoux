@@ -1,4 +1,5 @@
 import api from './api';
+import { saveToken, clearToken } from '@/lib/auth';
 
 export interface ProProfile {
   id: string;
@@ -29,7 +30,7 @@ export const authApi = {
   login: async (email: string, password: string) => {
     const { data } = await api.post('/auth/login', { email, password });
     if (data.token) {
-      localStorage.setItem('auth_token', data.token);
+      saveToken(data.token);
     }
     return data;
   },
@@ -45,7 +46,7 @@ export const authApi = {
   }) => {
     const { data } = await api.post('/auth/register', payload);
     if (data.token) {
-      localStorage.setItem('auth_token', data.token);
+      saveToken(data.token);
     }
     return data;
   },
@@ -54,7 +55,7 @@ export const authApi = {
     try {
       await api.post('/auth/logout');
     } finally {
-      localStorage.removeItem('auth_token');
+      clearToken();
     }
   },
 

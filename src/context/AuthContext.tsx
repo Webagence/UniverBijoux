@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState, ReactNode, useCallback } from "react";
 import { authApi } from "@/services/authApi";
+import { getToken, clearToken } from "@/lib/auth";
 
 const CART_KEY = "ml_cart";
 
@@ -59,7 +60,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   const loadUser = useCallback(async () => {
-    const token = localStorage.getItem('auth_token');
+    const token = getToken();
     if (!token) {
       setLoading(false);
       return;
@@ -71,7 +72,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setProfile(profileData);
       setIsAdmin(userData.roles?.some((r: { name: string }) => r.name === 'admin') ?? false);
     } catch {
-      localStorage.removeItem('auth_token');
+      clearToken();
       setUser(null);
       setProfile(null);
       setIsAdmin(false);
@@ -90,6 +91,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         if (e.newValue) {
           loadUser();
         } else {
+          clearToken();
           setUser(null);
           setProfile(null);
           setIsAdmin(false);
@@ -104,8 +106,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     const onFocus = () => {
-      const token = localStorage.getItem('auth_token');
+      const token = getToken();
       if (!token && user) {
+        clearToken();
         setUser(null);
         setProfile(null);
         setIsAdmin(false);
@@ -167,7 +170,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const logout = async () => {
-    localStorage.removeItem('auth_token');
+    clearToken();
     try {
       await authApi.logout();
     } catch {
